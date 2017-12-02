@@ -17,7 +17,7 @@ sum_half = 0
 half_way = len(sequence) / 2
 length = len(sequence)
 for i in range(length):
-    next_i = int((i + length / 2) % length)
+    next_i = (i + length // 2) % length
     if sequence[i] == sequence[next_i]:
         sum_half += int(sequence[i])
 
