@@ -2011,13 +2011,13 @@ np_o_tri = numpy.array([[int(x) for x in line.split()] for line in data.split('\
 
 for i in range(0, len(np_o_tri), 3):
     sublist = np_o_tri[i:i+3]
-    print(sublist)
+    #print(sublist)
     for triangle in numpy.transpose(sublist):
-        print(triangle)
+        #print(triangle)
         triangle.sort()
-        print(triangle)
+        #print(triangle)
         if triangle[0] + triangle[1] > triangle[2]:
-            print('---VALID')
+            #print('---VALID')
             num_valid += 1
 
 print(num_valid)
