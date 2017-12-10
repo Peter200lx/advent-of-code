@@ -1,9 +1,8 @@
-
-example_data = """b inc 5 if a > 1
+EXAMPLE_DATA = """b inc 5 if a > 1
 a inc 1 if b < 5
 c dec -10 if a >= 1
 c inc -20 if c == 10"""
-data = """smi inc 781 if epx > -2
+DATA = """smi inc 781 if epx > -2
 yrf dec -813 if jzm != 6
 ben dec -383 if sp == 0
 tlj dec -356 if sp <= 4
@@ -1004,7 +1003,7 @@ mlp inc -871 if fdv >= -1108
 ih inc -945 if b < -576
 mx dec -934 if w == 4068"""
 
-instructions = [[s for s in i.split()] for i in data.split('\n')]
+instructions = [[s for s in i.split()] for i in DATA.split('\n')]
 
 registers = {}
 max_value = 0
