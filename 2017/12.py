@@ -2018,7 +2018,7 @@ for line in DATA.split('\n'):
     pipes.add(int(current))
     found = None
     for pipe_set in pipe_set_list:
-        if any(x in pipes for x in pipe_set):
+        if any(x in pipe_set for x in pipes):
             if found is None:
                 pipe_set.update(pipes)
                 found = pipe_set
