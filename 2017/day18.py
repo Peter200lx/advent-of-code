@@ -1,4 +1,7 @@
-import sys
+import threading
+from collections import defaultdict
+from queue import Queue, LifoQueue
+from typing import List, Optional
 
 DATA = """set i 31
 set a 1
@@ -51,101 +54,114 @@ rcv a
 jgz a -1
 set a 1
 jgz a -2"""
-INSTRUCTIONS = [s for s in DATA.split('\n')]
-
-g_array = [0 for _ in range(26)]
-g_last_sound = None
-
-
-def get_index(reg) -> int:
-    return ord(reg) - ord('a')
-
-
-def get_value(reg_or_val) -> int:
-    try:
-        return int(reg_or_val)
-    except ValueError:
-        return g_array[get_index(reg_or_val)]
+EXAMPLE2_DATA = """snd 1
+snd 2
+snd p
+rcv a
+rcv b
+rcv c
+rcv d"""
 
 
-def a_snd(x_val):
-    global g_last_sound
-    g_last_sound = get_value(x_val)
+class PartOneDone(Exception):
+    pass
 
 
-def a_set(x_val, y_val):
-    g_array[get_index(x_val)] = get_value(y_val)
+class Deadlock(Exception):
+    pass
 
 
-def a_add(x_val, y_val):
-    g_array[get_index(x_val)] += get_value(y_val)
+class Program(object):
+    def __init__(self, myid: int, rcv_socket: Queue, send_socket: Queue, inst_list: List[str]):
+        self.registers = defaultdict(int)
+        self.registers['p'] = myid
+        self.rcv_socket = rcv_socket
+        self.send_socket = send_socket
+        self.inst_list = inst_list
+        self.prog_counter = 0
+        self.send_count = 0
 
+    def get_value(self, reg_or_val: str) -> int:
+        try:
+            return int(reg_or_val)
+        except ValueError:
+            return self.registers[reg_or_val]
 
-def a_mul(x_val, y_val):
-    g_array[get_index(x_val)] *= get_value(y_val)
+    def i_snd(self, x_val: str) -> None:
+        self.send_socket.put(self.get_value(x_val))
+        self.send_count += 1
 
+    def i_set(self, x_val: str, y_val: str) -> None:
+        self.registers[x_val] = self.get_value(y_val)
 
-def a_mod(x_val, y_val):
-    g_array[get_index(x_val)] %= get_value(y_val)
+    def i_add(self, x_val: str, y_val: str) -> None:
+        self.registers[x_val] += self.get_value(y_val)
 
+    def i_mul(self, x_val: str, y_val: str) -> None:
+        self.registers[x_val] *= self.get_value(y_val)
 
-def a_rcv(x_val):
-    if get_value(x_val) > 0:
-        print(g_last_sound)
-        sys.exit(0)
+    def i_mod(self, x_val: str, y_val: str) -> None:
+        self.registers[x_val] %= self.get_value(y_val)
 
-
-def a_jgz(x_val, y_val):
-    if get_value(x_val) > 0:
-        return get_value(y_val)
-    else:
-        return None
-
-
-INST_DICT = {
-    'snd': a_snd,
-    'set': a_set,
-    'add': a_add,
-    'mul': a_mul,
-    'mod': a_mod,
-    'rcv': a_rcv,
-    'jgz': a_jgz,
-}
-
-
-def run_instructions(instructions: str):
-    inst_loc = 0
-    while 0 <= inst_loc < len(instructions):
-        print(g_array)
-        inst = instructions[inst_loc].split(' ')
-        print(inst)
-        result = INST_DICT[inst[0]](*inst[1:])
-        if result is not None:
-            inst_loc += result
+    def i_rcv(self, x_val: str) -> None:
+        if self.rcv_socket is self.send_socket:  # Part 1 has loopback FIFO Queue
+            if self.get_value(x_val) != 0:
+                raise PartOneDone(f"Part one done with rcv of {self.rcv_socket.get()}")
         else:
-            inst_loc += 1
+            if self.rcv_socket.empty() and self.send_socket.empty():
+                self.send_socket.put(None)
+                raise Deadlock("Deadlock: tried to rcv while other thread was waiting!")
+            response = self.rcv_socket.get()
+            if response is None:
+                raise Deadlock("Deadlock: waiting in rcv and other thread blocked as well!")
+            else:
+                self.registers[x_val] = response
+
+    def i_jgz(self, x_val: str, y_val: str) -> Optional[int]:
+        if self.get_value(x_val) > 0:
+            return self.get_value(y_val)
+        else:
+            return None
+
+    def run_insts(self):
+        while 0 <= self.prog_counter < len(self.inst_list):
+            # print(self.array)
+            inst = self.inst_list[self.prog_counter].split()
+            # print(inst)
+            try:
+                result = getattr(self, 'i_' + inst[0])(*inst[1:])
+            except Deadlock as e:
+                print(e)
+                return
+            if result is not None:
+                self.prog_counter += result
+            else:
+                self.prog_counter += 1
 
 
+def part_one(instructions: List[str]) -> str:
+    loopback = LifoQueue()
+    prog = Program(0, loopback, loopback, instructions)
+    try:
+        prog.run_insts()
+    except PartOneDone as e:
+        return str(e)
 
+
+def part_two(instructions: List[str]) -> str:
+    prog0_socket = Queue()
+    prog1_socket = Queue()
+    prog0 = Program(0, prog1_socket, prog0_socket, instructions)
+    prog1 = Program(1, prog0_socket, prog1_socket, instructions)
+    t0 = threading.Thread(target=prog0.run_insts)
+    t1 = threading.Thread(target=prog1.run_insts)
+    t0.start()
+    t1.start()
+    t0.join()
+    t1.join()
+    return f"Part two done, Program 1 sent {prog1.send_count} times"
 
 
 if __name__ == '__main__':
-    run_instructions(INSTRUCTIONS)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    print(part_one([s for s in DATA.split('\n')]))
+    print(part_two([s for s in DATA.split('\n')]))
