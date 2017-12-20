@@ -40,12 +40,13 @@ def part_one(knots_l: List[int], instructions: List[int]) -> List[int]:
     return knots_l
 
 
-INPUT_P1 = [int(i) for i in DATA.split(',')]
-knot_list = [i for i in range(256)]
+def run_part_one():
+    input_p1 = [int(i) for i in DATA.split(',')]
+    knot_list = [i for i in range(256)]
 
-part_one(knot_list, INPUT_P1)
-print(knot_list)
-print(knot_list[0] * knot_list[1])
+    part_one(knot_list, input_p1)
+    print(knot_list)
+    print(knot_list[0] * knot_list[1])
 
 
 def part_two(knots_l: List[int], instructions: List[int]) -> List[int]:
@@ -68,10 +69,19 @@ def get_hash_str(knots_l: List[int]) -> str:
     return ret_str
 
 
-INPUT_P2 = [ord(i) for i in DATA] + [17, 31, 73, 47, 23]
+SALT = [17, 31, 73, 47, 23]
 
-knot_list = [i for i in range(256)]
 
-part_two(knot_list, INPUT_P2)
-print(knot_list)
-print(get_hash_str(knot_list))
+def run_part_two():
+    input_p2 = [ord(i) for i in DATA] + SALT
+
+    knot_list = [i for i in range(256)]
+
+    part_two(knot_list, input_p2)
+    print(knot_list)
+    print(get_hash_str(knot_list))
+
+
+if __name__ == '__main__':
+    run_part_one()
+    run_part_two()
