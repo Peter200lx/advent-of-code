@@ -141,6 +141,13 @@ def read_rules(full_data: str) -> Dict[bytes, np.ndarray]:
     return result
 
 
+def concat_arrays(old_arrray: np.ndarray, new_array: np.ndarray, axis: int) -> np.ndarray:
+    if old_arrray is None:
+        return new_array
+    else:
+        return np.concatenate((old_arrray, new_array), axis=axis)
+
+
 def create_new_array_from_rules(combined_arr: np.ndarray, rule_dict: Dict[bytes, np.ndarray]) -> np.ndarray:
     if combined_arr.shape[0] % 2 == 0:
         chunk_size = 2
@@ -160,19 +167,11 @@ def create_new_array_from_rules(combined_arr: np.ndarray, rule_dict: Dict[bytes,
         new_section = rule_dict[section.tobytes()]
         items_in_row += 1
         # print(f"New Section\n{new_section}")
-        if current_row is None:
-            current_row = new_section
-        else:
-            current_row = np.concatenate((current_row, new_section), axis=1)
+        current_row = concat_arrays(current_row, new_section, axis=1)
 
         if items_in_row == chunks_per_row:
             items_in_row = 0
-            if new_array is None:
-                new_array = current_row
-            else:
-                # print(f"old_new_array\n{new_array}")
-                # print(f"current_row\n{current_row}")
-                new_array = np.concatenate((new_array, current_row), axis=0)
+            new_array = concat_arrays(new_array, current_row, axis=0)
             current_row = None
     return new_array
 
