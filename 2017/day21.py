@@ -1,4 +1,4 @@
-from typing import Tuple, Dict
+from typing import Dict
 
 import numpy as np
 
@@ -119,23 +119,19 @@ def pattern_to_array(pattern: str) -> np.ndarray:
     return np.array([[1 if c == '#' else 0 for c in line] for line in pattern.strip().split('/')])
 
 
-def make_tuple(pattern: np.ndarray) -> Tuple[Tuple[int], ...]:
-    return tuple(map(tuple, pattern))
-
-
-def generate_possible_orientations(original_pattern: np.ndarray) -> Tuple[Tuple[int], ...]:
-    yield make_tuple(original_pattern)
-    yield make_tuple(np.flipud(original_pattern))
-    yield make_tuple(np.fliplr(original_pattern))
+def generate_possible_orientations(original_pattern: np.ndarray) -> bytes:
+    yield original_pattern.tobytes()
+    yield np.flipud(original_pattern).tobytes()
+    yield np.fliplr(original_pattern).tobytes()
     local_pat = np.copy(original_pattern)
-    for _ in range(4):
+    for _ in range(3):
         local_pat = np.rot90(local_pat)
-        yield make_tuple(local_pat)
-        yield make_tuple(np.flipud(local_pat))
-        yield make_tuple(np.fliplr(local_pat))
+        yield local_pat.tobytes()
+        yield np.flipud(local_pat).tobytes()
+        yield np.fliplr(local_pat).tobytes()
 
 
-def read_rules(full_data: str) -> Dict[Tuple, np.ndarray]:
+def read_rules(full_data: str) -> Dict[bytes, np.ndarray]:
     result = {}
     for line in full_data.split('\n'):
         key, value = [pattern_to_array(str_arr) for str_arr in line.split(' => ')]
@@ -145,7 +141,7 @@ def read_rules(full_data: str) -> Dict[Tuple, np.ndarray]:
     return result
 
 
-def create_new_array_from_rules(combined_arr: np.ndarray, rule_dict: Dict[Tuple, np.ndarray]) -> np.ndarray:
+def create_new_array_from_rules(combined_arr: np.ndarray, rule_dict: Dict[bytes, np.ndarray]) -> np.ndarray:
     if combined_arr.shape[0] % 2 == 0:
         chunk_size = 2
     elif combined_arr.shape[0] % 3 == 0:
@@ -161,7 +157,7 @@ def create_new_array_from_rules(combined_arr: np.ndarray, rule_dict: Dict[Tuple,
     items_in_row = 0
     for section in total_blocks:
         # print(f"Old Section\n{section}")
-        new_section = rule_dict[make_tuple(section)]
+        new_section = rule_dict[section.tobytes()]
         items_in_row += 1
         # print(f"New Section\n{new_section}")
         if current_row is None:
