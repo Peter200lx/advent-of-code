@@ -119,11 +119,6 @@ def pattern_to_array(pattern: str) -> np.ndarray:
     return np.array([[1 if c == '#' else 0 for c in line] for line in pattern.strip().split('/')])
 
 
-def rule_line_to_sets(input_line: str) -> Tuple[np.ndarray, np.ndarray]:
-    first_arr, second_arr = input_line.split(' => ')
-    return pattern_to_array(first_arr), pattern_to_array(second_arr)
-
-
 def make_tuple(pattern: np.ndarray) -> Tuple[Tuple[int], ...]:
     return tuple(map(tuple, pattern))
 
@@ -143,7 +138,7 @@ def generate_possible_orientations(original_pattern: np.ndarray) -> Tuple[Tuple[
 def read_rules(full_data: str) -> Dict[Tuple, np.ndarray]:
     result = {}
     for line in full_data.split('\n'):
-        key, value = rule_line_to_sets(line)
+        key, value = [pattern_to_array(str_arr) for str_arr in line.split(' => ')]
         for orientation in generate_possible_orientations(key):
             if orientation not in result:
                 result[orientation] = value
