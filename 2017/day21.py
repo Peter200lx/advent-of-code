@@ -157,13 +157,14 @@ def create_new_array_from_rules(combined_arr: np.ndarray, rule_dict: Dict[Tuple,
         chunk_size = 3
     else:
         raise Exception(f"Unknown grid size {combined_arr.size}")
-    # Following logic from https://stackoverflow.com/a/16715055/1038644
-    total_blocks = map(lambda x: np.split(x, combined_arr.shape[1] // chunk_size, 1),   # Split the columns
-                       np.split(combined_arr, combined_arr.shape[0] // chunk_size, 0))  # Split the rows
+    chunks_per_row = combined_arr.shape[0] // chunk_size
+    # Following logic from https://stackoverflow.com/a/16715845/1038644
+    total_blocks = (combined_arr[j * chunk_size:(j + 1) * chunk_size, k * chunk_size:(k + 1) * chunk_size] for j, k in
+                    np.ndindex(chunks_per_row, chunks_per_row))
     current_row = None
     new_array = None
     items_in_row = 0
-    for section in (block for row in total_blocks for block in row):
+    for section in total_blocks:
         # print(f"Old Section\n{section}")
         new_section = rule_dict[make_tuple(section)]
         items_in_row += 1
@@ -173,7 +174,7 @@ def create_new_array_from_rules(combined_arr: np.ndarray, rule_dict: Dict[Tuple,
         else:
             current_row = np.concatenate((current_row, new_section), axis=1)
 
-        if items_in_row == combined_arr.shape[0] // chunk_size:
+        if items_in_row == chunks_per_row:
             items_in_row = 0
             if new_array is None:
                 new_array = current_row
