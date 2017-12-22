@@ -51,6 +51,10 @@ P2_DICT = {'c': 'w',
            'w': 'i',
            'i': 'f',
            'f': 'c'}
+NEW_DIR = {'c': lambda x: MOVE_DICT['L'][x],
+           'w': lambda x: x,
+           'i': lambda x: MOVE_DICT['R'][x],
+           'f': lambda x: MOVE_DICT['REV'][x]}
 
 
 def initialize_grid(input_str: str) -> List[List[str]]:
@@ -75,19 +79,10 @@ def make_dict_grid(in_grid: List[List[str]]) -> Dict[Tuple, str]:
 def run_burst(grid, start_dir: Tuple[int, int], start_loc: Tuple[int, int], evolve_dict: Dict[str, str]):
     infected = False
     cur_val = grid[start_loc]
+    new_dir = NEW_DIR[cur_val](start_dir)
     grid[start_loc] = evolve_dict[cur_val]
     if grid[start_loc] == 'i':
         infected = True
-    if cur_val == 'c':
-        new_dir = MOVE_DICT['L'][start_dir]
-    elif cur_val == 'w':
-        new_dir = start_dir
-    elif cur_val == 'i':
-        new_dir = MOVE_DICT['R'][start_dir]
-    elif cur_val == 'f':
-        new_dir = MOVE_DICT['REV'][start_dir]
-    else:
-        raise Exception(f"Unexpected board state grid[{start_loc}] == {grid[start_loct]}")
     return infected, new_dir, (start_loc[0] + new_dir[0], start_loc[1] + new_dir[1])
 
 
