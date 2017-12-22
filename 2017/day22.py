@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, NamedTuple
 
 DATA = """#.#.#.##.#.##.###.#.###.#
 .#..#.....#..#######.##.#
@@ -57,6 +57,11 @@ NEW_DIR = {'c': lambda x: MOVE_DICT['L'][x],
            'f': lambda x: MOVE_DICT['REV'][x]}
 
 
+class Vector(NamedTuple):
+    dir: Tuple[int, int]
+    loc: Tuple[int, int]
+
+
 def initialize_grid(input_str: str) -> List[List[str]]:
     ret_grid = []
     for line in input_str.split('\n'):
@@ -64,7 +69,7 @@ def initialize_grid(input_str: str) -> List[List[str]]:
     return ret_grid
 
 
-def make_dict_grid(in_grid: List[List[str]]) -> Dict[Tuple, str]:
+def make_dict_grid(in_grid: List[List[str]]) -> Dict[Tuple[int, int], str]:
     ret_dict = defaultdict(lambda: 'c')
     center_y = len(in_grid) // 2
     for i, row in enumerate(in_grid):
@@ -76,31 +81,32 @@ def make_dict_grid(in_grid: List[List[str]]) -> Dict[Tuple, str]:
     return ret_dict
 
 
-def run_burst(grid, start_dir: Tuple[int, int], start_loc: Tuple[int, int], evolve_dict: Dict[str, str]):
-    infected = False
-    cur_val = grid[start_loc]
-    new_dir = NEW_DIR[cur_val](start_dir)
-    grid[start_loc] = evolve_dict[cur_val]
-    if grid[start_loc] == 'i':
-        infected = True
-    return infected, new_dir, (start_loc[0] + new_dir[0], start_loc[1] + new_dir[1])
+def new_vect(new_dir: Tuple[int, int], old_loc: Tuple[int, int]) -> Vector:
+    new_loc = new_dir[0] + old_loc[0], new_dir[1] + old_loc[1]
+    return Vector(new_dir, new_loc)
+
+
+def run_burst(grid: Dict[Tuple[int, int], str], start: Vector, evolve_dict: Dict[str, str]) -> Tuple[bool, Vector]:
+    new_dir = NEW_DIR[grid[start.loc]](start.dir)
+    grid[start.loc] = evolve_dict[grid[start.loc]]
+    return grid[start.loc] == 'i', new_vect(new_dir, start.loc)
 
 
 if __name__ == '__main__':
     seed_grid = initialize_grid(DATA)
     board_dict = make_dict_grid(seed_grid)
-    current_dir, current_loc = FACE_DICT['N'], (0, 0)
+    current_vec = Vector(FACE_DICT['N'], (0, 0))
     count = 0
     for num_bursts in range(10000):
-        new_inf, current_dir, current_loc = run_burst(board_dict, current_dir, current_loc, P1_DICT)
+        new_inf, current_vec = run_burst(board_dict, current_vec, P1_DICT)
         if new_inf:
             count += 1
     print(count)
     board_dict = make_dict_grid(seed_grid)
-    current_dir, current_loc = FACE_DICT['N'], (0, 0)
+    current_vec = Vector(FACE_DICT['N'], (0, 0))
     count = 0
     for num_bursts in range(10000000):
-        new_inf, current_dir, current_loc = run_burst(board_dict, current_dir, current_loc, P2_DICT)
+        new_inf, current_vec = run_burst(board_dict, current_vec, P2_DICT)
         if new_inf:
             count += 1
     print(count)
