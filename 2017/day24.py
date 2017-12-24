@@ -86,7 +86,9 @@ def gen_matching(prev_con: int, remaining: Set[Tuple[int, int]]):
 
 def build_bridges(prev_piece: int, so_far: List[Tuple[int, int]], remaining: Set[Tuple[int, int]],
                   part1: List[List[Tuple[int, int]]], part2: List[List[Tuple[int, int]]]):
+    leaf = True
     for possible_next in gen_matching(prev_piece, remaining):
+        leaf = False
         new_bridge = copy(so_far)
         reduced = copy(remaining)
         reduced.remove(possible_next)
@@ -96,14 +98,15 @@ def build_bridges(prev_piece: int, so_far: List[Tuple[int, int]], remaining: Set
         new_bridge.append(possible_next)
         build_bridges(next_piece, new_bridge, reduced, part1, part2)
 
-    if calc_strength(so_far) > calc_strength(part1[0]):
-        part1[:] = [so_far]
+    if leaf:
+        if calc_strength(so_far) > calc_strength(part1[0]):
+            part1[:] = [so_far]
 
-    if len(so_far) > len(part2[0]):
-        part2[:] = [so_far]
-    elif len(so_far) == len(part2[0]):
-        if calc_strength(so_far) > calc_strength(part2[0]):
+        if len(so_far) > len(part2[0]):
             part2[:] = [so_far]
+        elif len(so_far) == len(part2[0]):
+            if calc_strength(so_far) > calc_strength(part2[0]):
+                part2[:] = [so_far]
 
 
 if __name__ == '__main__':
