@@ -85,7 +85,7 @@ def gen_matching(prev_con: int, remaining: Set[Tuple[int, int]]):
 
 
 def build_bridges(prev_piece: int, so_far: List[Tuple[int, int]], remaining: Set[Tuple[int, int]],
-                  completed: List[List[Tuple[int, int]]], part: int):
+                  part1: List[List[Tuple[int, int]]], part2: List[List[Tuple[int, int]]]):
     for possible_next in gen_matching(prev_piece, remaining):
         new_bridge = copy(so_far)
         reduced = copy(remaining)
@@ -94,28 +94,27 @@ def build_bridges(prev_piece: int, so_far: List[Tuple[int, int]], remaining: Set
         if next_piece == prev_piece:
             next_piece = possible_next[1]
         new_bridge.append(possible_next)
-        build_bridges(next_piece, new_bridge, reduced, completed, part)
-    if part == 1:
-        if calc_strength(so_far) > calc_strength(completed[0]):
-            completed[:] = [so_far]
-    else:
-        if len(so_far) > len(completed[0]):
-            completed[:] = [so_far]
-        elif len(so_far) == len(completed[0]):
-            if calc_strength(so_far) > calc_strength(completed[0]):
-                completed[:] = [so_far]
+        build_bridges(next_piece, new_bridge, reduced, part1, part2)
+
+    if calc_strength(so_far) > calc_strength(part1[0]):
+        part1[:] = [so_far]
+
+    if len(so_far) > len(part2[0]):
+        part2[:] = [so_far]
+    elif len(so_far) == len(part2[0]):
+        if calc_strength(so_far) > calc_strength(part2[0]):
+            part2[:] = [so_far]
 
 
 if __name__ == '__main__':
     piece_list = load_pieces(DATA)
     print(piece_list)
-    completed_bridges = [[]]
-    build_bridges(0, [], piece_list, completed_bridges, 1)
-    print(completed_bridges)
-    print(calc_strength(completed_bridges[0]))
-    completed_bridges = [[]]
-    build_bridges(0, [], piece_list, completed_bridges, 2)
-    print(completed_bridges)
-    print(calc_strength(completed_bridges[0]))
+    completed_bridges_p1 = [[]]
+    completed_bridges_p2 = [[]]
+    build_bridges(0, [], piece_list, completed_bridges_p1, completed_bridges_p2)
+    print(completed_bridges_p1)
+    print(calc_strength(completed_bridges_p1[0]))
+    print(completed_bridges_p2)
+    print(calc_strength(completed_bridges_p2[0]))
 
 
