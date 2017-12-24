@@ -1,5 +1,6 @@
+from collections import defaultdict
 from copy import copy
-from typing import List, Tuple, Set
+from typing import List, Tuple, Set, Dict
 
 DATA = """50/41
 19/43
@@ -78,9 +79,16 @@ def calc_strength(bridge_list: List[Tuple[int, int]]) -> int:
     return sum(sum(p) for p in bridge_list)
 
 
-def gen_matching(prev_con: int, remaining: Set[Tuple[int, int]]):
-    for part in remaining:
-        if part[0] == prev_con or part[1] == prev_con:
+def gen_matching(prev_con: int, remaining: Set[Tuple[int, int]],
+                 cached_mapping: Dict[int, List[Tuple[int, int]]] = defaultdict(list)):
+    if not cached_mapping:  # remaining must contain all possible items first run otherwise cache will be bad
+        for part in remaining:
+            cached_mapping[part[0]].append(part)
+            if part[0] == part[1]:
+                continue
+            cached_mapping[part[1]].append(part)
+    for part in cached_mapping[prev_con]:
+        if part in remaining:
             yield part
 
 
