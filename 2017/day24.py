@@ -1,0 +1,121 @@
+from copy import copy
+from typing import List, Tuple, Set
+
+DATA = """50/41
+19/43
+17/50
+32/32
+22/44
+9/39
+49/49
+50/39
+49/10
+37/28
+33/44
+14/14
+14/40
+8/40
+10/25
+38/26
+23/6
+4/16
+49/25
+6/39
+0/50
+19/36
+37/37
+42/26
+17/0
+24/4
+0/36
+6/9
+41/3
+13/3
+49/21
+19/34
+16/46
+22/33
+11/6
+22/26
+16/40
+27/21
+31/46
+13/2
+24/7
+37/45
+49/2
+32/11
+3/10
+32/49
+36/21
+47/47
+43/43
+27/19
+14/22
+13/43
+29/0
+33/36
+2/6"""
+EXAMPLE_DATA = """0/2
+2/2
+2/3
+3/4
+3/5
+0/1
+10/1
+9/10"""
+
+
+def load_pieces(input_str: str) -> Set[Tuple[int, int]]:
+    ret_list = set()
+    for line in input_str.split('\n'):
+        ret_list.add(tuple(int(i) for i in line.split('/')))
+    # ret_list.sort(key=sum, reverse=True)
+    return ret_list
+
+
+def calc_strength(bridge_list: List[Tuple[int, int]]) -> int:
+    return sum(sum(p) for p in bridge_list)
+
+
+def gen_matching(prev_con: int, remaining: Set[Tuple[int, int]]):
+    for part in remaining:
+        if part[0] == prev_con or part[1] == prev_con:
+            yield part
+
+
+def build_bridges(prev_piece: int, so_far: List[Tuple[int, int]], remaining: Set[Tuple[int, int]],
+                  completed: List[List[Tuple[int, int]]], part: int):
+    for possible_next in gen_matching(prev_piece, remaining):
+        new_bridge = copy(so_far)
+        reduced = copy(remaining)
+        reduced.remove(possible_next)
+        next_piece = possible_next[0]
+        if next_piece == prev_piece:
+            next_piece = possible_next[1]
+        new_bridge.append(possible_next)
+        build_bridges(next_piece, new_bridge, reduced, completed, part)
+    if part == 1:
+        if calc_strength(so_far) > calc_strength(completed[0]):
+            completed[:] = [so_far]
+    else:
+        if len(so_far) > len(completed[0]):
+            completed[:] = [so_far]
+        elif len(so_far) == len(completed[0]):
+            if calc_strength(so_far) > calc_strength(completed[0]):
+                completed[:] = [so_far]
+
+
+if __name__ == '__main__':
+    piece_list = load_pieces(DATA)
+    print(piece_list)
+    completed_bridges = [[]]
+    build_bridges(0, [], piece_list, completed_bridges, 1)
+    print(completed_bridges)
+    print(calc_strength(completed_bridges[0]))
+    completed_bridges = [[]]
+    build_bridges(0, [], piece_list, completed_bridges, 2)
+    print(completed_bridges)
+    print(calc_strength(completed_bridges[0]))
+
+
