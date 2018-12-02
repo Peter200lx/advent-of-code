@@ -252,18 +252,21 @@ srijifyzdoguvxwctqmphenbka
 hrijafyzloguvxectqmpheybkd""".split('\n')
 
 
-def checksum_n(box, n):
-    counts = Counter(box)
-    if n in counts.values():
-        return 1
-    return 0
+def part_1(boxes):
+    n2 = 0
+    n3 = 0
+    for box in boxes:
+        counts = Counter(box).values()
+        if 2 in counts:
+            n2 += 1
+        if 3 in counts:
+            n3 += 1
+    return n2 * n3
 
 
-def part_2(box):
-    for string in box:
-        for string2 in box:
-            if string == string2:
-                continue
+def part_2(boxes):
+    for string in boxes:
+        for string2 in boxes:
             mismatch_loc = []
             for i, c in enumerate(string):
                 if string2[i] == c:
@@ -274,5 +277,5 @@ def part_2(box):
 
 
 if __name__ == '__main__':
-    print(sum([checksum_n(s, 2) for s in DATA]) * sum([checksum_n(s, 3) for s in DATA]))
+    print(part_1(DATA))
     print(part_2(DATA))
