@@ -1046,84 +1046,47 @@ re_log = re.compile(r".*\[([0-9-]+) (\d+):(\d+)[^0-9]*(Guard|falls|wakes).*")
 re_gnum = re.compile(r".*#(\d+).*")
 
 
-def parse_log(log):
-    match = re_log.match(log)
-    doy, hour, minute, ltype = match.groups()
-    hour = int(hour)
-    minute = int(minute)
-    if ltype == "Guard":
-        ltype = int(re_gnum.match(log).group(1))
-    return ltype, doy, hour, minute
-
-
-def record_rest(mid_hr, asleep, stop, cur_guard):
-    if asleep[0] >= 1:
-        start_min = 0
-    else:
-        start_min = asleep[1]
-    assert stop > start_min
-    if stop > 60:
-        stop = 60
-    for i in range(start_min, stop):
-        mid_hr[i] = cur_guard
-
-
-def build_asleep_table(logs):
+def build_asleep_dict(logs):
     cur_guard = -1
-    cur_day = None
     asleep = None
-    midnight_hr = []
+    guards = defaultdict(list)
     for log in logs:
-        ltype, doy, hour, minute = parse_log(log)
-        if doy != cur_day:
-            cur_day = doy
-            midnight_hr.append([-1 for _ in range(60)])
-        working_row = midnight_hr[-1]
-        if isinstance(ltype, int):
+        match = re_log.match(log)
+        _, _, minute, ltype = match.groups()
+        if ltype == "Guard":
             assert not asleep
-            cur_guard = ltype
+            cur_guard = int(re_gnum.match(log).group(1))
         elif ltype == "falls":
             assert not asleep
-            asleep = (hour, minute)
+            asleep = int(minute)
         elif ltype == "wakes":
-            assert asleep
-            record_rest(working_row, asleep, minute, cur_guard)
+            assert asleep is not None
+            guards[cur_guard].extend(range(asleep, int(minute)))
             asleep = None
-    return midnight_hr
+    return guards
 
 
-def part_1(logs):
-    sleepy_guards = Counter()
-    for tab_log in logs:
-        sleepy_guards.update(tab_log)
-    worst_guard = sleepy_guards.most_common(2)[1][0]
-    bad_hours = []
-    for tab_log in logs:
-        for i, guard in enumerate(tab_log):
-            if guard == worst_guard:
-                bad_hours.append(i)
-    worst_min = Counter(bad_hours).most_common(1)[0][0]
-    return worst_min * worst_guard
+def part_1(guards):
+    worst_guard = (0, 0)
+    for guard, minutes in guards.items():
+        asleep = len(minutes)
+        if asleep > worst_guard[0]:
+            worst_guard = (asleep, guard)
+    worst_time = Counter(guards[worst_guard[1]]).most_common(1)[0][0]
+    return worst_time * worst_guard[1]
 
 
-def part_2(logs):
-    guard_minutes = defaultdict(list)
-    for tab_log in logs:
-        for i, guard in enumerate(tab_log):
-            if guard != -1:
-                guard_minutes[guard].append(i)
-    times = []
-    for guard in guard_minutes:
-        worst_min = Counter(guard_minutes[guard])
-        time, number = worst_min.most_common(1)[0]
-        times.append((number, time, guard))
-    times.sort(reverse=True)
-    _, time, guard = times[0]
-    return time * guard
+def part_2(guards):
+    worst_guard = (0, 0, 0)
+    for guard, minutes in guards.items():
+        time, number = Counter(minutes).most_common(1)[0]
+        if number > worst_guard[0]:
+            worst_guard = (number, time, guard)
+    return worst_guard[1] * worst_guard[2]
 
 
 if __name__ == '__main__':
     DATA.sort()
-    tabular_logs = build_asleep_table(DATA)
-    print(part_1(tabular_logs))
-    print(part_2(tabular_logs))
+    guard_dict = build_asleep_dict(DATA)
+    print(part_1(guard_dict))
+    print(part_2(guard_dict))
