@@ -1067,13 +1067,9 @@ def build_asleep_dict(logs):
 
 
 def part_1(guards):
-    worst_guard = (0, 0)
-    for guard, minutes in guards.items():
-        asleep = len(minutes)
-        if asleep > worst_guard[0]:
-            worst_guard = (asleep, guard)
-    worst_time = Counter(guards[worst_guard[1]]).most_common(1)[0][0]
-    return worst_time * worst_guard[1]
+    worst_guard = max(guards, key=lambda x: len(guards.get(x)))
+    worst_time = Counter(guards[worst_guard]).most_common(1)[0][0]
+    return worst_time * worst_guard
 
 
 def part_2(guards):
