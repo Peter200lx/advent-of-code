@@ -3,15 +3,13 @@ DATA = """XxSsdDIijNnJACszZScZfFhHQyYrRqzdXTtxDEeNnGgOaAcCMcCLlMmogQeEqGgFfGyYuU
 
 def react(polymer):
     cur_pol = polymer
-    found_reaction = True
-    while found_reaction:
-        found_reaction = False
-        for i in range(len(cur_pol)):
-            if i >= len(cur_pol) - 1:
-                break
-            if cur_pol[i].lower() == cur_pol[i + 1].lower() and cur_pol[i] != cur_pol[i + 1]:
-                found_reaction = True
-                cur_pol = cur_pol[:i] + cur_pol[i+2:]
+    i = 0
+    while i < len(cur_pol) - 1:
+        if cur_pol[i].lower() == cur_pol[i + 1].lower() and cur_pol[i] != cur_pol[i + 1]:
+            cur_pol = cur_pol[:i] + cur_pol[i+2:]
+            i = i - 1 if i >= 1 else 0
+        else:
+            i += 1
     return cur_pol
 
 
