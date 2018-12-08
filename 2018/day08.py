@@ -5,20 +5,17 @@ DATA = [int(s) for s in DATA.split()]
 
 
 class Node:
-    def __init__(self, list_o_data):
-        self.num_children = list_o_data[0]
+    def __init__(self, list_o_data, index=0):
+        self.num_children = list_o_data[index]
         self.children = []
-        self.num_meta = list_o_data[1]
-        cur_list = list_o_data[2:]
+        self.num_meta = list_o_data[index + 1]
+        index += 2
         for _ in range(self.num_children):
-            child = Node(cur_list)
+            child = Node(list_o_data, index)
             self.children.append(child)
-            cur_list = child.remaining_list
-        self.meta = cur_list[:self.num_meta]
-        # This remaining_list is not space efficient, every node
-        # holds all of list_o_data beyond its purview. It would be
-        # cleaner to keep a single list w/ index offset.
-        self.remaining_list = cur_list[self.num_meta:]
+            index = child.remaining_index
+        self.meta = list_o_data[index:index + self.num_meta]
+        self.remaining_index = index + self.num_meta
 
     def sum(self):
         ret_sum = 0
