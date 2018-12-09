@@ -9,17 +9,17 @@ class Marble:
         self.next = self
         self.prev = self
 
-    def add_marble(self, new_marble):
-        if not new_marble.value % 23:
+    def add_marble(self, new_value):
+        if not new_value % 23:
             away_marble = self
             for _ in range(7):
                 away_marble = away_marble.prev
             away_marble.next.prev = away_marble.prev
             away_marble.prev.next = away_marble.next
-            return away_marble.next, new_marble.value + away_marble.value
+            return away_marble.next, new_value + away_marble.value
         else:
-            one_away = self.next
-            two_away = self.next.next
+            new_marble = Marble(new_value)
+            one_away, two_away = self.next, self.next.next
             new_marble.next = two_away
             new_marble.prev = one_away
             one_away.next = new_marble
@@ -34,7 +34,7 @@ def winning_score(num_players, last_marble):
     players = [0] * num_players
     player = 0
     while latest_marble.value != last_marble:
-        latest_marble, score = latest_marble.add_marble(Marble(next_marble))
+        latest_marble, score = latest_marble.add_marble(next_marble)
         next_marble += 1
         players[player] += score
         player += 1
