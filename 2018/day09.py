@@ -30,12 +30,9 @@ class Marble:
 def winning_score(num_players, last_marble):
     latest_marble = Marble(0)
     players = [0] * num_players
-    player = 0
     for next_marble in range(1, last_marble):
         latest_marble, score = latest_marble.add_marble(next_marble)
-        players[player] += score
-        player += 1
-        player %= num_players
+        players[next_marble % num_players] += score
     return max(players)
 
 
