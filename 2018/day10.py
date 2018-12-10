@@ -396,6 +396,7 @@ position=<-3,  6> velocity=< 2, -1>""".split('\n')
 np.set_printoptions(linewidth=130, formatter={'bool': lambda x: '#' if x else ' '})
 
 Coord = namedtuple('Coord', ['y', 'x'])
+Vector = namedtuple('Vect', ['pos', 'vel'])
 
 LINE_PARSE = re.compile(r"position=<\s*(-?\d+),\s*(-?\d+)> velocity=<\s*(-?\d+),\s*(-?\d+)>")
 
@@ -439,22 +440,22 @@ class Bounds:
 
 def find_message(instructions):
     bounds = Bounds()
-    field = {}
+    field = []
     for line in instructions:
         match = LINE_PARSE.match(line)
         py, px, vy, vx = [int(i) for i in match.groups()]
         # print(py, px, vy, vx)
         bounds.update(py, px)
-        field[Coord(py, px)] = Coord(vy, vx)
+        field.append(Vector(Coord(py, px), Coord(vy, vx)))
     # print_message(field, bounds)
     p2_count = 0
     while True:
-        new_field = {}
+        new_field = []
         new_bounds = Bounds()
-        for pos, vec in field.items():
+        for pos, vec in field:
             new_loc = Coord(pos.y + vec.y, pos.x + vec.x)
             new_bounds.update(new_loc.y, new_loc.x)
-            new_field[new_loc] = vec
+            new_field.append(Vector(new_loc, vec))
         if new_bounds.size > bounds.size:
             break
         # print_message(new_field, bounds)
@@ -469,7 +470,7 @@ def print_message(field, bounds):
     print((bounds.x, bounds.y))
     array = np.zeros((bounds.x, bounds.y), dtype=np.bool)
     for loc in field:
-        loc = bounds.translate(loc)
+        loc = bounds.translate(loc.pos)
         array[loc.x, loc.y] = True
     print(array)
 
