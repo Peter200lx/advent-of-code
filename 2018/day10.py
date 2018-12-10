@@ -412,13 +412,11 @@ class Bounds:
         if self.miny is None:
             self.miny = y
             self.maxy = y
-        else:
-            self.miny = min(self.miny, y)
-            self.maxy = max(self.maxy, y)
-        if self.minx is None:
             self.minx = x
             self.maxx = x
         else:
+            self.miny = min(self.miny, y)
+            self.maxy = max(self.maxy, y)
             self.minx = min(self.minx, x)
             self.maxx = max(self.maxx, x)
 
@@ -444,7 +442,6 @@ def find_message(instructions):
     for line in instructions:
         match = LINE_PARSE.match(line)
         py, px, vy, vx = [int(i) for i in match.groups()]
-        # print(py, px, vy, vx)
         bounds.update(py, px)
         field.append(Vector(Coord(py, px), Coord(vy, vx)))
     # print_message(field, bounds)
@@ -458,7 +455,7 @@ def find_message(instructions):
             new_field.append(Vector(new_loc, vec))
         if new_bounds.size > bounds.size:
             break
-        # print_message(new_field, bounds)
+        # print_message(new_field, new_bounds)
         p2_count += 1
         field = new_field
         bounds = new_bounds
@@ -467,7 +464,6 @@ def find_message(instructions):
 
 
 def print_message(field, bounds):
-    print((bounds.x, bounds.y))
     array = np.zeros((bounds.x, bounds.y), dtype=np.bool)
     for loc in field:
         loc = bounds.translate(loc.pos)
