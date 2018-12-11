@@ -6,16 +6,15 @@ DATA = int(DATA)
 GRID_SIZE = (300, 300)
 
 
-def build_grid(serial_number):
-    grid = np.zeros(GRID_SIZE, dtype=np.int16)
-    for ix, iy in np.ndindex(GRID_SIZE):
+def power_wrapper(serial_number):
+    def power(ix, iy):
         rack_id = ix + 10
         power_level = rack_id * iy
         val = (power_level + serial_number) * rack_id
         h_digit = val // 10**2 % 10
-        grid[ix, iy] = h_digit - 5
+        return h_digit - 5
 
-    return grid
+    return power
 
 
 def find_max(grid, square=3):
@@ -41,7 +40,8 @@ def find_all_sizes(grid):
 
 
 if __name__ == '__main__':
-    fuel_cells = build_grid(DATA)
+    calc_power_vector = np.vectorize(power_wrapper(DATA))
+    fuel_cells = np.fromfunction(calc_power_vector, GRID_SIZE, dtype=np.int16)
     # print(fuel_cells)
     print(find_max(fuel_cells))
     print(find_all_sizes(fuel_cells))
