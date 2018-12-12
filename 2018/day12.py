@@ -61,13 +61,12 @@ def parse_input(input_list):
     for c in input_list[0]:
         if c not in (".", "#"):
             continue
-        row[i] = (c == "#")
+        row[i] = c
         i += 1
     transforms = {}
     for input_str in input_list[2:]:
         before, after = input_str.split(" => ")
-        before = tuple(c == "#" for c in before)
-        transforms[before] = (after == "#")
+        transforms[before] = after
     return row, transforms
 
 
@@ -76,14 +75,11 @@ def run_transform(row, transforms):
     top = max(row.keys())
     new_dict = {}
     for i in range(bottom - 3, top + 4):
-        check = []
-        for j in range(i - 2, i + 3):
-            check.append(row.get(j, False))
-        check = tuple(check)
+        check = "".join(row.get(j, ".") for j in range(i - 2, i + 3))
         if check in transforms:
             new_dict[i] = transforms[check]
         elif bottom <= i <= top:
-            new_dict[i] = False
+            new_dict[i] = "."
     return new_dict
 
 
@@ -106,7 +102,7 @@ if __name__ == '__main__':
         plants = run_transform(plants, instructions)
         if iteration > 17:  # Prime the pump for part 2
             x_iters.append(iteration)
-            y_sums.append(sum([i for i in plants if plants[i]]))
+            y_sums.append(sum([i for i in plants if plants[i] == "#"]))
     print(f"Part 1: {y_sums[-1]}")
 
     for iteration in range(21, PART_2_ITER):
@@ -119,4 +115,4 @@ if __name__ == '__main__':
         y_sums.pop(0)
         plants = run_transform(plants, instructions)
         x_iters.append(iteration)
-        y_sums.append(sum([i for i in plants if plants[i]]))
+        y_sums.append(sum([i for i in plants if plants[i] == "#"]))
