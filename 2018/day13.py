@@ -256,9 +256,11 @@ def step_field(field, carts, part_2=False):
             continue
         cur_cart = carts[loc]
         del carts[loc]
+        # Find new location to move into
         nx = loc.x + NEXT_LOC[cur_cart.dir].x
         ny = loc.y + NEXT_LOC[cur_cart.dir].y
         new_loc = Coord(nx, ny)
+        # Deal with potential crash with other carts
         if new_loc in carts:
             del carts[new_loc]
             if part_2:
@@ -268,6 +270,7 @@ def step_field(field, carts, part_2=False):
                 print(f"Part 1 Crashed at: {new_loc}")
                 return False
 
+        # Read what to do next tick from the field
         is_intersection = False
         if field[ny][nx] == "+":
             is_intersection = True
@@ -275,19 +278,19 @@ def step_field(field, carts, part_2=False):
         elif field[ny][nx] in ("\\", "/"):
             turn = CORNER_TURN[field[ny][nx]][cur_cart.dir]
         elif field[ny][nx] in ("|", "-"):
-            turn = False
+            turn = Turn.STRAIGHT
         else:
             raise Exception("We've gotten off the track somehow!")
 
-        new_dir = cur_cart.dir
+        # Follow the instructions from the field
         new_last_itrun = cur_cart.last_iturn
-        if turn:
-            if is_intersection:
-                new_last_itrun = turn
-            if turn == Turn.LEFT:
-                new_dir = TURN_LEFT[cur_cart.dir]
-            elif turn == Turn.RIGHT:
-                new_dir = TURN_RIGHT[cur_cart.dir]
+        if is_intersection:
+            new_last_itrun = turn
+        new_dir = cur_cart.dir
+        if turn == Turn.LEFT:
+            new_dir = TURN_LEFT[cur_cart.dir]
+        elif turn == Turn.RIGHT:
+            new_dir = TURN_RIGHT[cur_cart.dir]
         carts[new_loc] = Cart(new_loc, new_dir, new_last_itrun)
     return True
 
