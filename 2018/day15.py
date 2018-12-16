@@ -115,6 +115,9 @@ class Creature:
     def __repr__(self):
         return f"{self.species}({self.loc} {self.hp})"
 
+    def map_str(self):
+        return f"{self.species}({self.hp})"
+
     @property
     def friends(self):
         return {l: c for l, c in self.all_creatures.items() if c.species == self.species}
@@ -245,6 +248,9 @@ def print_board(board, npcs):
     for y, line in enumerate(board):
         line = [(" " if board[y, x] >= -1 else "█") if (y, x) not in npcs else npcs[(y, x)].species
                 for x in range(len(line))]
+        line_creatures = ", ".join(npcs[l].map_str() for l in sorted(l for l in npcs if l.y == y))
+        if line_creatures:
+            line += "   " + line_creatures
         print("".join(line))
 
 
