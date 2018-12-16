@@ -93,7 +93,7 @@ EXAMPLE_DATA6 = """
 #.....G.#
 #########""".lstrip().split("\n")
 
-np.set_printoptions(linewidth=300, threshold=np.nan, formatter={'int': lambda x: f"{x:2}" if x >= -1 else "██"})
+np.set_printoptions(linewidth=120, threshold=np.nan, formatter={'int': lambda x: f"{x:2}" if x >= -1 else "██"})
 Coord = namedtuple("Coord", ["y", "x"])
 
 
@@ -102,13 +102,13 @@ class P2Exception(Exception):
 
 
 class Creature:
-    def __init__(self, species, location, creature_dict, attack=3, hp=200):
+    def __init__(self, species, location, attack=3, hp=200):
         self.species = species
         self.loc = location
         self.attack = attack
         self.hp = hp
 
-        self.all_creatures = creature_dict
+        self.all_creatures = None
 
         self.part_2 = False
 
@@ -133,16 +133,17 @@ class Creature:
         foe_locs = [(self.foes[l].hp, l) for l in adjacent_locs(board, self.loc) if l in self.foes]
         if foe_locs:
             foe_locs.sort()
-            return self.foes[foe_locs[0][1]]
-        return False
+            _, foe_loc = foe_locs[0]
+            return self.foes[foe_loc]
+        return None
 
     def paths_to(self, board, loc):
         loc_board = board.copy()
         loc_board[loc_board == 0] = -1
         for c_loc in self.all_creatures:
             if c_loc != self.loc:
-                loc_board[c_loc.y, c_loc.x] = -2
-        simulate_water(loc_board, {loc}, 0)
+                loc_board[c_loc] = -2
+        simulate_water(loc_board, {loc})
         return loc_board
 
     def select_destination(self, board):
@@ -152,7 +153,7 @@ class Creature:
             foe_adjacent = adjacent_locs(board, foe_loc)
             for loc in foe_adjacent:
                 if loc not in self.all_creatures:
-                    weight = my_paths[loc.y, loc.x]
+                    weight = my_paths[loc]
                     if weight >= 0:
                         possible_locs.append((weight, loc))
 
@@ -160,17 +161,18 @@ class Creature:
             return False
 
         possible_locs.sort()
-        return possible_locs[0][1]
+        _, target_loc = possible_locs[0]
+        return target_loc
 
     def move_towards(self, board, destination):
         possible_moves = adjacent_locs(board, self.loc)
         dest_path = self.paths_to(board, destination)
         # print(dest_path)
-        weighted_moves = [(dest_path[l.y, l.x], l) for l in possible_moves if l not in self.all_creatures]
+        weighted_moves = [(dest_path[l], l) for l in possible_moves if l not in self.all_creatures]
         if not weighted_moves:
             # print_board(self.board, self.all_creatures)
             return
-        weight, new_loc = sorted([t for t in weighted_moves if t[0] >= 0])[0]
+        _, new_loc = sorted([t for t in weighted_moves if t[0] >= 0])[0]
         del self.all_creatures[self.loc]
         self.all_creatures[new_loc] = self
         self.loc = new_loc
@@ -178,11 +180,12 @@ class Creature:
     def take_turn(self, board):
         if not self.foes:
             return False
+        adjacent_foe = self.adjacent_foe(board)
         if not self.adjacent_foe(board):
             destination = self.select_destination(board)
             if destination:
                 self.move_towards(board, destination)
-        adjacent_foe = self.adjacent_foe(board)
+            adjacent_foe = self.adjacent_foe(board)
         if adjacent_foe:
             adjacent_foe.attacked(board, self.attack)
         return True
@@ -197,34 +200,23 @@ class Creature:
             del self.all_creatures[self.loc]
 
 
-def adjacent_locs(base_board, loc):
-    locs = [Coord(loc.y, x) for x in range(loc.x - 1, loc.x + 2, 2) if base_board[loc.y, x] >= -1]
-    locs.extend([Coord(y, loc.x) for y in range(loc.y - 1, loc.y + 2, 2) if base_board[y, loc.x] >= -1])
-    return locs
+def adjacent_locs(board, loc):
+    possible_locs = [(loc.y - 1, loc.x), (loc.y, loc.x - 1), (loc.y, loc.x + 1), (loc.y + 1, loc.x)]
+    return [Coord(l[0], l[1]) for l in possible_locs if board[l] >= -1]
 
 
-def simulate_water(board, check_locs, cost):
+def simulate_water(board, check_locs, cost=0):
     # print(f"{cost}-> {check_locs}")
     next_locs = set()
     for loc in check_locs:
-        if board[loc.y, loc.x] >= 0:
+        if board[loc] >= 0:
             continue
-        board[loc.y, loc.x] = cost
+        board[loc] = cost
         next_locs |= set(adjacent_locs(board, loc))
     next_locs = {l for l in next_locs if l not in check_locs}
     # print(f"next_locs: {next_locs}")
     if next_locs:
         simulate_water(board, next_locs, cost + 1)
-
-
-
-# def build_paths(base_board, paths):
-#     for y, x in np.argwhere(base_board == 0):
-#         loc = Coord(y, x)
-#         loc_board = base_board.copy()
-#         loc_board[loc_board == 0] = -1
-#         simulate_water(loc_board, {loc}, 0)
-#         paths[loc] = loc_board
 
 
 def parse_board(board_str_list):
@@ -233,15 +225,9 @@ def parse_board(board_str_list):
         for x, c in enumerate(line):
             if c in ("E", "G"):
                 location = Coord(y, x)
-                npcs[location] = Creature(c, location, npcs)
+                npcs[location] = Creature(c, location)
         board_str_list[y] = [-2 if c == "#" else 0 for c in line]
-    board = np.array(board_str_list, dtype=np.int32)
-    paths = {}
-    # build_paths(board, paths)
-    for npc in npcs.values():
-        npc.board = board
-        # npc.paths = paths
-    return board, npcs
+    return np.array(board_str_list, dtype=np.int32), npcs
 
 
 def print_board(board, npcs):
@@ -293,7 +279,6 @@ def run_part_2(board, npcs):
             print(e)
             elf_attack += 1
             print(f"New elf attack power: {elf_attack}")
-
 
 
 def tests():
