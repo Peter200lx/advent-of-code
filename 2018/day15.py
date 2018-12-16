@@ -249,10 +249,10 @@ def run_game(board, npcs):
         #     print_board(board, npcs)
         #     print(f"count: {count} G HP: {[c for c in npcs.values() if c.species == 'G'][0].friendly_hp()}")
         #     print(f"count: {count} E HP: {[c for c in npcs.values() if c.species == 'E'][0].friendly_hp()}")
-        for npc_loc in sorted([l for l in npcs]):
-            if npc_loc not in npcs:
+        sorted_npcs = sorted(npcs.values(), key=lambda npc: npc.loc)
+        for npc in sorted_npcs:
+            if npc.hp <= 0:
                 continue
-            npc = npcs[npc_loc]
             if not npc.take_turn(board):
                 print_board(board, npcs)
                 print(f"count: {count} friendly_hp: {npc.friendly_hp()} == {npc.friendly_hp() * count}")
