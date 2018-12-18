@@ -100,31 +100,22 @@ def parse_input(input_str):
     return np.fromfunction(from_input_vector, (y_range, x_range), dtype=np.int16), Range(y_range, x_range)
 
 
-def get_surrounding(array, a_range, loc):
-    surrounding = []
-    for y in range(max(loc.y - 1, 0), min(loc.y + 2, a_range.y_max)):
-        for x in range(max(loc.x - 1, 0), min(loc.x + 2, a_range.y_max)):
-            if (y, x) == loc:
-                continue
-            surrounding.append(array[y, x])
-    return surrounding
-
-
 def geo_tick(array, a_range):
     reference_array = array.copy()
     for y, x in np.ndindex(reference_array.shape):
         loc = Coord(y, x)
-        loc_type = array[loc]
-        surrounding = get_surrounding(reference_array, a_range, loc)
+        loc_type = reference_array[loc]
+        surrounding = reference_array[max(loc.y - 1, 0):min(loc.y + 2, a_range.y_max),
+                                      max(loc.x - 1, 0):min(loc.x + 2, a_range.x_max)]
         if loc_type == OPEN:
-            if len([s for s in surrounding if s == WOOD]) >= 3:
+            if (surrounding == WOOD).sum() >= 3:
                 array[loc] = WOOD
         elif loc_type == WOOD:
-            if len([s for s in surrounding if s == YARD]) >= 3:
+            if (surrounding == YARD).sum() >= 3:
                 array[loc] = YARD
         elif loc_type == YARD:
-            if not (len([s for s in surrounding if s == WOOD]) >= 1
-                    and len([s for s in surrounding if s == YARD]) >= 1):
+            if not ((surrounding == WOOD).sum() >= 1
+                    and (surrounding == YARD).sum() >= 2):
                 array[loc] = OPEN
 
 
