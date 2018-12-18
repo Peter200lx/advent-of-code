@@ -103,8 +103,6 @@ class Field:
             below_loc = Coord(below_loc.y + 1, below_loc.x)
             if below_loc.y == self.range.y_max:
                 return False
-        if self.loc_type(below_loc) == FieldTypes.WATER_FALLING:
-            self.falling_water.remove(Coord(below_loc.y - 1, below_loc.x))
         return below_loc
 
     def fill_dir(self, orig_loc, x_val_iter):
