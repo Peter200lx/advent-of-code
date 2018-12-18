@@ -1,4 +1,4 @@
-from collections import namedtuple
+from collections import defaultdict, namedtuple
 
 import numpy as np
 
@@ -76,11 +76,7 @@ MAP_TYPE = {
     "#": YARD,
 }
 
-REV_MAP_TYPE = {
-    OPEN: ".",
-    WOOD: "|",
-    YARD: "#",
-}
+REV_MAP_TYPE = {v: k for k, v in MAP_TYPE.items()}
 
 np.set_printoptions(
     linewidth=500, threshold=np.nan, formatter={"int": lambda x: REV_MAP_TYPE[x]}
@@ -88,6 +84,9 @@ np.set_printoptions(
 
 Coord = namedtuple("Coord", ["y", "x"])
 Range = namedtuple("Range", ["y_max", "x_max"])
+
+P2_NUM = 1_000_000_000
+Seq = namedtuple("Seq", ["index", "value"])
 
 
 def parse_input(input_str):
@@ -129,54 +128,43 @@ def geo_tick(array, a_range):
                 array[loc] = OPEN
 
 
-def part_1(array, a_range, num_iters):
-    for i in range(num_iters):
+def part_1(array, a_range):
+    for i in range(10):
         geo_tick(array, a_range)
-        if i > 1000:
-            print(f"{i}\t{(array == WOOD).sum() * (array == YARD).sum()}")
     return (array == WOOD).sum() * (array == YARD).sum()
 
 
-GEN_DATA = """1001	189601
-1002	193318
-1003	198801
-1004	204000
-1005	207000
-1006	211145
-1007	213664
-1008	214286
-1009	218680
-1010	219035
-1011	220426
-1012	221676
-1013	222308
-1014	216920
-1015	208692
-1016	196707
-1017	187186
-1018	180565
-1019	176344
-1020	170880
-1021	165540
-1022	167008
-1023	171444
-1024	173328
-1025	176808
-1026	177410
-1027	180752
-1028	185658""".split("\n")
-GEN_DATA = [[int(n) for n in l.split("\t")] for l in GEN_DATA]
+def part_2_build_array(array, a_range):
+    seen_values = defaultdict(list)
+    repeating_array = None
+    distance = None
+    for i in range(P2_NUM):
+        geo_tick(array, a_range)
+        value = (array == WOOD).sum() * (array == YARD).sum()
+        if not distance:
+            seen_values[value].append(i)
+            if len(seen_values[value]) > 4:
+                my_locs = seen_values[value]
+                delta_1 = my_locs[-1] - my_locs[-2]
+                delta_2 = my_locs[-2] - my_locs[-3]
+                if delta_1 == delta_2:
+                    distance = delta_1
+                    repeating_array = [Seq(i, value)]
+        else:
+            repeating_array.append(Seq(i, value))
+            if len(repeating_array) == distance:
+                break
+
+    return repeating_array
 
 
 def part_2(sequence, n):
-    nums = [t[1] for t in sequence]
-    return nums[(n - 1001 - 1) % len(nums)]
+    return sequence[(n - sequence[0].index - 1) % len(sequence)].value
 
 
 if __name__ == '__main__':
     lumber_field, field_range = parse_input(DATA)
-    print(part_1(lumber_field.copy(), field_range, 10))
-    # print(part_1(lumber_field.copy(), field_range, 1_000_000_000))
-    # Ran the above code, found where output was wrapping, built GEN_DATA
-    print(part_2(GEN_DATA, 1_000_000_000))
+    print(part_1(lumber_field.copy(), field_range))
 
+    repeating_sequence = part_2_build_array(lumber_field, field_range)
+    print(part_2(repeating_sequence, P2_NUM))
