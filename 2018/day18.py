@@ -79,7 +79,7 @@ MAP_TYPE = {
 REV_MAP_TYPE = {v: k for k, v in MAP_TYPE.items()}
 
 np.set_printoptions(
-    linewidth=500, threshold=np.nan, formatter={"int": lambda x: REV_MAP_TYPE[x]}
+    linewidth=120, threshold=np.nan, formatter={"int": lambda x: REV_MAP_TYPE[x]}
 )
 
 Coord = namedtuple("Coord", ["y", "x"])
@@ -97,7 +97,8 @@ def parse_input(input_str):
     def from_input(y, x):
         return MAP_TYPE[lines[y][x]]
     from_input_vector = np.vectorize(from_input)
-    return np.fromfunction(from_input_vector, (y_range, x_range), dtype=np.int16), Range(y_range, x_range)
+    return (np.fromfunction(from_input_vector, (y_range, x_range), dtype=np.uint8),
+            Range(y_range, x_range))
 
 
 def geo_tick(array, a_range):
@@ -134,7 +135,7 @@ def part_2_build_array(array, a_range):
         value = (array == WOOD).sum() * (array == YARD).sum()
         if not distance:
             seen_values[value].append(i)
-            if len(seen_values[value]) > 4:
+            if len(seen_values[value]) >= 3:
                 my_locs = seen_values[value]
                 delta_1 = my_locs[-1] - my_locs[-2]
                 delta_2 = my_locs[-2] - my_locs[-3]
