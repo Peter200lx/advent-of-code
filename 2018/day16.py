@@ -2,9 +2,6 @@ import re
 from collections import namedtuple
 from typing import Callable, Dict, List, Optional, Tuple
 
-with open("day16.input", "r") as in_file:
-    DATA = in_file.read()
-
 TestChange = namedtuple("TChange", ["reg_before", "op_test", "reg_after"])
 RE_NUMS = re.compile(r'-?\d+')
 
@@ -16,10 +13,9 @@ class Processor:
         self.registers = [0] * 4
         self.mapping = None
 
-    @staticmethod
-    def _register_input(list_vals: List[int]) -> None:
+    def _register_input(self, list_vals: List[int]) -> None:
         for val in list_vals:
-            assert 0 <= val < 4
+            assert 0 <= val < len(self.registers)
 
     def op_addr(self, a, b, c):
         self._register_input([a, b, c])
@@ -174,6 +170,9 @@ def part_2(tests, code):
 
 
 if __name__ == '__main__':
+    with open("day16.input", "r") as in_file:
+        DATA = in_file.read()
+
     watch_tests, watch_code = parse_input(DATA)
     print(part_1(watch_tests))
     print(part_2(watch_tests, watch_code)[0])
