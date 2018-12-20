@@ -6,6 +6,7 @@ DATA = """^SSWNWSWWNWNNEES(EENWNNEEESEESSWSW(SESESESESWWNWSWNWNN(ESEWNW|)WSSWWWW
 EXAMPLE_DATA = """^ESSWWN(E|NNENN(EESS(WNSE|)SSS|WWWSSSSE(SW|NNNE)))$"""  # 23
 
 Coord = namedtuple("Coord", ["y", "x"])
+RCost = namedtuple("RCost", ["path_to_room", "room"])
 
 
 class Room:
@@ -86,22 +87,22 @@ def parse_input(regex_string: str) -> Room:
     return start_room
 
 
-def distance_cost(path_to_now: str, cur_room: Room, seen_rooms: Dict[Room, str]) -> Dict[Room, str]:
-    if (cur_room not in seen_rooms or
-            len(path_to_now) < len(seen_rooms[cur_room])):
-        seen_rooms[cur_room] = path_to_now
-        for n, room in cur_room.next_rooms():
-            distance_cost(path_to_now + n, room, seen_rooms)
-
+def distance_cost2(start_room: Room):
+    seen_rooms = {}
+    cur_rooms = [RCost("", start_room)]
+    while cur_rooms:
+        next_rooms = []
+        for path_to_room, cur_room in cur_rooms:
+            seen_rooms[cur_room] = path_to_room
+            for next_dir, next_room in cur_room.next_rooms():
+                next_rooms.append(RCost(path_to_room + next_dir, next_room))
+        cur_rooms = [t for t in next_rooms if t.room not in seen_rooms]
     return seen_rooms
 
 
 if __name__ == '__main__':
-    import sys
-    sys.setrecursionlimit(4000)
-
     starting_room = parse_input(DATA)
-    paths_to_rooms = distance_cost("", starting_room, {})
+    paths_to_rooms = distance_cost2(starting_room)
     longest = sorted(paths_to_rooms, reverse=True, key=lambda x: len(paths_to_rooms[x]))
     print(len(paths_to_rooms[longest[0]]))
     print(len([l for l in longest if len(paths_to_rooms[l]) >= 1000]))
