@@ -103,6 +103,5 @@ def distance_cost2(start_room: Room):
 if __name__ == '__main__':
     starting_room = parse_input(DATA)
     paths_to_rooms = distance_cost2(starting_room)
-    longest = sorted(paths_to_rooms, reverse=True, key=lambda x: len(paths_to_rooms[x]))
-    print(len(paths_to_rooms[longest[0]]))
-    print(len([l for l in longest if len(paths_to_rooms[l]) >= 1000]))
+    print(max([len(s) for s in paths_to_rooms.values()]))
+    print(sum([len(s) >= 1000 for s in paths_to_rooms.values()]))
