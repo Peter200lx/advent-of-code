@@ -56,10 +56,7 @@ def part_2_direct():
             r5 &= 16_777_215
             if 256 > r3:
                 break
-            r2 = 0
-            while (r2 + 1) * 256 <= r3:
-                r2 += 1
-            r3 = r2
+            r3 //= 256
 
         if r5 not in results:
             results.add(r5)
