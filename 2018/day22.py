@@ -32,9 +32,7 @@ MAP_TYPE = {
     NARROW: "|",
 }
 
-np.set_printoptions(
-    linewidth=300, threshold=np.nan, formatter={"int": lambda x: MAP_TYPE[x]}
-)
+np.set_printoptions(linewidth=300, threshold=np.nan)
 
 REGION_TO_TOOL = {
     ROCKY: {GEAR, TORCH},
@@ -163,6 +161,10 @@ if __name__ == '__main__':
     # DATA_TARGET = Coord(10, 10)
 
     grounds = build_soil(DATA_DEPTH, DATA_TARGET, 21)
-    print(grounds)
+    if tuple(int(i) for i in np.__version__.split(".") if i.isdigit()) >= (1, 15):
+        with np.printoptions(formatter={"int": lambda x: MAP_TYPE[x]}):
+            print(grounds)
+    else:
+        print(grounds)
     print(grounds[:DATA_TARGET.y + 1, :DATA_TARGET.x + 1].sum())
     print(part_2(grounds, DATA_TARGET))
