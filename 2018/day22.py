@@ -1,14 +1,19 @@
 from collections import namedtuple
 from heapq import heappop, heappush
-from typing import Dict, List, Set
+from typing import Dict, List, Set, Tuple
 
 import numpy as np
 
+np.set_printoptions(linewidth=300, threshold=np.nan)
+
 DATA = """depth: 11739
 target: 11,718"""
-DATA_DEPTH = 11739
+
+EXAMPLE_DATA = """depth: 510
+target: 10,10"""
+
 Coord = namedtuple("Coord", ["y", "x"])
-DATA_TARGET = Coord(x=11, y=718)
+ToCheck = namedtuple("ToCheck", ["start_cost", "loc", "tool"])
 
 # Region
 ROCKY = 0
@@ -26,13 +31,11 @@ TOOL_TYPE = {
     NEITHER: "Neither Tool",
 }
 
-MAP_TYPE = {
+REGION_TYPE = {
     ROCKY: ".",
     WET: "=",
     NARROW: "|",
 }
-
-np.set_printoptions(linewidth=300, threshold=np.nan)
 
 REGION_TO_TOOL = {
     ROCKY: {GEAR, TORCH},
@@ -40,12 +43,19 @@ REGION_TO_TOOL = {
     NARROW: {TORCH, NEITHER},
 }
 
-
 TOOL_TO_REGION = {
     TORCH: {ROCKY, NARROW},
     GEAR: {ROCKY, WET},
     NEITHER: {WET, NARROW},
 }
+
+
+def parse_input(instructions: str) -> Tuple[int, Coord]:
+    instructions = instructions.split("\n")
+    depth = int(instructions[0].split()[1])
+    x, y = instructions[1].split()[1].split(",")
+    target = Coord(x=int(x), y=int(y))
+    return depth, target
 
 
 def build_soil(depth: int, target: Coord, bonus_size: int = 10) -> np.ndarray:
@@ -74,8 +84,8 @@ def build_soil(depth: int, target: Coord, bonus_size: int = 10) -> np.ndarray:
 def init_tool_heatmaps(field: np.ndarray) -> Dict[int, np.ndarray]:
     tool_heatmap = {}
 
-    for t in TOOL_TO_REGION:
-        tool_no_go = [r for r in REGION_TO_TOOL if r not in TOOL_TO_REGION[t]]
+    for t in TOOL_TYPE:
+        tool_no_go = [r for r in REGION_TYPE if r not in TOOL_TO_REGION[t]]
         tool_heatmap[t] = (field != tool_no_go) * 10_000 - 1
 
     return tool_heatmap
@@ -107,9 +117,6 @@ def simulate_water(t_field: np.ndarray, check_locs: Set[Coord], cost: int) -> Se
     if next_locs:
         updated_locs |= simulate_water(t_field, next_locs, cost + 1)
     return updated_locs
-
-
-ToCheck = namedtuple("ToCheck", ["start_cost", "loc", "tool"])
 
 
 def step_tool(base_field: np.ndarray, tool_fields: Dict[int, np.ndarray], this_check: ToCheck) -> List[ToCheck]:
@@ -152,14 +159,12 @@ def part_2(field: np.ndarray, target: Coord) -> int:
 
 
 if __name__ == '__main__':
-    # DATA_DEPTH = 510
-    # DATA_TARGET = Coord(10, 10)
-
-    grounds = build_soil(DATA_DEPTH, DATA_TARGET, 21)
+    data_depth, data_target = parse_input(DATA)
+    grounds = build_soil(data_depth, data_target, 21)
     if tuple(int(i) for i in np.__version__.split(".") if i.isdigit()) >= (1, 15):
-        with np.printoptions(formatter={"int": lambda x: MAP_TYPE[x]}):
+        with np.printoptions(formatter={"int": lambda x: REGION_TYPE[x]}):
             print(grounds)
     else:
         print(grounds)
-    print(grounds[:DATA_TARGET.y + 1, :DATA_TARGET.x + 1].sum())
-    print(part_2(grounds, DATA_TARGET))
+    print(grounds[:data_target.y + 1, :data_target.x + 1].sum())
+    print(part_2(grounds, data_target))
