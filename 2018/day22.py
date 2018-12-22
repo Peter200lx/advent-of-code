@@ -74,14 +74,9 @@ def build_soil(depth: int, target: Coord, bonus_size: int = 10) -> np.ndarray:
 def init_tool_heatmaps(field: np.ndarray) -> Dict[int, np.ndarray]:
     tool_heatmap = {}
 
-    def tool_type_wrapper(base_field, tool):
-        def tool_type(y, x):
-            return 1e9 if base_field[y, x] in TOOL_TO_REGION[tool] else -1
-        return tool_type
-
-    for t in (TORCH, GEAR, NEITHER):
-        tool_type_vector = np.vectorize(tool_type_wrapper(field, t))
-        tool_heatmap[t] = np.fromfunction(tool_type_vector, field.shape, dtype=np.int32)
+    for t in TOOL_TO_REGION:
+        tool_no_go = [r for r in REGION_TO_TOOL if r not in TOOL_TO_REGION[t]]
+        tool_heatmap[t] = (field != tool_no_go) * 10_000 - 1
 
     return tool_heatmap
 
@@ -153,7 +148,7 @@ def part_2(field: np.ndarray, target: Coord) -> int:
     #     print(TOOL_TYPE[tool])
     #     print(tool_heatmaps[tool][target])
     #     print(tool_heatmaps[tool])
-    return int(tool_heatmaps[TORCH][target])
+    return tool_heatmaps[TORCH][target]
 
 
 if __name__ == '__main__':
