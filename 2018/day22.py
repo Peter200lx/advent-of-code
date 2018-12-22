@@ -101,7 +101,7 @@ def adjacent_locs(field: np.ndarray, loc: Coord) -> Set[Coord]:
         possible_locs.add(Coord(loc.y, loc.x + 1))
     if loc.y < field.shape[0] - 1:
         possible_locs.add(Coord(loc.y + 1, loc.x))
-    return {l for l in possible_locs if field[l] > -1}
+    return {l for l in possible_locs if field[l] != -1}
 
 
 def simulate_water(t_field: np.ndarray, check_locs: Set[Coord], cost: int) -> Set[Coord]:
@@ -110,12 +110,10 @@ def simulate_water(t_field: np.ndarray, check_locs: Set[Coord], cost: int) -> Se
     while next_locs:
         next_locs = set()
         for loc in check_locs:
-            if t_field[loc] == -1 or t_field[loc] <= cost:
-                continue
-            t_field[loc] = cost
-            updated_locs.add(loc)
-            next_locs |= adjacent_locs(t_field, loc)
-        next_locs -= updated_locs
+            if t_field[loc] > cost:
+                t_field[loc] = cost
+                updated_locs.add(loc)
+                next_locs |= adjacent_locs(t_field, loc)
         check_locs = next_locs
         cost += 1
     return updated_locs
