@@ -106,16 +106,18 @@ def adjacent_locs(field: np.ndarray, loc: Coord) -> Set[Coord]:
 
 def simulate_water(t_field: np.ndarray, check_locs: Set[Coord], cost: int) -> Set[Coord]:
     updated_locs = set()
-    next_locs = set()
-    for loc in check_locs:
-        if t_field[loc] == -1 or t_field[loc] <= cost:
-            continue
-        t_field[loc] = cost
-        updated_locs.add(loc)
-        next_locs |= adjacent_locs(t_field, loc)
-    next_locs -= check_locs
-    if next_locs:
-        updated_locs |= simulate_water(t_field, next_locs, cost + 1)
+    next_locs = check_locs
+    while next_locs:
+        next_locs = set()
+        for loc in check_locs:
+            if t_field[loc] == -1 or t_field[loc] <= cost:
+                continue
+            t_field[loc] = cost
+            updated_locs.add(loc)
+            next_locs |= adjacent_locs(t_field, loc)
+        next_locs -= updated_locs
+        check_locs = next_locs
+        cost += 1
     return updated_locs
 
 
