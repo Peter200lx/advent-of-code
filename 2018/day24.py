@@ -39,10 +39,14 @@ class FighterGroup:
         self.attack_type = attack_type
         self.initiative = initiative
 
-    def copy(self):
+    def copy(self, boostuple=None):
+        boost = 0
+        if boostuple:
+            if self.team == boostuple[0]:
+                boost = boostuple[1]
         return FighterGroup(
             self.team, self.num_units, self.unit_hp, self.immunities, self.weaknesses,
-            self.attack_damage, self.attack_type, self.initiative
+            self.attack_damage + boost, self.attack_type, self.initiative
         )
 
     @property
@@ -163,10 +167,7 @@ def part_2(armies):
     test_armies = []
     while not good_won:
         # print(f"Starting a run with boost {boost}")
-        test_armies = [g.copy() for g in armies]
-        for group in test_armies:
-            if group.team == "Good":
-                group.attack_damage += boost
+        test_armies = [g.copy(("Good", boost)) for g in armies]
 
         while run_round(test_armies):
             # print(test_armies)
