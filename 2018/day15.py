@@ -206,17 +206,17 @@ def adjacent_locs(board, loc):
 
 
 def simulate_water(board, check_locs, cost=0):
-    # print(f"{cost}-> {check_locs}")
-    next_locs = set()
     for loc in check_locs:
-        if board[loc] >= 0:
-            continue
-        board[loc] = cost
-        next_locs |= set(adjacent_locs(board, loc))
-    next_locs = {l for l in next_locs if l not in check_locs}
-    # print(f"next_locs: {next_locs}")
-    if next_locs:
-        simulate_water(board, next_locs, cost + 1)
+        assert board[loc] == -1
+    next_locs = check_locs
+    while next_locs:
+        next_locs = set()
+        for loc in check_locs:
+            board[loc] = cost
+            possible_locs = {(loc.y - 1, loc.x), (loc.y, loc.x - 1), (loc.y, loc.x + 1), (loc.y + 1, loc.x)}
+            next_locs |= {Coord(*l) for l in possible_locs if board[l] == -1}
+        check_locs = next_locs
+        cost += 1
 
 
 def parse_board(board_str_list):
