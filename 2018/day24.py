@@ -27,6 +27,9 @@ Infection:
 
 RE_NUMS = re.compile(r"-?\d+")
 
+GOOD = "Good"
+BAD = "Bad"
+
 
 class FighterGroup:
     def __init__(self, team, num_units, unit_hp, immunities, weaknesses, attack_damage, attack_type, initiative):
@@ -95,7 +98,7 @@ class FighterGroup:
 
 def parse_input(initial_state):
     armies = []
-    army_type = "Good"
+    army_team = GOOD
     for army in initial_state.split("\n\n"):
         for group in army.split("\n")[1:]:
             num_units, unit_hp, attack_damage, initiative = tuple(map(int, RE_NUMS.findall(group)))
@@ -117,9 +120,9 @@ def parse_input(initial_state):
             except ValueError:
                 pass
             armies.append(FighterGroup(
-                army_type, num_units, unit_hp, immunities, weaknesses, attack_damage, attack_type, initiative
+                army_team, num_units, unit_hp, immunities, weaknesses, attack_damage, attack_type, initiative
             ))
-        army_type = "Bad"
+        army_team = BAD
     return armies
 
 
@@ -145,9 +148,9 @@ def run_round(armies):
     if not any_killed:
         print("Stall Detected!")
         return False
-    first_type = armies[0].team
+    first_team = armies[0].team
     for group in armies:
-        if group.team != first_type:
+        if group.team != first_team:
             return True
     return False
 
@@ -167,7 +170,7 @@ def part_2(armies):
     test_armies = []
     while not good_won:
         # print(f"Starting a run with boost {boost}")
-        test_armies = [g.copy(("Good", boost)) for g in armies]
+        test_armies = [g.copy((GOOD, boost)) for g in armies]
 
         while run_round(test_armies):
             # print(test_armies)
@@ -176,7 +179,7 @@ def part_2(armies):
 
         good_won = True
         for group in test_armies:
-            if group.team == "Bad":
+            if group.team == BAD:
                 good_won = False
                 break
     return sum((a.num_units for a in test_armies))
