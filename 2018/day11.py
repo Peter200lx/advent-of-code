@@ -19,20 +19,18 @@ def power_wrapper(serial_number):
 
 def find_max(grid, square=3):
     max_seg = (0, 0, 0)  # x, y, sum
-    for ix, iy in np.ndindex((GRID_SIZE[0] - square, GRID_SIZE[1] - square)):
+    for ix, iy in np.ndindex((grid.shape[0] - square, grid.shape[1] - square)):
         local_sum = grid[ix: ix + square, iy: iy + square].sum()
-        if local_sum > max_seg[2]:
-            max_seg = (ix, iy, local_sum)
+        max_seg = max(max_seg, (ix, iy, local_sum), key=lambda x: x[2])
     return max_seg
 
 
 def find_all_sizes(grid):
     max_any = (0, 0, 0, 0)  # x, y, square, sum
-    for i in range(GRID_SIZE[0]):
+    for i in range(grid.shape[0]):
         size_max = find_max(grid, square=i)
-        if size_max[2] > max_any[3]:
-            max_any = size_max[0], size_max[1], i, size_max[2]
-            # print(max_any)
+        max_any = max(max_any, (size_max[0], size_max[1], i, size_max[2]),
+                      key=lambda x: x[3])
         if i > max_any[2] + 10:  # Guess that past some limit we won't find more
             # print(f"Last square tested is {i}x{i}")
             break
@@ -43,5 +41,5 @@ if __name__ == '__main__':
     calc_power_vector = np.vectorize(power_wrapper(DATA))
     fuel_cells = np.fromfunction(calc_power_vector, GRID_SIZE, dtype=np.int16)
     # print(fuel_cells)
-    print(find_max(fuel_cells))
-    print(find_all_sizes(fuel_cells))
+    print(find_max(fuel_cells)[:-1])
+    print(find_all_sizes(fuel_cells)[:-1])
