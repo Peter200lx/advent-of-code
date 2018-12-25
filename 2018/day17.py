@@ -4,10 +4,6 @@ from enum import Enum
 
 import numpy as np
 
-with open("day17.input", "r") as in_file:
-    DATA = in_file.read()
-
-
 EXAMPLE_DATA = """x=495, y=2..7
 y=7, x=495..501
 x=501, y=3..7
@@ -73,9 +69,7 @@ def parse_input(data_blob):
 class Field:
     def __init__(self, scan_list, frange, source_locs):
         self.range = frange
-        self.array = np.zeros(
-            (self.range.y_max + 1, self.range.x_max + 1), dtype=np.int32
-        )
+        self.array = np.zeros((frange.y_max, frange.x_max), dtype=np.int8)
         for scan in scan_list:
             self.array[scan] = FieldTypes.CLAY.value
         self.falling_water = set()
@@ -86,7 +80,7 @@ class Field:
             self.array[water_loc] = FieldTypes.WATER_FALLING.value
 
     def print(self):
-        print(self.array[:, soil_range.x_min - 1 :])
+        print(self.array[:, soil_range.x_min - 1:])
 
     def loc_type(self, loc):
         return FieldTypes(self.array[loc])
@@ -123,7 +117,7 @@ class Field:
         right_clay = self.fill_dir(loc, range(loc.x + 1, self.range.x_max + 1))
         left_clay = self.fill_dir(loc, range(loc.x - 1, self.range.x_min - 1, -1))
         if left_clay and right_clay:
-            self.array[loc.y, left_clay + 1: right_clay] = FieldTypes.WATER_STANDING.value
+            self.array[loc.y, left_clay + 1:right_clay] = FieldTypes.WATER_STANDING.value
             self.falling_water.remove(loc)
         return False
 
@@ -158,6 +152,9 @@ def run_simulation(field):
 
 
 if __name__ == '__main__':
+    with open("day17.input", "r") as in_file:
+        DATA = in_file.read()
+
     scan_output, soil_range = parse_input(DATA)
     soil = Field(scan_output, soil_range, SOURCES)
     run_simulation(soil)
