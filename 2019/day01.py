@@ -7,23 +7,19 @@ def fuel_calc(num):
 
 
 def calc(list_o_mass):
-    for i, num in enumerate(list_o_mass):
-        list_o_mass[i] = fuel_calc(num)
-    return sum(list_o_mass)
-
-
-def calc_v2(list_o_mass):
-    for i, num in enumerate(list_o_mass):
-        list_o_mass[i] = fuel_add = fuel_calc(num)
+    sum1 = sum2 = 0
+    for num in list_o_mass:
+        fuel_add = fuel_calc(num)
+        sum1 += fuel_add
+        sum2 += fuel_add
         while fuel_add:
             fuel_add = fuel_calc(fuel_add)
-            list_o_mass[i] += fuel_add
-    return sum(list_o_mass)
+            sum2 += fuel_add
+    return sum1, sum2
 
 
 if __name__ == "__main__":
     DATA = Path("day01.input").read_text().strip()
     int_list = [int(i) for i in DATA.split("\n")]
 
-    print(calc(int_list[:]))
-    print(calc_v2(int_list[:]))
+    print(calc(int_list))
