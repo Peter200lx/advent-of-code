@@ -39,7 +39,7 @@ def find_cross(two_wires: List[List[str]]) -> Tuple[int, int]:
     min_man = 9e999
     min_steps = 9e999
     for point in crossing_points:
-        man = abs(0 - point.x) + abs(0 - point.y)
+        man = abs(point.x) + abs(point.y)
         min_man = min(man, min_man)
         steps = wire1_dict[point] + wire2_dict[point]
         min_steps = min(steps, min_steps)
