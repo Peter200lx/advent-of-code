@@ -13,7 +13,7 @@ DIRECTIONS = {"U": Point(1, 0), "D": Point(-1, 0), "R": Point(0, 1), "L": Point(
 def build_wire_points(wire_list: List[str]) -> Dict[Point, int]:
     current_point = Point(0, 0)
     distance_so_far = 0
-    loc_dict = {current_point: distance_so_far}
+    loc_dict = {}
     for direction in wire_list:
         arrow = direction[0]
         distance = int(direction[1:])
@@ -33,7 +33,6 @@ def find_cross(two_wires: List[List[str]]) -> Tuple[int, int]:
     wire1_dict = build_wire_points(two_wires[0])
     wire2_dict = build_wire_points(two_wires[1])
     crossing_points = set(wire1_dict) & set(wire2_dict)
-    crossing_points.remove(Point(0, 0))
     min_man = 9e999
     min_steps = 9e999
     for point in crossing_points:
