@@ -12,34 +12,22 @@ def build_wire_points(wire_list: List[str]) -> Dict[Point, int]:
     for direction in wire_list:
         arrow = direction[0]
         distance = int(direction[1:])
-        if arrow == "U":
-            line_dict = {
-                Point(current_point.y + y, current_point.x): distance_so_far + y
-                for y in range(distance)
-            }
-            current_point = Point(current_point.y + distance, current_point.x)
-        elif arrow == "D":
-            line_dict = {
-                Point(current_point.y - y, current_point.x): distance_so_far + y
-                for y in range(distance)
-            }
-            current_point = Point(current_point.y - distance, current_point.x)
-        elif arrow == "R":
-            line_dict = {
-                Point(current_point.y, current_point.x + x): distance_so_far + x
-                for x in range(distance)
-            }
-            current_point = Point(current_point.y, current_point.x + distance)
-        elif arrow == "L":
-            line_dict = {
-                Point(current_point.y, current_point.x - x): distance_so_far + x
-                for x in range(distance)
-            }
-            current_point = Point(current_point.y, current_point.x - distance)
-        else:
-            raise ValueError(f"Unknown direction {direction}")
+        for i in range(1, distance + 1):
+            if arrow == "U":
+                point = Point(current_point.y + i, current_point.x)
+            elif arrow == "D":
+                point = Point(current_point.y - i, current_point.x)
+            elif arrow == "R":
+                point = Point(current_point.y, current_point.x + i)
+            elif arrow == "L":
+                point = Point(current_point.y, current_point.x - i)
+            else:
+                raise ValueError(f"Unknown direction {direction}")
+
+            if point not in loc_dict:
+                loc_dict[point] = distance_so_far + i
+        current_point = point
         distance_so_far += distance
-        loc_dict = {**line_dict, **loc_dict}
     return loc_dict
 
 
