@@ -42,6 +42,6 @@ def find_cross(two_wires: List[List[str]]) -> Tuple[int, int]:
 
 if __name__ == "__main__":
     DATA = Path("day03.input").read_text().strip()
-    str_list = [[i for i in line.split(",")] for line in DATA.split("\n")]
+    str_list = [line.split(",") for line in DATA.split("\n")]
 
     print(find_cross(str_list))
