@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import List, Dict, Tuple
 
 Point = namedtuple("Point", ["y", "x"])
+DIRECTIONS = {"U": Point(1, 0), "D": Point(-1, 0), "R": Point(0, 1), "L": Point(0, -1)}
 
 
 def build_wire_points(wire_list: List[str]) -> Dict[Point, int]:
@@ -13,20 +14,13 @@ def build_wire_points(wire_list: List[str]) -> Dict[Point, int]:
         arrow = direction[0]
         distance = int(direction[1:])
         for i in range(1, distance + 1):
-            if arrow == "U":
-                point = Point(current_point.y + i, current_point.x)
-            elif arrow == "D":
-                point = Point(current_point.y - i, current_point.x)
-            elif arrow == "R":
-                point = Point(current_point.y, current_point.x + i)
-            elif arrow == "L":
-                point = Point(current_point.y, current_point.x - i)
-            else:
-                raise ValueError(f"Unknown direction {direction}")
+            current_point = Point(
+                current_point.y + DIRECTIONS[arrow].y,
+                current_point.x + DIRECTIONS[arrow].x,
+            )
 
-            if point not in loc_dict:
-                loc_dict[point] = distance_so_far + i
-        current_point = point
+            if current_point not in loc_dict:
+                loc_dict[current_point] = distance_so_far + i
         distance_so_far += distance
     return loc_dict
 
