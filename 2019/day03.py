@@ -1,8 +1,12 @@
-from collections import namedtuple
 from pathlib import Path
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, NamedTuple
 
-Point = namedtuple("Point", ["y", "x"])
+
+class Point(NamedTuple):
+    y: int
+    x: int
+
+
 DIRECTIONS = {"U": Point(1, 0), "D": Point(-1, 0), "R": Point(0, 1), "L": Point(0, -1)}
 
 
