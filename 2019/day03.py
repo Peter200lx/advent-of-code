@@ -1,10 +1,11 @@
 from collections import namedtuple
 from pathlib import Path
+from typing import List, Dict, Tuple
 
 Point = namedtuple("Point", ["y", "x"])
 
 
-def build_wire_points(wire_list):
+def build_wire_points(wire_list: List[str]) -> Dict[Point, int]:
     current_point = Point(0, 0)
     distance_so_far = 0
     loc_dict = {current_point: distance_so_far}
@@ -42,7 +43,7 @@ def build_wire_points(wire_list):
     return loc_dict
 
 
-def find_cross(two_wires):
+def find_cross(two_wires: List[List[str]]) -> Tuple[int, int]:
     wire1_dict = build_wire_points(two_wires[0])
     wire2_dict = build_wire_points(two_wires[1])
     crossing_points = set(wire1_dict) & set(wire2_dict)
