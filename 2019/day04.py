@@ -4,12 +4,11 @@ from collections import Counter
 def validate(code, p2=False):
     if len(code) != 6:
         return False
-    prev = 0
+    prev = "0"
     for char in code:
-        cur = int(char)
-        if cur < prev:
+        if char < prev:
             return False
-        prev = cur
+        prev = char
     c = Counter(code)
     return any(v > 1 if not p2 else v == 2 for v in c.values())
 
