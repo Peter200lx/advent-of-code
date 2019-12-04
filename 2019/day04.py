@@ -10,7 +10,10 @@ def validate(code, p2=False):
             return False
         prev = char
     c = Counter(code)
-    return any(v > 1 if not p2 else v == 2 for v in c.values())
+    if not p2:
+        return any(v > 1 for v in c.values())
+    else:
+        return any(v == 2 for v in c.values())
 
 
 if __name__ == "__main__":
