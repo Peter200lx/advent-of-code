@@ -17,5 +17,6 @@ def validate(code, p2=False):
 if __name__ == "__main__":
     DATA = "372037-905157"
     start, end = [int(num) for num in DATA.split("-")]
-    print(sum(validate(str(n)) for n in range(start, end + 1)))
-    print(sum(validate(str(n), p2=True) for n in range(start, end + 1)))
+    valid_nums_p1 = [n for n in range(start, end + 1) if validate(str(n))]
+    print(len(valid_nums_p1))
+    print(sum(validate(str(n), p2=True) for n in valid_nums_p1))
