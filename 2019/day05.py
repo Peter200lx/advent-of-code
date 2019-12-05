@@ -1,7 +1,14 @@
+from enum import Enum
 from pathlib import Path
-from typing import Sequence as Seq, List, Tuple, Set
+from typing import Sequence as Seq, List, Tuple
 
 from day02 import Processor, ProgramHalt
+
+
+class ParamTypes(Enum):
+    OP = 0
+    IN = 1
+    OUT = 2
 
 
 class D5Processor(Processor):
@@ -30,66 +37,66 @@ class D5Processor(Processor):
         except ProgramHalt:
             return self.output
 
-    def _parse_modes(self, ip: int, op_len: int, imm_mode: Set[int] = None) -> Tuple[int, ...]:
-        op, *params = self.memory[ip : ip + op_len]
+    def _parse_modes(self, ip: int, opcodes: Tuple[ParamTypes, ...]) -> Tuple[int, ...]:
+        op, *params = self.memory[ip : ip + len(opcodes)]
         for i, val in enumerate(params):
-            if imm_mode and i in imm_mode:
+            if opcodes[i + 1] != ParamTypes.IN:
                 continue
             mode = op % (10 ** (i + 3)) // (10 ** (i + 2))
             params[i] = val if mode == 1 else self.memory[val]
         return params
 
     def op_add(self, ip: int) -> int:
-        _opcode_length = 4
-        a, b, r = self._parse_modes(ip, _opcode_length, {2})
+        _opcodes = (ParamTypes.OP, ParamTypes.IN, ParamTypes.IN, ParamTypes.OUT)
+        a, b, r = self._parse_modes(ip, _opcodes)
         self.memory[r] = a + b
-        return ip + _opcode_length
+        return ip + len(_opcodes)
 
     def op_mul(self, ip: int) -> int:
-        _opcode_length = 4
-        a, b, r = self._parse_modes(ip, _opcode_length, {2})
+        _opcodes = (ParamTypes.OP, ParamTypes.IN, ParamTypes.IN, ParamTypes.OUT)
+        a, b, r = self._parse_modes(ip, _opcodes)
         self.memory[r] = a * b
-        return ip + _opcode_length
+        return ip + len(_opcodes)
 
     def op_input(self, ip: int) -> int:
-        _opcode_length = 2
-        (r,) = self._parse_modes(ip, _opcode_length, {0})
+        _opcodes = (ParamTypes.OP, ParamTypes.OUT)
+        (r,) = self._parse_modes(ip, _opcodes)
         self.memory[r] = self.input.pop()
-        return ip + _opcode_length
+        return ip + len(_opcodes)
 
     def op_output(self, ip: int) -> int:
-        _opcode_length = 2
-        (r,) = self._parse_modes(ip, _opcode_length)
+        _opcodes = (ParamTypes.OP, ParamTypes.IN)
+        (r,) = self._parse_modes(ip, _opcodes)
         self.output.append(r)
-        return ip + _opcode_length
+        return ip + len(_opcodes)
 
     def op_jit(self, ip: int) -> int:
-        _opcode_length = 3
-        con, to = self._parse_modes(ip, _opcode_length)
+        _opcodes = (ParamTypes.OP, ParamTypes.IN, ParamTypes.IN)
+        con, to = self._parse_modes(ip, _opcodes)
         if con == 0:
-            return ip + _opcode_length
+            return ip + len(_opcodes)
         else:
             return to
 
     def op_jif(self, ip: int) -> int:
-        _opcode_length = 3
-        con, to = self._parse_modes(ip, _opcode_length)
+        _opcodes = (ParamTypes.OP, ParamTypes.IN, ParamTypes.IN)
+        con, to = self._parse_modes(ip, _opcodes)
         if con != 0:
-            return ip + _opcode_length
+            return ip + len(_opcodes)
         else:
             return to
 
     def op_lt(self, ip: int) -> int:
-        _opcode_length = 4
-        a, b, r = self._parse_modes(ip, _opcode_length, {2})
+        _opcodes = (ParamTypes.OP, ParamTypes.IN, ParamTypes.IN, ParamTypes.OUT)
+        a, b, r = self._parse_modes(ip, _opcodes)
         self.memory[r] = 1 if a < b else 0
-        return ip + _opcode_length
+        return ip + len(_opcodes)
 
     def op_eq(self, ip: int) -> int:
-        _opcode_length = 4
-        a, b, r = self._parse_modes(ip, _opcode_length, {2})
+        _opcodes = (ParamTypes.OP, ParamTypes.IN, ParamTypes.IN, ParamTypes.OUT)
+        a, b, r = self._parse_modes(ip, _opcodes)
         self.memory[r] = 1 if a == b else 0
-        return ip + _opcode_length
+        return ip + len(_opcodes)
 
     def func_by_instruction_pointer(self, ip: int) -> int:
         return self.func_by_num(self.memory[ip] % 100, ip)
