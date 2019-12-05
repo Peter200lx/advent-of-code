@@ -7,8 +7,8 @@ from day02 import Processor, ProgramHalt
 
 class ParamTypes(Enum):
     OP = 0
-    IN = 1
-    OUT = 2
+    READ = 1
+    WRITE = 2
 
 
 class D5Processor(Processor):
@@ -40,38 +40,38 @@ class D5Processor(Processor):
     def _parse_modes(self, ip: int, opcodes: Tuple[ParamTypes, ...]) -> Tuple[int, ...]:
         op, *params = self.memory[ip : ip + len(opcodes)]
         for i, val in enumerate(params):
-            if opcodes[i + 1] != ParamTypes.IN:
+            if opcodes[i + 1] != ParamTypes.READ:
                 continue
             mode = op % (10 ** (i + 3)) // (10 ** (i + 2))
             params[i] = val if mode == 1 else self.memory[val]
         return params
 
     def op_add(self, ip: int) -> int:
-        _opcodes = (ParamTypes.OP, ParamTypes.IN, ParamTypes.IN, ParamTypes.OUT)
+        _opcodes = (ParamTypes.OP, ParamTypes.READ, ParamTypes.READ, ParamTypes.WRITE)
         a, b, r = self._parse_modes(ip, _opcodes)
         self.memory[r] = a + b
         return ip + len(_opcodes)
 
     def op_mul(self, ip: int) -> int:
-        _opcodes = (ParamTypes.OP, ParamTypes.IN, ParamTypes.IN, ParamTypes.OUT)
+        _opcodes = (ParamTypes.OP, ParamTypes.READ, ParamTypes.READ, ParamTypes.WRITE)
         a, b, r = self._parse_modes(ip, _opcodes)
         self.memory[r] = a * b
         return ip + len(_opcodes)
 
     def op_input(self, ip: int) -> int:
-        _opcodes = (ParamTypes.OP, ParamTypes.OUT)
+        _opcodes = (ParamTypes.OP, ParamTypes.WRITE)
         (r,) = self._parse_modes(ip, _opcodes)
         self.memory[r] = self.input.pop()
         return ip + len(_opcodes)
 
     def op_output(self, ip: int) -> int:
-        _opcodes = (ParamTypes.OP, ParamTypes.IN)
+        _opcodes = (ParamTypes.OP, ParamTypes.READ)
         (r,) = self._parse_modes(ip, _opcodes)
         self.output.append(r)
         return ip + len(_opcodes)
 
     def op_jit(self, ip: int) -> int:
-        _opcodes = (ParamTypes.OP, ParamTypes.IN, ParamTypes.IN)
+        _opcodes = (ParamTypes.OP, ParamTypes.READ, ParamTypes.READ)
         con, to = self._parse_modes(ip, _opcodes)
         if con == 0:
             return ip + len(_opcodes)
@@ -79,7 +79,7 @@ class D5Processor(Processor):
             return to
 
     def op_jif(self, ip: int) -> int:
-        _opcodes = (ParamTypes.OP, ParamTypes.IN, ParamTypes.IN)
+        _opcodes = (ParamTypes.OP, ParamTypes.READ, ParamTypes.READ)
         con, to = self._parse_modes(ip, _opcodes)
         if con != 0:
             return ip + len(_opcodes)
@@ -87,13 +87,13 @@ class D5Processor(Processor):
             return to
 
     def op_lt(self, ip: int) -> int:
-        _opcodes = (ParamTypes.OP, ParamTypes.IN, ParamTypes.IN, ParamTypes.OUT)
+        _opcodes = (ParamTypes.OP, ParamTypes.READ, ParamTypes.READ, ParamTypes.WRITE)
         a, b, r = self._parse_modes(ip, _opcodes)
         self.memory[r] = 1 if a < b else 0
         return ip + len(_opcodes)
 
     def op_eq(self, ip: int) -> int:
-        _opcodes = (ParamTypes.OP, ParamTypes.IN, ParamTypes.IN, ParamTypes.OUT)
+        _opcodes = (ParamTypes.OP, ParamTypes.READ, ParamTypes.READ, ParamTypes.WRITE)
         a, b, r = self._parse_modes(ip, _opcodes)
         self.memory[r] = 1 if a == b else 0
         return ip + len(_opcodes)
