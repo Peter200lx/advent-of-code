@@ -21,7 +21,7 @@ class D5Processor(Processor):
         self.input = []
         self.output = []
 
-    def run(self, input_queue):
+    def run(self, input_queue: List[int]) -> List[int]:
         self.input.extend(input_queue)
         ip = 0
         try:
@@ -30,7 +30,7 @@ class D5Processor(Processor):
         except ProgramHalt:
             return self.output
 
-    def _parse_modes(self, ip: int, op_len: int, imm_mode: Set[int] = None) -> Tuple:
+    def _parse_modes(self, ip: int, op_len: int, imm_mode: Set[int] = None) -> Tuple[int, ...]:
         op, *params = self.memory[ip : ip + op_len]
         for i, val in enumerate(params):
             if imm_mode and i in imm_mode:
@@ -51,19 +51,19 @@ class D5Processor(Processor):
         self.memory[r] = a * b
         return ip + _opcode_length
 
-    def op_input(self, ip: int):
+    def op_input(self, ip: int) -> int:
         _opcode_length = 2
         (r,) = self._parse_modes(ip, _opcode_length, {0})
         self.memory[r] = self.input.pop()
         return ip + _opcode_length
 
-    def op_output(self, ip: int):
+    def op_output(self, ip: int) -> int:
         _opcode_length = 2
         (r,) = self._parse_modes(ip, _opcode_length)
         self.output.append(r)
         return ip + _opcode_length
 
-    def op_jit(self, ip: int):
+    def op_jit(self, ip: int) -> int:
         _opcode_length = 3
         con, to = self._parse_modes(ip, _opcode_length)
         if con == 0:
@@ -71,7 +71,7 @@ class D5Processor(Processor):
         else:
             return to
 
-    def op_jif(self, ip: int):
+    def op_jif(self, ip: int) -> int:
         _opcode_length = 3
         con, to = self._parse_modes(ip, _opcode_length)
         if con != 0:
@@ -79,13 +79,13 @@ class D5Processor(Processor):
         else:
             return to
 
-    def op_lt(self, ip: int):
+    def op_lt(self, ip: int) -> int:
         _opcode_length = 4
         a, b, r = self._parse_modes(ip, _opcode_length, {2})
         self.memory[r] = 1 if a < b else 0
         return ip + _opcode_length
 
-    def op_eq(self, ip: int):
+    def op_eq(self, ip: int) -> int:
         _opcode_length = 4
         a, b, r = self._parse_modes(ip, _opcode_length, {2})
         self.memory[r] = 1 if a == b else 0
