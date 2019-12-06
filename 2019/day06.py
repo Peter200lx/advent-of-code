@@ -4,7 +4,6 @@ from pathlib import Path
 class Planet:
     def __init__(self, value):
         self.value = value
-        self.orbited_by = set()
         self.orbits = None
         self._depth = None
 
@@ -45,7 +44,6 @@ def build_graph(orbits_list):
         if orbiting not in parent_dict:
             parent_dict[orbiting] = Planet(orbiting)
         parent_dict[orbiting].orbits = parent_dict[orbited]
-        parent_dict[orbited].orbited_by.add(orbiting)
     return parent_dict
 
 
