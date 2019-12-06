@@ -5,24 +5,17 @@ class Planet:
     def __init__(self, value):
         self.value = value
         self.orbits = None
-        self._depth = None
 
     @property
     def depth(self):
-        if self._depth is not None:
-            return self._depth
-        if self.orbits is None:
-            self._depth = 0
-        else:
-            self._depth = self.orbits.depth + 1
-        return self._depth
+        return 0 if self.orbits is None else self.orbits.depth + 1
 
     @property
     def orbits_set(self):
-        ret_set = {self.value}
-        if self.orbits:
-            ret_set |= self.orbits.orbits_set
-        return ret_set
+        if self.orbits is None:
+            return set()
+        else:
+            return {self.orbits.value}.union(self.orbits.orbits_set)
 
     def find_shared_planet(self, other):
         if self.orbits is None:
