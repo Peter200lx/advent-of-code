@@ -40,13 +40,6 @@ def build_graph(orbits_list):
     return parent_dict
 
 
-def part_1(all_planets):
-    total_orbits = 0
-    for planet in all_planets.values():
-        total_orbits += planet.depth
-    return total_orbits
-
-
 def part_2(all_planets, first, second):
     p1 = all_planets[first].orbits
     p2 = all_planets[second].orbits
@@ -59,5 +52,5 @@ if __name__ == "__main__":
     str_list = [line.split(")") for line in DATA.split("\n")]
 
     planets_dict = build_graph(str_list)
-    print(part_1(planets_dict))
+    print(sum(p.depth for p in planets_dict.values()))
     print(part_2(planets_dict, "YOU", "SAN"))
