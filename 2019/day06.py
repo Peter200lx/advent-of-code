@@ -11,19 +11,15 @@ class Planet:
         return 0 if self.orbits is None else self.orbits.depth + 1
 
     @property
-    def orbits_set(self):
-        if self.orbits is None:
-            return set()
-        else:
-            return {self.orbits.value}.union(self.orbits.orbits_set)
+    def center_path(self):
+        path = {self.value}
+        return path if self.orbits is None else path | self.orbits.center_path
 
     def find_shared_planet(self, other):
-        if self.orbits is None:
-            return None
-        others_orbits_set = other.orbits_set
-        next_orbit = self.orbits
+        others_path = other.center_path
+        next_orbit = self
         while next_orbit is not None:
-            if next_orbit.value in others_orbits_set:
+            if next_orbit.value in others_path:
                 return next_orbit
             next_orbit = next_orbit.orbits
         return None
