@@ -55,14 +55,10 @@ def part_1(all_planets):
 
 
 def part_2(all_planets, first, second):
-    planet1 = all_planets[first]
-    planet2 = all_planets[second].orbits
-    connecting_planet = planet1.find_shared_planet(planet2)
-    return (
-        (planet1.depth - connecting_planet.depth)
-        + (planet2.depth - connecting_planet.depth)
-        - 1
-    )
+    p1 = all_planets[first].orbits
+    p2 = all_planets[second].orbits
+    connecting = p1.find_shared_planet(p2)
+    return (p1.depth - connecting.depth) + (p2.depth - connecting.depth)
 
 
 if __name__ == "__main__":
