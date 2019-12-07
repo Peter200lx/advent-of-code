@@ -41,22 +41,9 @@ def run_sequence(program: Seq[int], phase_nums: Seq[int]) -> int:
     return prog_out
 
 
-def test_all_seq(program: Seq[int], part2: bool = False) -> Tuple[int, Seq[int]]:
-    maximum = 0
-    best = None
-    base_list = (0, 1, 2, 3, 4) if not part2 else (5, 6, 7, 8, 9)
-    for phase_seq in permutations(base_list, 5):
-        result = run_sequence(program, phase_seq)
-        if result > maximum:
-            # print(f"old_max {maximum}, new_max {result} for {phase_seq}")
-            maximum = result
-            best = phase_seq
-    return maximum, best
-
-
 if __name__ == "__main__":
     DATA = Path("day07.input").read_text().strip()
     int_list = [int(i) for i in DATA.split(",")]
 
-    print(test_all_seq(int_list))
-    print(test_all_seq(int_list, part2=True))
+    print(max((run_sequence(int_list, p), p) for p in permutations((0, 1, 2, 3, 4))))
+    print(max((run_sequence(int_list, p), p) for p in permutations((5, 6, 7, 8, 9))))
