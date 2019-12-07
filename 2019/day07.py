@@ -12,14 +12,13 @@ class D7Processor(D5Processor):
         self.input.append(starting_num)
         ip = 0
         first_addition = yield
-        self.input.extend(first_addition)
+        self.input.append(first_addition)
         try:
             while True:
                 ip = self.func_by_instruction_pointer(ip)
                 if self.output:
-                    new_input = yield self.output
-                    self.output = []
-                    self.input.extend(new_input)
+                    new_input = yield self.output.pop(0)
+                    self.input.append(new_input)
         except ProgramHalt:
             return self.output
 
@@ -37,7 +36,7 @@ def run_sequence(inst_list, phase_nums):
 
 def run_sequence_p2(inst_list, phase_nums):
     assert len(phase_nums) == 5
-    prog_out = [0]
+    prog_out = 0
     processors = [
         D7Processor(inst_list).run_generator_on_output(phase_nums[n]) for n in range(5)
     ]
@@ -49,9 +48,9 @@ def run_sequence_p2(inst_list, phase_nums):
             prog_out = cur_proc.send(prog_in)
             processors.append(cur_proc)
         except StopIteration:
-            pass
+            pass  # Don't put processor back in the loop after ProgramHalt
 
-    return prog_out[0]
+    return prog_out
 
 
 def test_all_seq(inst_list, part2=False):
