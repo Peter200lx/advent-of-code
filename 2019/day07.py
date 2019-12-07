@@ -26,10 +26,8 @@ def run_sequence(inst_list: Seq[int], phase_nums: Seq[int]) -> int:
     assert len(phase_nums) == 5
     prog_out = [0]
     for n in phase_nums:
-        prog_in = prog_out
-        prog_in = [n] + prog_in
-        proc = D5Processor(inst_list)
-        prog_out = proc.run(prog_in)
+        prog_in = [n] + prog_out
+        prog_out = D5Processor(inst_list).run(prog_in)
     return prog_out[0]
 
 
