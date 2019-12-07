@@ -24,15 +24,6 @@ class D7Processor(D5Processor):
 
 def run_sequence(program: Seq[int], phase_nums: Seq[int]) -> int:
     assert len(phase_nums) == 5
-    prog_out = [0]
-    for n in phase_nums:
-        prog_in = [n] + prog_out
-        prog_out = D5Processor(program).run(prog_in)
-    return prog_out[0]
-
-
-def run_sequence_p2(program: Seq[int], phase_nums: Seq[int]) -> int:
-    assert len(phase_nums) == 5
     prog_out = 0
     processors = [
         D7Processor(program).run_on_output_generator(phase_nums[n]) for n in range(5)
@@ -55,10 +46,7 @@ def test_all_seq(program: Seq[int], part2: bool = False) -> Tuple[int, Seq[int]]
     best = None
     base_list = (0, 1, 2, 3, 4) if not part2 else (5, 6, 7, 8, 9)
     for phase_seq in permutations(base_list, 5):
-        if not part2:
-            result = run_sequence(program, phase_seq)
-        else:
-            result = run_sequence_p2(inst_list, phase_seq)
+        result = run_sequence(program, phase_seq)
         if result > maximum:
             # print(f"old_max {maximum}, new_max {result} for {phase_seq}")
             maximum = result
