@@ -7,11 +7,11 @@ from day05 import D5Processor
 
 
 class D7Processor(D5Processor):
-    def run_generator_on_output(self, starting_num: int) -> Generator[int, int, None]:
-        self.input.append(starting_num)
+    def run_on_output_generator(self, phase: int) -> Generator[int, int, None]:
         ip = 0
-        first_addition = yield
-        self.input.append(first_addition)
+        self.input.append(phase)
+        first_input = yield
+        self.input.append(first_input)
         try:
             while True:
                 ip = self.func_by_instruction_pointer(ip)
@@ -22,20 +22,20 @@ class D7Processor(D5Processor):
             return None
 
 
-def run_sequence(inst_list: Seq[int], phase_nums: Seq[int]) -> int:
+def run_sequence(program: Seq[int], phase_nums: Seq[int]) -> int:
     assert len(phase_nums) == 5
     prog_out = [0]
     for n in phase_nums:
         prog_in = [n] + prog_out
-        prog_out = D5Processor(inst_list).run(prog_in)
+        prog_out = D5Processor(program).run(prog_in)
     return prog_out[0]
 
 
-def run_sequence_p2(inst_list: Seq[int], phase_nums: Seq[int]) -> int:
+def run_sequence_p2(program: Seq[int], phase_nums: Seq[int]) -> int:
     assert len(phase_nums) == 5
     prog_out = 0
     processors = [
-        D7Processor(inst_list).run_generator_on_output(phase_nums[n]) for n in range(5)
+        D7Processor(program).run_on_output_generator(phase_nums[n]) for n in range(5)
     ]
     [next(proc) for proc in processors]  # Move to first yield to accept .send()
     while processors:
@@ -50,19 +50,19 @@ def run_sequence_p2(inst_list: Seq[int], phase_nums: Seq[int]) -> int:
     return prog_out
 
 
-def test_all_seq(inst_list: Seq[int], part2: bool = False) -> Tuple[int, Seq[int]]:
+def test_all_seq(program: Seq[int], part2: bool = False) -> Tuple[int, Seq[int]]:
     maximum = 0
     best = None
-    base_list = [5, 6, 7, 8, 9] if part2 else [0, 1, 2, 3, 4]
-    for seq in permutations(base_list, 5):
+    base_list = (0, 1, 2, 3, 4) if not part2 else (5, 6, 7, 8, 9)
+    for phase_seq in permutations(base_list, 5):
         if not part2:
-            result = run_sequence(inst_list, seq)
+            result = run_sequence(program, phase_seq)
         else:
-            result = run_sequence_p2(inst_list, seq)
+            result = run_sequence_p2(inst_list, phase_seq)
         if result > maximum:
-            # print(f"old_max {maximum}, new_max {result} for {seq}")
+            # print(f"old_max {maximum}, new_max {result} for {phase_seq}")
             maximum = result
-            best = seq
+            best = phase_seq
     return maximum, best
 
 
