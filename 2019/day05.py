@@ -61,7 +61,7 @@ class D5Processor(Processor):
     def op_input(self, ip: int) -> int:
         _opcodes = (ParamTypes.OP, ParamTypes.WRITE)
         (r,) = self._parse_modes(ip, _opcodes)
-        self.memory[r] = self.input.pop()
+        self.memory[r] = self.input.pop(0)
         return ip + len(_opcodes)
 
     def op_output(self, ip: int) -> int:
