@@ -1,6 +1,6 @@
 from itertools import permutations
 from pathlib import Path
-from typing import Sequence as Seq, Tuple, Generator
+from typing import Sequence as Seq, Generator, List
 
 from day02 import ProgramHalt
 from day05 import D5Processor
@@ -22,7 +22,7 @@ class D7Processor(D5Processor):
             return None
 
 
-def run_sequence(program: Seq[int], phase_nums: Seq[int]) -> int:
+def run_sequence(program: List[int], phase_nums: Seq[int]) -> int:
     assert len(phase_nums) == 5
     prog_out = 0
     processors = [
