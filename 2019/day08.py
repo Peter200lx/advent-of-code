@@ -28,4 +28,4 @@ if __name__ == "__main__":
     fewest_zero = min((l.count(0), l) for l in chunk_list(int_list, WIDTH, HEIGHT))
     print(fewest_zero[1].count(1) * fewest_zero[1].count(2))
     for row in render_layers(int_list, WIDTH, HEIGHT):
-        print("".join("X" if i else " " for i in row))
+        print("".join("#" if i else " " for i in row))
