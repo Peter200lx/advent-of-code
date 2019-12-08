@@ -8,18 +8,15 @@ def chunk_list(in_list, width, height):
         yield in_list[i * total_pixels : (i + 1) * total_pixels]
 
 
-def calc_pixel(top, bottom):
-    return top if top != 2 else bottom
-
-
 def render_layers(in_list, width, height):
     final_image = [[2 for _ in range(width)] for _ in range(height)]
     for layer in chunk_list(in_list, width, height):
         for y, row in enumerate(
-            [layer[i * width : (i + 1) * width] for i in range(height)]
+            layer[i * width : (i + 1) * width] for i in range(height)
         ):
             for x, value in enumerate(row):
-                final_image[y][x] = calc_pixel(final_image[y][x], value)
+                if final_image[y][x] == 2:
+                    final_image[y][x] = value
     return final_image
 
 
