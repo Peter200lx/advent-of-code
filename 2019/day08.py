@@ -4,15 +4,15 @@ from pathlib import Path
 def chunk_list(in_list, width, height):
     total_pixels = width * height
     assert len(in_list) % total_pixels == 0
-    for i in range(len(in_list) // total_pixels):
-        yield in_list[i * total_pixels : (i + 1) * total_pixels]
+    for i in range(0, len(in_list), total_pixels):
+        yield in_list[i : i + total_pixels]
 
 
 def render_layers(in_list, width, height):
     final_image = [[2 for _ in range(width)] for _ in range(height)]
     for layer in chunk_list(in_list, width, height):
         for y, row in enumerate(
-            layer[i * width : (i + 1) * width] for i in range(height)
+            layer[i : i + width] for i in range(0, height * width, width)
         ):
             for x, value in enumerate(row):
                 if final_image[y][x] == 2:
