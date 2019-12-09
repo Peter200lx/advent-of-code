@@ -7,8 +7,7 @@ from day05 import D5Processor, ParamTypes
 
 class D9Processor(D5Processor):
     def __init__(self, program: List[int]):
-        self.memory = defaultdict(int)
-        self.memory.update(enumerate(program))
+        self.memory = defaultdict(int, enumerate(program))
         self.mapping = {
             1: self.op_add,
             2: self.op_mul,
