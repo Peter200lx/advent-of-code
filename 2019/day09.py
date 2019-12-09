@@ -27,21 +27,22 @@ class D9Processor(D5Processor):
 
     def _parse_modes(self, ip: int, opcodes: Tuple[ParamTypes, ...]) -> List[int]:
         op = self.memory[ip]
-        params = [self.memory[i] for i in range(ip + 1, ip + len(opcodes))]
-        for i, val in enumerate(params):
+        params = []
+        for i, optype in enumerate(opcodes[1:]):
             mode = op % (10 ** (i + 3)) // (10 ** (i + 2))
-            if opcodes[i + 1] == ParamTypes.WRITE:
+            val = self.memory[ip + i + 1]
+            if optype == ParamTypes.WRITE:
                 if mode == 2:
-                    params[i] = val + self.rel_base
+                    params.append(val + self.rel_base)
                 else:
-                    params[i] = val
-            elif opcodes[i + 1] == ParamTypes.READ:
+                    params.append(val)
+            elif optype == ParamTypes.READ:
                 if mode == 1:
-                    params[i] = val
+                    params.append(val)
                 elif mode == 2:
-                    params[i] = self.memory[val + self.rel_base]
+                    params.append(self.memory[val + self.rel_base])
                 else:
-                    params[i] = self.memory[val]
+                    params.append(self.memory[val])
         return params
 
     def op_rel_base(self, ip: int) -> int:
