@@ -35,13 +35,13 @@ class D9Processor(D5Processor):
                     params[i] = val + self.rel_base
                 else:
                     params[i] = val
-                continue
-            if mode == 1:
-                params[i] = val
-            elif mode == 2:
-                params[i] = self.memory[val + self.rel_base]
-            else:
-                params[i] = self.memory[val]
+            elif opcodes[i + 1] == ParamTypes.READ:
+                if mode == 1:
+                    params[i] = val
+                elif mode == 2:
+                    params[i] = self.memory[val + self.rel_base]
+                else:
+                    params[i] = self.memory[val]
         return params
 
     def op_rel_base(self, ip: int) -> int:
