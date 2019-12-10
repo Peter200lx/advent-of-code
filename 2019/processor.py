@@ -1,6 +1,6 @@
 from collections import defaultdict
 from enum import Enum
-from typing import Sequence as Seq, List, Tuple, Generator, NamedTuple, Callable
+from typing import Sequence as Seq, List, Tuple, Generator, NamedTuple, Callable, Optional
 
 
 class ProgramHalt(Exception):
@@ -17,12 +17,16 @@ class OpCode(NamedTuple):
     id: int
     name: str
     description: str
-    func: Callable
+    func: Callable[..., Optional[int]]
     sig: Tuple[ParamTypes, ...]
 
     @property
     def params(self):
         return self.sig[1:]
+
+    @property
+    def length(self):
+        return len(self.sig)
 
 
 class Processor:
@@ -136,11 +140,12 @@ class Processor:
         except ProgramHalt:
             return None
 
-    def _parse_modes(self, ip: int, opcodes: Tuple[ParamTypes, ...]) -> List[int]:
-        op = self.memory[ip]
+    def _parse_modes(self, ip: int) -> List[int]:
+        raw_op = self.memory[ip]
+        opcode = self.mapping[raw_op % 100]
         params = []
-        for i, optype in enumerate(opcodes[1:]):
-            mode = op % (10 ** (i + 3)) // (10 ** (i + 2))
+        for i, optype in enumerate(opcode.params):
+            mode = raw_op % (10 ** (i + 3)) // (10 ** (i + 2))
             val = self.memory[ip + i + 1]
             if optype == ParamTypes.WRITE:
                 if mode == 2:
@@ -156,68 +161,48 @@ class Processor:
                     params.append(self.memory[val])
         return params
 
-    def op_add(self, ip: int) -> int:
-        _opcodes = (ParamTypes.OP, ParamTypes.READ, ParamTypes.READ, ParamTypes.WRITE)
-        a, b, r = self._parse_modes(ip, _opcodes)
+    def op_add(self, ip: int) -> None:
+        a, b, r = self._parse_modes(ip)
         self.memory[r] = a + b
-        return ip + len(_opcodes)
 
-    def op_mul(self, ip: int) -> int:
-        _opcodes = (ParamTypes.OP, ParamTypes.READ, ParamTypes.READ, ParamTypes.WRITE)
-        a, b, r = self._parse_modes(ip, _opcodes)
+    def op_mul(self, ip: int) -> None:
+        a, b, r = self._parse_modes(ip)
         self.memory[r] = a * b
-        return ip + len(_opcodes)
 
-    def op_input(self, ip: int) -> int:
-        _opcodes = (ParamTypes.OP, ParamTypes.WRITE)
-        (r,) = self._parse_modes(ip, _opcodes)
+    def op_input(self, ip: int) -> None:
+        (r,) = self._parse_modes(ip)
         self.memory[r] = self.input.pop(0)
-        return ip + len(_opcodes)
 
-    def op_output(self, ip: int) -> int:
-        _opcodes = (ParamTypes.OP, ParamTypes.READ)
-        (r,) = self._parse_modes(ip, _opcodes)
+    def op_output(self, ip: int) -> None:
+        (r,) = self._parse_modes(ip)
         self.output.append(r)
-        return ip + len(_opcodes)
 
-    def op_jit(self, ip: int) -> int:
-        _opcodes = (ParamTypes.OP, ParamTypes.READ, ParamTypes.READ)
-        con, to = self._parse_modes(ip, _opcodes)
-        if con == 0:
-            return ip + len(_opcodes)
-        else:
-            return to
-
-    def op_jif(self, ip: int) -> int:
-        _opcodes = (ParamTypes.OP, ParamTypes.READ, ParamTypes.READ)
-        con, to = self._parse_modes(ip, _opcodes)
+    def op_jit(self, ip: int) -> Optional[int]:
+        con, to = self._parse_modes(ip)
         if con != 0:
-            return ip + len(_opcodes)
-        else:
             return to
 
-    def op_lt(self, ip: int) -> int:
-        _opcodes = (ParamTypes.OP, ParamTypes.READ, ParamTypes.READ, ParamTypes.WRITE)
-        a, b, r = self._parse_modes(ip, _opcodes)
+    def op_jif(self, ip: int) -> Optional[int]:
+        con, to = self._parse_modes(ip)
+        if con == 0:
+            return to
+
+    def op_lt(self, ip: int) -> None:
+        a, b, r = self._parse_modes(ip)
         self.memory[r] = 1 if a < b else 0
-        return ip + len(_opcodes)
 
-    def op_eq(self, ip: int) -> int:
-        _opcodes = (ParamTypes.OP, ParamTypes.READ, ParamTypes.READ, ParamTypes.WRITE)
-        a, b, r = self._parse_modes(ip, _opcodes)
+    def op_eq(self, ip: int) -> None:
+        a, b, r = self._parse_modes(ip)
         self.memory[r] = 1 if a == b else 0
-        return ip + len(_opcodes)
 
-    def op_rel_base(self, ip: int) -> int:
-        _opcodes = (ParamTypes.OP, ParamTypes.READ)
-        (rb,) = self._parse_modes(ip, _opcodes)
+    def op_rel_base(self, ip: int) -> None:
+        (rb,) = self._parse_modes(ip)
         self.rel_base += rb
-        return ip + len(_opcodes)
 
     def op_halt(self, _):
-        _opcode_length = 1
         raise ProgramHalt()
 
     def func_by_instruction_pointer(self, ip: int) -> int:
         opcode = self.mapping[self.memory[ip] % 100]
-        return opcode.func(ip)
+        new_ip = opcode.func(ip)
+        return new_ip if new_ip is not None else ip + opcode.length
