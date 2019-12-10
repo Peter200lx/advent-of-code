@@ -1,6 +1,6 @@
 from collections import defaultdict
 from enum import Enum
-from typing import Sequence as Seq, List, Tuple, Generator, NamedTuple, Callable, Optional
+from typing import Sequence as Seq, List, Tuple, Generator, NamedTuple, Optional
 
 
 class ProgramHalt(Exception):
@@ -17,7 +17,6 @@ class OpCode(NamedTuple):
     id: int
     name: str
     description: str
-    func: Callable[..., Optional[int]]
     sig: Tuple[ParamTypes, ...]
 
     @property
@@ -29,6 +28,66 @@ class OpCode(NamedTuple):
         return len(self.sig)
 
 
+OPCODES = [
+    OpCode(
+        1,
+        "add",
+        "Add two numbers",
+        (ParamTypes.OP, ParamTypes.READ, ParamTypes.READ, ParamTypes.WRITE),
+    ),
+    OpCode(
+        2,
+        "mul",
+        "Multiply two numbers",
+        (ParamTypes.OP, ParamTypes.READ, ParamTypes.READ, ParamTypes.WRITE),
+    ),
+    OpCode(
+        3,
+        "input",
+        "Read from input queue and write to destination",
+        (ParamTypes.OP, ParamTypes.WRITE),
+    ),
+    OpCode(
+        4,
+        "output",
+        "Read from target memory and write to output queue",
+        (ParamTypes.OP, ParamTypes.READ),
+    ),
+    OpCode(
+        5,
+        "jit",
+        "If first parameter is not zero set instruction pointer to second parameter",
+        (ParamTypes.OP, ParamTypes.READ, ParamTypes.READ),
+    ),
+    OpCode(
+        6,
+        "jif",
+        "If first parameter is zero set instruction pointer to second parameter",
+        (ParamTypes.OP, ParamTypes.READ, ParamTypes.READ),
+    ),
+    OpCode(
+        7,
+        "lt",
+        "If first parameter is less than second parameter, write 1 to third (else write 0)",
+        (ParamTypes.OP, ParamTypes.READ, ParamTypes.READ, ParamTypes.WRITE),
+    ),
+    OpCode(
+        8,
+        "eq",
+        "If first parameter is equal to second parameter, write 1 to third (else write 0)",
+        (ParamTypes.OP, ParamTypes.READ, ParamTypes.READ, ParamTypes.WRITE),
+    ),
+    OpCode(
+        9,
+        "rel_base",
+        "Set the processor's relative base value from parameter",
+        (ParamTypes.OP, ParamTypes.READ),
+    ),
+    OpCode(99, "halt", "Halt the processor", (ParamTypes.OP,),),
+]
+OPCODE_BY_ID = {o.id: o for o in OPCODES}
+
+
 class Processor:
     def __init__(self, program: List[int], overrides: Seq[Tuple[int, int]] = tuple()):
         self.memory = defaultdict(int, enumerate(program))
@@ -36,74 +95,7 @@ class Processor:
         self.input = []
         self.output = []
         self.rel_base = 0
-        self.mapping = {
-            1: OpCode(
-                1,
-                "add",
-                "Add two numbers",
-                self.op_add,
-                (ParamTypes.OP, ParamTypes.READ, ParamTypes.READ, ParamTypes.WRITE),
-            ),
-            2: OpCode(
-                2,
-                "mul",
-                "Multiply two numbers",
-                self.op_mul,
-                (ParamTypes.OP, ParamTypes.READ, ParamTypes.READ, ParamTypes.WRITE),
-            ),
-            3: OpCode(
-                3,
-                "input",
-                "Read from input queue and write to destination",
-                self.op_input,
-                (ParamTypes.OP, ParamTypes.WRITE),
-            ),
-            4: OpCode(
-                4,
-                "output",
-                "Read from target memory and write to output queue",
-                self.op_output,
-                (ParamTypes.OP, ParamTypes.READ),
-            ),
-            5: OpCode(
-                5,
-                "jit",
-                "If first parameter is not zero set instruction pointer to second parameter",
-                self.op_jit,
-                (ParamTypes.OP, ParamTypes.READ, ParamTypes.READ),
-            ),
-            6: OpCode(
-                6,
-                "jif",
-                "If first parameter is zero set instruction pointer to second parameter",
-                self.op_jif,
-                (ParamTypes.OP, ParamTypes.READ, ParamTypes.READ),
-            ),
-            7: OpCode(
-                7,
-                "lt",
-                "If first parameter is less than second parameter, write 1 to third (else write 0)",
-                self.op_lt,
-                (ParamTypes.OP, ParamTypes.READ, ParamTypes.READ, ParamTypes.WRITE),
-            ),
-            8: OpCode(
-                8,
-                "eq",
-                "If first parameter is equal to second parameter, write 1 to third (else write 0)",
-                self.op_eq,
-                (ParamTypes.OP, ParamTypes.READ, ParamTypes.READ, ParamTypes.WRITE),
-            ),
-            9: OpCode(
-                9,
-                "rel_base",
-                "Set the processor's relative base value from parameter",
-                self.op_rel_base,
-                (ParamTypes.OP, ParamTypes.READ),
-            ),
-            99: OpCode(
-                99, "halt", "Halt the processor", self.op_halt, (ParamTypes.OP,),
-            ),
-        }
+        self.mapping = {o.id: getattr(self, f"op_{o.name}") for o in OPCODES}
 
     def overrides(self, overrides: Seq[Tuple[int, int]]) -> None:
         for loc, val in overrides:
@@ -174,7 +166,7 @@ class Processor:
 
     def _parse_modes(self, ip: int) -> List[int]:
         raw_op = self.memory[ip]
-        opcode = self.mapping[raw_op % 100]
+        opcode = OPCODE_BY_ID[raw_op % 100]
         params = []
         for i, optype in enumerate(opcode.params):
             mode = raw_op % (10 ** (i + 3)) // (10 ** (i + 2))
@@ -194,6 +186,6 @@ class Processor:
         return params
 
     def func_by_instruction_pointer(self, ip: int) -> int:
-        opcode = self.mapping[self.memory[ip] % 100]
-        new_ip = opcode.func(*self._parse_modes(ip))
+        opcode = OPCODE_BY_ID[self.memory[ip] % 100]
+        new_ip = self.mapping[opcode.id](*self._parse_modes(ip))
         return new_ip if new_ip is not None else ip + opcode.length
