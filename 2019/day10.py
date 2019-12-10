@@ -1,6 +1,6 @@
 import math
 from pathlib import Path
-from typing import NamedTuple
+from typing import NamedTuple, List, Tuple, Dict, Iterator
 
 
 class Vector(NamedTuple):
@@ -8,17 +8,17 @@ class Vector(NamedTuple):
     x: int
 
     @property
-    def reduced(self):
+    def reduced(self) -> "Vector":
         gcd = math.gcd(self.y, self.x)
         if gcd == 0:
             return self
         return Vector(self.y // gcd, self.x // gcd)
 
     @property
-    def angle(self):
+    def angle(self) -> float:
         return (math.degrees(math.atan2(self.y, self.x)) + 90) % 360
 
-    def __lt__(self, other):
+    def __lt__(self, other: "Vector") -> bool:
         return self.angle < other.angle
 
 
@@ -26,20 +26,20 @@ class Point(NamedTuple):
     y: int
     x: int
 
-    def slope(self, other):
+    def slope(self, other: "Point") -> Vector:
         return Vector(other.y - self.y, other.x - self.x).reduced
 
-    def distance(self, other):
+    def distance(self, other: "Point") -> int:
         return abs(self.y - other.y) + abs(self.x - other.x)
 
-    def closer(self, first, second):
+    def closer(self, first: "Point", second: "Point") -> "Point":
         if self.distance(first) < self.distance(second):
             return first
         else:
             return second
 
 
-def generate_asteroid_points(ast_field):
+def generate_asteroid_points(ast_field: List[List[int]]) -> Iterator[Point]:
     height, width = (len(ast_field), len(ast_field[0]))
     for y in range(height):
         for x in range(width):
@@ -47,7 +47,9 @@ def generate_asteroid_points(ast_field):
                 yield Point(y, x)
 
 
-def build_in_view_set(ast_field):
+def build_in_view_set(
+    ast_field: List[List[int]],
+) -> Tuple[int, Point, Dict[Vector, Point]]:
     asteroids = set(generate_asteroid_points(ast_field))
     max_detected = (0, Point(0, 0), {})
     for location in asteroids:
