@@ -140,6 +140,38 @@ class Processor:
         except ProgramHalt:
             return None
 
+    def op_add(self, a: int, b: int, r: int) -> None:
+        self.memory[r] = a + b
+
+    def op_mul(self, a: int, b: int, r: int) -> None:
+        self.memory[r] = a * b
+
+    def op_input(self, r: int) -> None:
+        self.memory[r] = self.input.pop(0)
+
+    def op_output(self, r: int) -> None:
+        self.output.append(r)
+
+    def op_jit(self, condition: int, jumpto: int) -> Optional[int]:
+        if condition:
+            return jumpto
+
+    def op_jif(self, condition: int, jumpto: int) -> Optional[int]:
+        if not condition:
+            return jumpto
+
+    def op_lt(self, a: int, b: int, r: int) -> None:
+        self.memory[r] = 1 if a < b else 0
+
+    def op_eq(self, a: int, b: int, r: int) -> None:
+        self.memory[r] = 1 if a == b else 0
+
+    def op_rel_base(self, rb: int) -> None:
+        self.rel_base += rb
+
+    def op_halt(self):
+        raise ProgramHalt()
+
     def _parse_modes(self, ip: int) -> List[int]:
         raw_op = self.memory[ip]
         opcode = self.mapping[raw_op % 100]
@@ -161,48 +193,7 @@ class Processor:
                     params.append(self.memory[val])
         return params
 
-    def op_add(self, ip: int) -> None:
-        a, b, r = self._parse_modes(ip)
-        self.memory[r] = a + b
-
-    def op_mul(self, ip: int) -> None:
-        a, b, r = self._parse_modes(ip)
-        self.memory[r] = a * b
-
-    def op_input(self, ip: int) -> None:
-        (r,) = self._parse_modes(ip)
-        self.memory[r] = self.input.pop(0)
-
-    def op_output(self, ip: int) -> None:
-        (r,) = self._parse_modes(ip)
-        self.output.append(r)
-
-    def op_jit(self, ip: int) -> Optional[int]:
-        con, to = self._parse_modes(ip)
-        if con != 0:
-            return to
-
-    def op_jif(self, ip: int) -> Optional[int]:
-        con, to = self._parse_modes(ip)
-        if con == 0:
-            return to
-
-    def op_lt(self, ip: int) -> None:
-        a, b, r = self._parse_modes(ip)
-        self.memory[r] = 1 if a < b else 0
-
-    def op_eq(self, ip: int) -> None:
-        a, b, r = self._parse_modes(ip)
-        self.memory[r] = 1 if a == b else 0
-
-    def op_rel_base(self, ip: int) -> None:
-        (rb,) = self._parse_modes(ip)
-        self.rel_base += rb
-
-    def op_halt(self, _):
-        raise ProgramHalt()
-
     def func_by_instruction_pointer(self, ip: int) -> int:
         opcode = self.mapping[self.memory[ip] % 100]
-        new_ip = opcode.func(ip)
+        new_ip = opcode.func(*self._parse_modes(ip))
         return new_ip if new_ip is not None else ip + opcode.length
