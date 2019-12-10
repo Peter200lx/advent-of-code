@@ -7,17 +7,19 @@ class Vector(NamedTuple):
     y: int
     x: int
 
+    @property
     def reduced(self):
         gcd = math.gcd(self.y, self.x)
         if gcd == 0:
             return self
         return Vector(self.y // gcd, self.x // gcd)
 
+    @property
     def angle(self):
         return (math.degrees(math.atan2(self.y, self.x)) + 90) % 360
 
     def __lt__(self, other):
-        return self.angle() < other.angle()
+        return self.angle < other.angle
 
 
 class Point(NamedTuple):
@@ -25,8 +27,7 @@ class Point(NamedTuple):
     x: int
 
     def slope(self, other):
-        v = Vector(other.y - self.y, other.x - self.x)
-        return v.reduced()
+        return Vector(other.y - self.y, other.x - self.x).reduced
 
     def distance(self, other):
         return abs(self.y - other.y) + abs(self.x - other.x)
