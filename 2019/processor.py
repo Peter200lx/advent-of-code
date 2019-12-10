@@ -1,6 +1,6 @@
 from collections import defaultdict
 from enum import Enum
-from typing import Sequence as Seq, List, Tuple, Generator
+from typing import Sequence as Seq, List, Tuple, Generator, NamedTuple, Callable
 
 
 class ProgramHalt(Exception):
@@ -13,25 +13,93 @@ class ParamTypes(Enum):
     WRITE = 2
 
 
+class OpCode(NamedTuple):
+    id: int
+    name: str
+    description: str
+    func: Callable
+    sig: Tuple[ParamTypes, ...]
+
+    @property
+    def params(self):
+        return self.sig[1:]
+
+
 class Processor:
     def __init__(self, program: List[int], overrides: Seq[Tuple[int, int]] = tuple()):
         self.memory = defaultdict(int, enumerate(program))
         self.overrides(overrides)
-        self.mapping = {
-            1: self.op_add,
-            2: self.op_mul,
-            3: self.op_input,
-            4: self.op_output,
-            5: self.op_jit,
-            6: self.op_jif,
-            7: self.op_lt,
-            8: self.op_eq,
-            9: self.op_rel_base,
-            99: self.op_halt,
-        }
         self.input = []
         self.output = []
         self.rel_base = 0
+        self.mapping = {
+            1: OpCode(
+                1,
+                "add",
+                "Add two numbers",
+                self.op_add,
+                (ParamTypes.OP, ParamTypes.READ, ParamTypes.READ, ParamTypes.WRITE),
+            ),
+            2: OpCode(
+                2,
+                "mul",
+                "Multiply two numbers",
+                self.op_mul,
+                (ParamTypes.OP, ParamTypes.READ, ParamTypes.READ, ParamTypes.WRITE),
+            ),
+            3: OpCode(
+                3,
+                "input",
+                "Read from input queue and write to destination",
+                self.op_input,
+                (ParamTypes.OP, ParamTypes.WRITE),
+            ),
+            4: OpCode(
+                4,
+                "output",
+                "Read from target memory and write to output queue",
+                self.op_output,
+                (ParamTypes.OP, ParamTypes.READ),
+            ),
+            5: OpCode(
+                5,
+                "jit",
+                "If first parameter is not zero set instruction pointer to second parameter",
+                self.op_jit,
+                (ParamTypes.OP, ParamTypes.READ, ParamTypes.READ),
+            ),
+            6: OpCode(
+                6,
+                "jif",
+                "If first parameter is zero set instruction pointer to second parameter",
+                self.op_jif,
+                (ParamTypes.OP, ParamTypes.READ, ParamTypes.READ),
+            ),
+            7: OpCode(
+                7,
+                "lt",
+                "If first parameter is less than second parameter, write 1 to third (else write 0)",
+                self.op_lt,
+                (ParamTypes.OP, ParamTypes.READ, ParamTypes.READ, ParamTypes.WRITE),
+            ),
+            8: OpCode(
+                8,
+                "eq",
+                "If first parameter is equal to second parameter, write 1 to third (else write 0)",
+                self.op_eq,
+                (ParamTypes.OP, ParamTypes.READ, ParamTypes.READ, ParamTypes.WRITE),
+            ),
+            9: OpCode(
+                9,
+                "rel_base",
+                "Set the processor's relative base value from parameter",
+                self.op_rel_base,
+                (ParamTypes.OP, ParamTypes.READ),
+            ),
+            99: OpCode(
+                99, "halt", "Halt the processor", self.op_halt, (ParamTypes.OP,),
+            ),
+        }
 
     def overrides(self, overrides: Seq[Tuple[int, int]]) -> None:
         for loc, val in overrides:
@@ -150,9 +218,6 @@ class Processor:
         _opcode_length = 1
         raise ProgramHalt()
 
-    def func_by_num(self, op_num: int, ip: int) -> int:
-        assert self.mapping
-        return self.mapping[op_num](ip)
-
     def func_by_instruction_pointer(self, ip: int) -> int:
-        return self.func_by_num(self.memory[ip] % 100, ip)
+        opcode = self.mapping[self.memory[ip] % 100]
+        return opcode.func(ip)
