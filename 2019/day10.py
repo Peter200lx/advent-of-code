@@ -14,11 +14,7 @@ class Vector(NamedTuple):
         return Vector(self.y // gcd, self.x // gcd)
 
     def angle(self):
-        a = math.degrees(math.atan2(self.y, self.x)) + 90
-        if a >= 0:
-            return a
-        else:
-            return a + 360
+        return (math.degrees(math.atan2(self.y, self.x)) + 90) % 360
 
     def __lt__(self, other):
         return self.angle() < other.angle()
