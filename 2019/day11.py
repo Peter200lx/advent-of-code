@@ -1,29 +1,7 @@
 from pathlib import Path
 from typing import NamedTuple
 
-from processor import Processor, ProgramHalt
-
-
-class D11Processor(Processor):
-    def run_on_output_generator_d11(self):
-        ip = 0
-        first_input = yield
-        if self.debug:
-            print(f"{id(self)} received {first_input} from yield")
-        self.input.append(first_input)
-        try:
-            while True:
-                ip = self.func_by_instruction_pointer(ip)
-                if len(self.output) == 2:
-                    if self.debug:
-                        print(f"{id(self)} yielding out {self.output}")
-                    new_input = yield self.output
-                    self.output[:] = []
-                    if self.debug:
-                        print(f"{id(self)} received {new_input} from yield")
-                    self.input.append(new_input)
-        except ProgramHalt:
-            return None
+from processor import Processor
 
 
 class Point(NamedTuple):
@@ -50,8 +28,8 @@ TURN_DB = {
 
 
 def run_bot(program, part2=False):
-    bot = D11Processor(program)
-    running_bot = bot.run_on_output_generator_d11()
+    bot = Processor(program)
+    running_bot = bot.run_on_output_generator(output_batch=2)
     next(running_bot)
     location = Point(0, 0)
     if not part2:

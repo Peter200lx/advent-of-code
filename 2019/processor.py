@@ -125,9 +125,12 @@ class Processor:
         except ProgramHalt:
             return self.output
 
-    def run_on_output_generator(self, phase: int) -> Generator[int, int, None]:
+    def run_on_output_generator(
+        self, phase: Optional[int] = None, output_batch: int = 1
+    ) -> Generator[List[int], int, None]:
         ip = 0
-        self.input.append(phase)
+        if phase is not None:
+            self.input.append(phase)
         first_input = yield
         if self.debug:
             print(f"{id(self)} received {first_input} from yield")
@@ -135,10 +138,11 @@ class Processor:
         try:
             while True:
                 ip = self.func_by_instruction_pointer(ip)
-                if self.output:
+                if len(self.output) == output_batch:
                     if self.debug:
                         print(f"{id(self)} yielding out {self.output[0]}")
-                    new_input = yield self.output.pop(0)
+                    new_input = yield self.output
+                    self.output.clear()
                     if self.debug:
                         print(f"{id(self)} received {new_input} from yield")
                     self.input.append(new_input)

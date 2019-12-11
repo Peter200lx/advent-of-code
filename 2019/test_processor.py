@@ -45,7 +45,7 @@ def test_day7():
             prog_in = prog_out
             cur_proc = processors.pop(0)
             try:
-                prog_out = cur_proc.send(prog_in)
+                (prog_out,) = cur_proc.send(prog_in)
                 processors.append(cur_proc)
             except StopIteration:
                 pass  # Don't put processor back in the loop after ProgramHalt
