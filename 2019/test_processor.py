@@ -1,5 +1,6 @@
 from itertools import permutations
 from pathlib import Path
+from typing import NamedTuple
 
 from processor import Processor
 
@@ -65,3 +66,49 @@ def test_day9():
 
     assert Processor(int_list).run([1]) == [3507134798]
     assert Processor(int_list).run([2]) == [84513]
+
+
+def test_day11():
+    data = Path("day11.input").read_text().strip()
+    int_list = [int(i) for i in data.split(",")]
+
+    class Point(NamedTuple):
+        y: int
+        x: int
+
+        def __add__(self, other):
+            return Point(self.y + other.y, self.x + other.x)
+
+    DIR_VEC = {
+        "^": Point(-1, 0),
+        "v": Point(1, 0),
+        ">": Point(0, 1),
+        "<": Point(0, -1),
+    }
+
+    TURN_DB = {
+        "^": {0: "<", 1: ">"},
+        "v": {0: ">", 1: "<"},
+        "<": {0: "v", 1: "^"},
+        ">": {0: "^", 1: "v"},
+    }
+
+    def run_bot(program, part2=False):
+        running_bot = Processor(program).run_on_output_generator(output_batch=2)
+        next(running_bot)  # Prime the pump to the first yield for .send( below
+        location = Point(0, 0)
+        hull = {} if not part2 else {location: 1}
+        direction = "^"
+        try:
+            while True:
+                color = hull.get(location, 0)
+                new_color, turn = running_bot.send(color)
+                hull[location] = new_color
+                direction = TURN_DB[direction][turn]
+                location += DIR_VEC[direction]
+        except StopIteration:
+            return hull
+
+    assert len(run_bot(int_list)) == 2319
+    field = run_bot(int_list, part2=True)
+    assert len({p for p in field if field[p]}) == 99
