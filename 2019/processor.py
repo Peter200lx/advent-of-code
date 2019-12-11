@@ -89,12 +89,19 @@ OPCODE_BY_ID = {o.id: o for o in OPCODES}
 
 
 class Processor:
-    def __init__(self, program: List[int], overrides: Seq[Tuple[int, int]] = tuple()):
+    def __init__(
+        self,
+        program: List[int],
+        overrides: Seq[Tuple[int, int]] = tuple(),
+        *,
+        debug: int = 0,
+    ):
         self.memory = defaultdict(int, enumerate(program))
         self.overrides(overrides)
         self.input = []
         self.output = []
         self.rel_base = 0
+        self.debug = debug
         self.mapping = {o.id: getattr(self, f"op_{o.name}") for o in OPCODES}
 
     def overrides(self, overrides: Seq[Tuple[int, int]]) -> None:
@@ -185,7 +192,44 @@ class Processor:
                     params.append(self.memory[val])
         return params
 
+    def _parse_modes_debug(self, ip: int) -> Tuple[List[int], str]:
+        raw_op = self.memory[ip]
+        opcode = OPCODE_BY_ID[raw_op % 100]
+        params = []
+        debug_strs = []
+        for i, optype in enumerate(opcode.params, start=1):
+            mode = raw_op % (10 ** (i + 2)) // (10 ** (i + 1))
+            val = self.memory[ip + i]
+            if optype == ParamTypes.WRITE:
+                if mode == 2:
+                    params.append(val + self.rel_base)
+                    debug_strs.append(f"vREL({val:`>3})")
+                else:
+                    params.append(val)
+                    debug_strs.append(f"vPOS({val:`>3})")
+            elif optype == ParamTypes.READ:
+                if mode == 1:
+                    params.append(val)
+                    debug_strs.append(f"^IMM({val:`>3})")
+                elif mode == 2:
+                    params.append(self.memory[val + self.rel_base])
+                    debug_strs.append(f"^REL({val:`>3})")
+                else:
+                    params.append(self.memory[val])
+                    debug_strs.append(f"^POS({val:`>3})")
+        if self.debug >= 2:
+            debug_strs = [f"{s}={params[i]:<4}" for i, s in enumerate(debug_strs)]
+        return params, " ".join(debug_strs)
+
     def func_by_instruction_pointer(self, ip: int) -> int:
         opcode = OPCODE_BY_ID[self.memory[ip] % 100]
-        new_ip = self.mapping[opcode.id](*self._parse_modes(ip))
+        if self.debug >= 1:
+            parameters, param_str = self._parse_modes_debug(ip)
+            print(
+                f"{ip:05} {f'{self.rel_base:5} ' if self.rel_base else ''}"
+                f"{opcode.name:^8} {self.memory[ip]:5} {param_str}"
+            )
+        else:
+            parameters = self._parse_modes(ip)
+        new_ip = self.mapping[opcode.id](*parameters)
         return new_ip if new_ip is not None else ip + opcode.length
