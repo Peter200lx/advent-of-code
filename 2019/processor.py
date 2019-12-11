@@ -129,12 +129,18 @@ class Processor:
         ip = 0
         self.input.append(phase)
         first_input = yield
+        if self.debug:
+            print(f"{id(self)} received {first_input} from yield")
         self.input.append(first_input)
         try:
             while True:
                 ip = self.func_by_instruction_pointer(ip)
                 if self.output:
+                    if self.debug:
+                        print(f"{id(self)} yielding out {self.output[0]}")
                     new_input = yield self.output.pop(0)
+                    if self.debug:
+                        print(f"{id(self)} received {new_input} from yield")
                     self.input.append(new_input)
         except ProgramHalt:
             return None
