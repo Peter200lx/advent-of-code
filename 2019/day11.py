@@ -28,14 +28,10 @@ TURN_DB = {
 
 
 def run_bot(program: List[int], part2: bool = False) -> Dict[Point, int]:
-    bot = Processor(program)
-    running_bot = bot.run_on_output_generator(output_batch=2)
-    next(running_bot)
+    running_bot = Processor(program).run_on_output_generator(output_batch=2)
+    next(running_bot)  # Prime the pump to the first yield for .send( below
     location = Point(0, 0)
-    if not part2:
-        hull = {}
-    else:
-        hull = {location: 1}
+    hull = {} if not part2 else {location: 1}
     direction = "^"
     try:
         while True:
@@ -43,7 +39,7 @@ def run_bot(program: List[int], part2: bool = False) -> Dict[Point, int]:
             new_color, turn = running_bot.send(color)
             hull[location] = new_color
             direction = TURN_DB[direction][turn]
-            location = location + DIR_VEC[direction]
+            location += DIR_VEC[direction]
     except StopIteration:
         return hull
 
