@@ -168,9 +168,9 @@ class Processor:
         raw_op = self.memory[ip]
         opcode = OPCODE_BY_ID[raw_op % 100]
         params = []
-        for i, optype in enumerate(opcode.params):
-            mode = raw_op % (10 ** (i + 3)) // (10 ** (i + 2))
-            val = self.memory[ip + i + 1]
+        for i, optype in enumerate(opcode.params, start=1):
+            mode = raw_op % (10 ** (i + 2)) // (10 ** (i + 1))
+            val = self.memory[ip + i]
             if optype == ParamTypes.WRITE:
                 if mode == 2:
                     params.append(val + self.rel_base)
