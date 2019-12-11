@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import NamedTuple
+from typing import NamedTuple, Dict, List
 
 from processor import Processor
 
@@ -8,7 +8,7 @@ class Point(NamedTuple):
     y: int
     x: int
 
-    def __add__(self, other):
+    def __add__(self, other: "Point") -> "Point":
         return Point(self.y + other.y, self.x + other.x)
 
 
@@ -27,7 +27,7 @@ TURN_DB = {
 }
 
 
-def run_bot(program, part2=False):
+def run_bot(program: List[int], part2: bool = False) -> Dict[Point, int]:
     bot = Processor(program)
     running_bot = bot.run_on_output_generator(output_batch=2)
     next(running_bot)
@@ -48,7 +48,7 @@ def run_bot(program, part2=False):
         return hull
 
 
-def print_hull(hull):
+def print_hull(hull: Dict[Point, int]) -> None:
     miny = min(p.y for p in hull)
     maxy = max(p.y for p in hull)
     minx = min(p.x for p in hull)
