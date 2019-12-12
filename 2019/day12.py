@@ -56,11 +56,9 @@ def part1(moons: List[Tuple[int, ...]], cycles: int = 1000) -> int:
 
 
 def part2(moons: List[Tuple[int, ...]]) -> int:
-    x_period = axis_period([m[0] for m in moons])
-    y_period = axis_period([m[1] for m in moons])
-    z_period = axis_period([m[2] for m in moons])
+    periods = [axis_period([m[i] for m in moons]) for i in range(3)]
     # Calculate the LCM as suggested by https://stackoverflow.com/a/55773512/1038644
-    return reduce(lambda a, b: a * b // gcd(a, b), (x_period, y_period, z_period))
+    return reduce(lambda a, b: a * b // gcd(a, b), periods)
 
 
 if __name__ == "__main__":
