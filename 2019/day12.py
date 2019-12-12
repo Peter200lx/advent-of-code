@@ -46,17 +46,16 @@ def axis_period(
 
 
 def part1(moons: List[Tuple[int, ...]], cycles: int = 1000) -> int:
-    xl, xv = axis_period([m[0] for m in moons], cycles)
-    yl, yv = axis_period([m[1] for m in moons], cycles)
-    zl, zv = axis_period([m[2] for m in moons], cycles)
-    lsum = [sum(abs(n) for n in c) for c in zip(xl, yl, zl)]
-    vsum = [sum(abs(n) for n in c) for c in zip(xv, yv, zv)]
-    moon_energy = [cl * cv for cl, cv in zip(lsum, vsum)]
-    return sum(moon_energy)
+    results = [axis_period([m[i] for m in moons], cycles) for i in range(len(moons[0]))]
+    multi_dimensional_locations, multi_dimensional_velocities = zip(*results)
+    lsum = [sum(abs(n) for n in c) for c in zip(*multi_dimensional_locations)]
+    vsum = [sum(abs(n) for n in c) for c in zip(*multi_dimensional_velocities)]
+    energy_per_moon = [cl * cv for cl, cv in zip(lsum, vsum)]
+    return sum(energy_per_moon)
 
 
 def part2(moons: List[Tuple[int, ...]]) -> int:
-    periods = [axis_period([m[i] for m in moons]) for i in range(3)]
+    periods = [axis_period([m[i] for m in moons]) for i in range(len(moons[0]))]
     # Calculate the LCM as suggested by https://stackoverflow.com/a/55773512/1038644
     return reduce(lambda a, b: a * b // gcd(a, b), periods)
 
