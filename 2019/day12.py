@@ -12,7 +12,7 @@ DATA = """
 RE_NUMS = re.compile(r"-?\d+")
 
 
-def new_velocity(locations, velocities):
+def new_velocity(locations: List[int], velocities: List[int]):
     for i, first in enumerate(locations):
         for j, second in enumerate(locations):
             if i == j:
@@ -21,10 +21,9 @@ def new_velocity(locations, velocities):
                 velocities[i] += -1
             elif first < second:
                 velocities[i] += 1
-    return velocities
 
 
-def new_locations(locations, velocities):
+def new_locations(locations: List[int], velocities: List[int]):
     for i, v in enumerate(velocities):
         locations[i] += v
 
@@ -56,7 +55,7 @@ def part1(moons: List[Tuple[int, ...]], cycles: int = 1000) -> int:
     return sum(moon_energy)
 
 
-def part2(moons: List[Tuple[int, ...]]):
+def part2(moons: List[Tuple[int, ...]]) -> int:
     x_period = axis_period([m[0] for m in moons])
     y_period = axis_period([m[1] for m in moons])
     z_period = axis_period([m[2] for m in moons])
