@@ -52,10 +52,11 @@ def read_output(output, board, score=0, ball_x=None, paddle_x=None):
         if x == -1:
             score = tid
         else:
-            board[y][x] = TileID(tid)
-            if tid == TileID.BALL.value:
+            tile = TileID(tid)
+            board[y][x] = tile
+            if tile is TileID.BALL:
                 ball_x = x
-            elif tid == TileID.PADDLE.value:
+            elif tile is TileID.PADDLE:
                 paddle_x = x
     return score, ball_x, paddle_x
 
