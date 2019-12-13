@@ -13,23 +13,6 @@ class TileID(Enum):
     BALL = 4
 
 
-class Point(NamedTuple):
-    y: int
-    x: int
-
-
-def run_bot(program: List[int]) -> Dict[Point, TileID]:
-    running_bot = Processor(program).run_on_output_generator(output_batch=3)
-    next(running_bot)  # Prime the pump to the first yield for .send( below
-    board = {}
-    try:
-        while True:
-            x, y, tid = running_bot.send(None)
-            board[Point(y, x)] = TileID(tid)
-    except StopIteration:
-        return board
-
-
 def print_board(board: List[List[TileID]]) -> None:
     for row in board:
         print("".join(" #U=*"[i.value] if i.value else " " for i in row))
@@ -61,8 +44,9 @@ def read_output(output, board, score=0, ball_x=None, paddle_x=None):
     return score, ball_x, paddle_x
 
 
-def play_bot(program, debug=False, manual=False):
-    running_bot = Processor(program, ((0, 2),)).run_on_input_generator()
+def play_bot(program, part2=False, debug=False, manual=False):
+    override = [(0, 2)] if part2 else []
+    running_bot = Processor(program, override).run_on_input_generator()
     output = next(running_bot)  # Get all output up to first input request
     board = [[TileID.EMPTY for _ in range(37)] for _ in range(22)]
     score, ball_x, paddle_x = read_output(output, board)
@@ -87,7 +71,7 @@ def play_bot(program, debug=False, manual=False):
                     next_input = 0
 
     except StopIteration:
-        return score
+        return score if part2 else board
 
 
 if __name__ == "__main__":
@@ -97,5 +81,5 @@ if __name__ == "__main__":
     DATA = Path("day13.input").read_text().strip()
     int_list = [int(i) for i in DATA.split(",")]
 
-    print(sum(v == TileID.BLOCK for v in run_bot(int_list).values()))
-    print(play_bot(int_list, manual=MANUAL))
+    print(sum(sum(t == TileID.BLOCK for t in r) for r in play_bot(int_list)))
+    print(play_bot(int_list, part2=True, manual=MANUAL))
