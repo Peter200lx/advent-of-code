@@ -15,7 +15,7 @@ class TileID(Enum):
 
 def print_board(board: List[List[TileID]]) -> None:
     for row in board:
-        print("".join(" #U=*"[i.value] if i.value else " " for i in row))
+        print("".join(" #U=*"[i.value] for i in row))
 
 
 def read_output(
