@@ -113,3 +113,45 @@ def test_day11():
     assert len(run_bot(int_list)) == 2319
     field = run_bot(int_list, part2=True)
     assert len({p for p in field if field[p]}) == 99
+
+
+def test_day13():
+    data = Path("day13.input").read_text().strip()
+    int_list = [int(i) for i in data.split(",")]
+
+    def read_output(output, board, score=0, ball_x=0, paddle_x=0):
+        for x, y, tid in (output[i : i + 3] for i in range(0, len(output), 3)):
+            if x == -1:
+                score = tid
+            else:
+                board[y][x] = tid
+                if tid is 4:
+                    ball_x = x
+                elif tid is 3:
+                    paddle_x = x
+        return score, ball_x, paddle_x
+
+    def play_bot(program, part2: bool = False):
+        board = [[0 for _ in range(37)] for _ in range(22)]
+        override = [(0, 2)] if part2 else []
+        running_bot = Processor(program, override).run_on_input_generator()
+        output = next(running_bot)  # Get all output up to first input request
+        score, ball_x, paddle_x = read_output(output, board)
+        try:
+            while True:
+                if paddle_x > ball_x:
+                    next_input = -1
+                elif paddle_x < ball_x:
+                    next_input = 1
+                else:
+                    next_input = 0
+                output = running_bot.send(next_input)
+                score, ball_x, paddle_x = read_output(
+                    output, board, score, ball_x, paddle_x
+                )
+
+        except StopIteration:
+            return score if part2 else board
+
+    assert sum(sum(t == 2 for t in r) for r in play_bot(int_list)) == 247
+    assert play_bot(int_list, part2=True) == 12954
