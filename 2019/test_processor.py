@@ -38,10 +38,11 @@ def test_day7():
     def run_sequence(program, phase_nums):
         assert len(phase_nums) == 5
         prog_out = 0
-        processors = [
-            Processor(program).run_on_output_generator(phase_nums[n]) for n in range(5)
-        ]
+        processors = [Processor(program).run_on_input_generator() for _ in range(5)]
         [next(proc) for proc in processors]  # Move to first yield to accept .send()
+        [
+            proc.send(phase_nums[n]) for n, proc in enumerate(processors)
+        ]  # Send in phase numbers
         while processors:
             prog_in = prog_out
             cur_proc = processors.pop(0)
@@ -94,7 +95,7 @@ def test_day11():
     }
 
     def run_bot(program, part2=False):
-        running_bot = Processor(program).run_on_output_generator(output_batch=2)
+        running_bot = Processor(program).run_on_input_generator()
         next(running_bot)  # Prime the pump to the first yield for .send( below
         location = Point(0, 0)
         hull = {} if not part2 else {location: 1}

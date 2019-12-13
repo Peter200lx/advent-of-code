@@ -140,13 +140,34 @@ class Processor:
                 ip = self.func_by_instruction_pointer(ip)
                 if len(self.output) == output_batch:
                     if self.debug:
-                        print(f"{id(self)} yielding out {self.output[0]}")
+                        print(f"{id(self)} yielding out {self.output}")
                     new_input = yield self.output
                     self.output.clear()
                     if self.debug:
                         print(f"{id(self)} received {new_input} from yield")
                     self.input.append(new_input)
         except ProgramHalt:
+            return None
+
+    def run_on_input_generator(self) -> Generator[List[int], int, None]:
+        ip = 0
+        try:
+            while True:
+                if self.memory[ip] % 10 == 3:  # If next instruction is input...
+                    if self.debug:
+                        print(f"{id(self)} yielding out {self.output}")
+                    next_input = yield self.output
+                    if self.debug:
+                        print(f"{id(self)} received {next_input} from yield")
+                    self.output.clear()
+                    self.input.append(next_input)
+
+                ip = self.func_by_instruction_pointer(ip)
+        except ProgramHalt:
+            if self.output:
+                if self.debug:
+                    print(f"{id(self)} yielding out {self.output} before ending")
+                yield self.output
             return None
 
     def op_add(self, a: int, b: int, r: int) -> None:
