@@ -1,6 +1,6 @@
 from enum import Enum
 from pathlib import Path
-from typing import NamedTuple, Dict, List
+from typing import List, Tuple, Union
 
 from processor import Processor
 
@@ -18,7 +18,13 @@ def print_board(board: List[List[TileID]]) -> None:
         print("".join(" #U=*"[i.value] if i.value else " " for i in row))
 
 
-def read_output(output, board, score=0, ball_x=None, paddle_x=None):
+def read_output(
+    output: List[int],
+    board: List[List[TileID]],
+    score: int = 0,
+    ball_x: int = None,
+    paddle_x: int = None,
+) -> Tuple[int, int, int]:
     assert len(output) % 3 == 0
     for x, y, tid in (output[i : i + 3] for i in range(0, len(output), 3)):
         if x == -1:
@@ -33,7 +39,7 @@ def read_output(output, board, score=0, ball_x=None, paddle_x=None):
     return score, ball_x, paddle_x
 
 
-def get_key():
+def get_key() -> int:
     while True:
         key = getkey()
         if key == keys.LEFT:
@@ -44,7 +50,7 @@ def get_key():
             return 0
 
 
-def auto_key(ball_x, paddle_x):
+def auto_key(ball_x: int, paddle_x: int) -> int:
     if paddle_x > ball_x:
         return -1
     elif paddle_x < ball_x:
@@ -53,10 +59,12 @@ def auto_key(ball_x, paddle_x):
         return 0
 
 
-def play_bot(program, part2=False, debug=False, manual=False):
+def play_bot(
+    program: List[int], part2: bool = False, debug: int = 0, manual: bool = False
+) -> Union[int, List[List[TileID]]]:
     board = [[TileID.EMPTY for _ in range(37)] for _ in range(22)]
     override = [(0, 2)] if part2 else []
-    running_bot = Processor(program, override).run_on_input_generator()
+    running_bot = Processor(program, override, debug=debug).run_on_input_generator()
     output = next(running_bot)  # Get all output up to first input request
     score, ball_x, paddle_x = read_output(output, board)
     try:
