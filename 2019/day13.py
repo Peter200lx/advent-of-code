@@ -18,17 +18,6 @@ def print_board(board: List[List[TileID]]) -> None:
         print("".join(" #U=*"[i.value] if i.value else " " for i in row))
 
 
-def get_key():
-    while True:
-        key = getkey()
-        if key == keys.LEFT:
-            return -1
-        elif key == keys.RIGHT:
-            return 1
-        elif key == keys.SPACE:
-            return 0
-
-
 def read_output(output, board, score=0, ball_x=None, paddle_x=None):
     assert len(output) % 3 == 0
     for x, y, tid in (output[i : i + 3] for i in range(0, len(output), 3)):
@@ -44,31 +33,42 @@ def read_output(output, board, score=0, ball_x=None, paddle_x=None):
     return score, ball_x, paddle_x
 
 
+def get_key():
+    while True:
+        key = getkey()
+        if key == keys.LEFT:
+            return -1
+        elif key == keys.RIGHT:
+            return 1
+        elif key == keys.SPACE:
+            return 0
+
+
+def auto_key(ball_x, paddle_x):
+    if paddle_x > ball_x:
+        return -1
+    elif paddle_x < ball_x:
+        return 1
+    else:
+        return 0
+
+
 def play_bot(program, part2=False, debug=False, manual=False):
+    board = [[TileID.EMPTY for _ in range(37)] for _ in range(22)]
     override = [(0, 2)] if part2 else []
     running_bot = Processor(program, override).run_on_input_generator()
     output = next(running_bot)  # Get all output up to first input request
-    board = [[TileID.EMPTY for _ in range(37)] for _ in range(22)]
     score, ball_x, paddle_x = read_output(output, board)
-    next_input = 0
     try:
         while True:
+            if debug or manual:
+                print_board(board)
+                print(score)
+            next_input = get_key() if manual else auto_key(ball_x, paddle_x)
             output = running_bot.send(next_input)
             score, ball_x, paddle_x = read_output(
                 output, board, score, ball_x, paddle_x
             )
-            if debug or manual:
-                print_board(board)
-                print(score)
-            if manual:
-                next_input = get_key()
-            else:
-                if paddle_x > ball_x:
-                    next_input = -1
-                elif paddle_x < ball_x:
-                    next_input = 1
-                else:
-                    next_input = 0
 
     except StopIteration:
         return score if part2 else board
