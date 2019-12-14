@@ -1,18 +1,21 @@
 from math import ceil
 from pathlib import Path
+from typing import Dict, List
 
 
 class Chemical:
-    def __init__(self, my_name):
+    def __init__(self, my_name: str):
         self.name = my_name
         self.produced = None
         self.needs = None
 
-    def set_reaction(self, inputs, resulting_num):
+    def set_reaction(self, inputs: Dict["Chemical", int], resulting_num: int):
         self.produced = resulting_num
         self.needs = inputs
 
-    def find_required_base(self, required=1, extras=None):
+    def find_required_base(
+        self, required: int = 1, extras: Dict["Chemical", int] = None
+    ) -> int:
         if self.needs is None:
             return required
         if extras is None:
@@ -33,17 +36,17 @@ class Chemical:
             used_base += in_chem.find_required_base(multiple * needed, extras)
         return used_base
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f"R({self.name}, {self.produced},"
             f" {[f'{k.name}-{v}' for k,v in self.needs.items()] if self.needs else 'none'})"
         )
 
 
-def build_reactions(lines):
+def build_reactions(lines: List[str]) -> Dict[str, Chemical]:
     all_chem = {}
     for r_from, r_to in (line.split("=>") for line in lines):
-        needs = {}
+        needs: Dict[Chemical, int] = {}
         for required, name in (p.split() for p in r_from.strip().split(",")):
             if name not in all_chem:
                 all_chem[name] = Chemical(name)
@@ -55,7 +58,7 @@ def build_reactions(lines):
     return all_chem
 
 
-def binary_search(fuel, just_under_base):
+def binary_search(fuel: Chemical, just_under_base: int) -> int:
     first = 0
     last = just_under_base
     while first != last:
