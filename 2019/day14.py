@@ -2,7 +2,7 @@ from math import ceil
 from pathlib import Path
 
 
-class Reaction:
+class Chemical:
     def __init__(self, my_name):
         self.name = my_name
         self.produced = None
@@ -46,11 +46,11 @@ def build_reactions(lines):
         needs = {}
         for required, name in (p.split() for p in r_from.strip().split(",")):
             if name not in all_chem:
-                all_chem[name] = Reaction(name)
+                all_chem[name] = Chemical(name)
             needs[all_chem[name]] = int(required)
         produced, name = r_to.strip().split()
         if name not in all_chem:
-            all_chem[name] = Reaction(name)
+            all_chem[name] = Chemical(name)
         all_chem[name].set_reaction(needs, int(produced))
     return all_chem
 
