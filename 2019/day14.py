@@ -40,12 +40,11 @@ class Reaction:
         )
 
 
-def build_reactions(reaction_tuples):
+def build_reactions(lines):
     all_chem = {}
-    for r_from, r_to in reaction_tuples:
+    for r_from, r_to in (line.split("=>") for line in lines):
         needs = {}
-        for part in r_from.strip().split(","):
-            required, name = part.strip().split()
+        for required, name in (p.split() for p in r_from.strip().split(",")):
             if name not in all_chem:
                 all_chem[name] = Reaction(name)
             needs[all_chem[name]] = int(required)
@@ -71,8 +70,8 @@ def binary_search(fuel, just_under_base):
 
 if __name__ == "__main__":
     DATA = Path("day14.input").read_text().strip()
-    tuple_list = [line.split("=>") for line in DATA.split("\n")]
+    reaction_list = DATA.split("\n")
 
-    reactiondb = build_reactions(tuple_list)
+    reactiondb = build_reactions(reaction_list)
     print(reactiondb["FUEL"].find_required_base())
     print(binary_search(reactiondb["FUEL"], 1_000_000_000_000))
