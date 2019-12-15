@@ -66,8 +66,10 @@ def run_bot(program: List[int], debug: int = 0) -> Dict[Point, TileID]:
             if debug:
                 print_room(room)
                 print(location)
-            nearby = [move for move in MOVE_VEC if (location + move) not in room]
-            if not nearby:
+            next_move = next(
+                (move for move in MOVE_VEC if (location + move) not in room), None
+            )
+            if not next_move:
                 next_move = path.pop() * -1
                 if not path:
                     return room
@@ -75,7 +77,6 @@ def run_bot(program: List[int], debug: int = 0) -> Dict[Point, TileID]:
                 location = location + next_move
                 continue
 
-            next_move = nearby[0]
             next_loc = location + next_move
             (status,) = running_bot.send(MOVE_VEC[next_move].value)
             room[next_loc] = TileID(status)
@@ -90,7 +91,7 @@ def run_bot(program: List[int], debug: int = 0) -> Dict[Point, TileID]:
 
 
 def fill_oxygen(room: Dict[Point, TileID]) -> int:
-    oxygen_start = [loc for loc, t in room.items() if t == TileID.OXYGEN][0]
+    oxygen_start = next(loc for loc, t in room.items() if t == TileID.OXYGEN)
     room = {loc for loc, t in room.items() if t == TileID.EMPTY}
     minutes = 0
     spread_locations = {oxygen_start}
