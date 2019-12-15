@@ -70,11 +70,11 @@ def run_bot(program: List[int], debug: int = 0) -> Dict[Point, TileID]:
                 (move for move in MOVE_VEC if (location + move) not in room), None
             )
             if not next_move:
-                next_move = path.pop() * -1
+                move_backwards = path.pop() * -1
                 if not path:
                     return room
-                running_bot.send(MOVE_VEC[next_move].value)
-                location = location + next_move
+                running_bot.send(MOVE_VEC[move_backwards].value)
+                location = location + move_backwards
                 continue
 
             next_loc = location + next_move
