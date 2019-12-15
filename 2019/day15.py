@@ -95,14 +95,13 @@ def fill_oxygen(room: Dict[Point, TileID]) -> int:
     minutes = 0
     spread_locations = {oxygen_start}
     while room:
-        next_locations = set()
-        for spread_point in spread_locations:
-            for move in MOVE_VEC:
-                next_loc = spread_point + move
-                if next_loc in room:
-                    room.remove(next_loc)
-                    next_locations.add(next_loc)
-        spread_locations = next_locations
+        spread_locations = {
+            spread_point + move
+            for move in MOVE_VEC
+            for spread_point in spread_locations
+            if spread_point + move in room
+        }
+        room -= spread_locations
         minutes += 1
     return minutes
 
