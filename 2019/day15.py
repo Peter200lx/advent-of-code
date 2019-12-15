@@ -1,6 +1,6 @@
 from enum import Enum
 from pathlib import Path
-from typing import List, NamedTuple
+from typing import List, NamedTuple, Dict
 
 from processor import Processor
 
@@ -8,9 +8,6 @@ from processor import Processor
 class Point(NamedTuple):
     y: int
     x: int
-
-    def distance(self, other: "Point"):
-        return abs(self.y - other.y) + abs(self.x - other.x)
 
     def __add__(self, other: "Point") -> "Point":
         return Point(self.y + other.y, self.x + other.x)
@@ -44,7 +41,7 @@ MOVE_VEC = {
 }
 
 
-def print_room(room) -> None:
+def print_room(room: Dict[Point, TileID]) -> None:
     miny = min(p.y for p in room)
     maxy = max(p.y for p in room)
     minx = min(p.x for p in room)
@@ -58,7 +55,7 @@ def print_room(room) -> None:
             raise
 
 
-def run_bot(program: List[int], debug: int = 0):
+def run_bot(program: List[int], debug: int = 0) -> Dict[Point, TileID]:
     location = Point(0, 0)
     room = {location: TileID.EMPTY}
     running_bot = Processor(program, debug=debug).run_on_input_generator()
@@ -92,7 +89,7 @@ def run_bot(program: List[int], debug: int = 0):
         raise NotImplementedError(f"Don't expect the bot to ever halt the program")
 
 
-def fill_oxygen(room):
+def fill_oxygen(room: Dict[Point, TileID]) -> int:
     oxygen_start = [loc for loc, t in room.items() if t == TileID.OXYGEN][0]
     room = {loc for loc, t in room.items() if t == TileID.EMPTY}
     minutes = 0
