@@ -69,16 +69,23 @@ def test_day9():
     assert Processor(int_list).run([2]) == [84513]
 
 
+class Point(NamedTuple):
+    y: int
+    x: int
+
+    def __add__(self, other):
+        return Point(self.y + other.y, self.x + other.x)
+
+    def __mul__(self, other) -> "Point":
+        if isinstance(other, int):
+            return Point(self.y * other, self.x * other)
+        else:
+            raise NotImplementedError(f"Multiplication of Point and {type(other)}")
+
+
 def test_day11():
     data = Path("day11.input").read_text().strip()
     int_list = [int(i) for i in data.split(",")]
-
-    class Point(NamedTuple):
-        y: int
-        x: int
-
-        def __add__(self, other):
-            return Point(self.y + other.y, self.x + other.x)
 
     DIR_VEC = {
         "^": Point(-1, 0),
@@ -155,3 +162,61 @@ def test_day13():
 
     assert sum(sum(t == 2 for t in r) for r in play_bot(int_list)) == 247
     assert play_bot(int_list, part2=True) == 12954
+
+
+def test_day15():
+    data = Path("day15.input").read_text().strip()
+    int_list = [int(i) for i in data.split(",")]
+
+    move_vec = {
+        Point(-1, 0): 1,
+        Point(1, 0): 2,
+        Point(0, 1): 3,
+        Point(0, -1): 4,
+    }
+
+    def run_bot(program):
+        location = Point(0, 0)
+        room = {location: 1}
+        running_bot = Processor(program).run_on_input_generator()
+        next(running_bot)  # Move to first yield for .send(
+        path = []
+        while True:
+            next_move = next(
+                (move for move in move_vec if (location + move) not in room), None
+            )
+            if not next_move:
+                move_backwards = path.pop() * -1
+                if not path:
+                    return room
+                running_bot.send(move_vec[move_backwards])
+                location += move_backwards
+                continue
+
+            next_loc = location + next_move
+            (status,) = running_bot.send(move_vec[next_move])
+            room[next_loc] = status
+            if room[next_loc] != 0:
+                location = next_loc
+                path.append(next_move)
+            if room[next_loc] == 2:
+                assert 254 == len(path)  # Part 1
+
+    def fill_oxygen(room):
+        oxygen_start = next(loc for loc, t in room.items() if t == 2)
+        room = {loc for loc, t in room.items() if t == 1}
+        minutes = 0
+        spread_locations = {oxygen_start}
+        while room:
+            spread_locations = {
+                spread_point + move
+                for move in move_vec
+                for spread_point in spread_locations
+                if spread_point + move in room
+            }
+            room -= spread_locations
+            minutes += 1
+        return minutes
+
+    locations = run_bot(int_list)
+    assert 268 == fill_oxygen(locations)
