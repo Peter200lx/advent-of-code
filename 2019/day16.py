@@ -65,12 +65,12 @@ def run_phase_slicing_p2(signal, ignore_before):
     ]
 
 
-def magic_logic(signal, ignore_before):
+def magic_logic(signal):
     # This is created using patterns that were noticed by others and recorded at:
     # https://www.reddit.com/r/adventofcode/comments/ebai4g/2019_day_16_solutions/fb3lts9/
     num_items = len(signal)
     ret_list = signal[:]
-    for i in range(num_items - 2, ignore_before - 1, -1):
+    for i in range(num_items - 2, -1, -1):
         ret_list[i] = (signal[i] + ret_list[i + 1]) % 10
     return ret_list
 
@@ -86,6 +86,8 @@ if __name__ == "__main__":
 
     offset = int("".join(str(i) for i in int_list[:7]))
     insane_list = int_list * 10_000
+    assert offset > (len(insane_list) // 2)
+    insane_list = insane_list[offset:]
 
     for _ in range(100):
         # Wrote run_phase_slicing_p2 myself, ~7.5min per phase on laptop
@@ -93,5 +95,5 @@ if __name__ == "__main__":
         # run for a bit over 12 hours.
         # insane_list = run_phase_slicing_p2(insane_list, offset)
         # Ended up using magic logic found on reddit
-        insane_list = magic_logic(insane_list, offset)
-    print("".join((str(i) for i in insane_list[offset : offset + 8])))
+        insane_list = magic_logic(insane_list)
+    print("".join((str(i) for i in insane_list[:8])))
