@@ -12,12 +12,7 @@ class Point(NamedTuple):
         return Point(self.y + other.y, self.x + other.x)
 
 
-MOVE_VEC = {
-    Point(-1, 0): "^",
-    Point(1, 0): "v",
-    Point(0, 1): ">",
-    Point(0, -1): "<",
-}
+ADJACENT = {Point(-1, 0), Point(1, 0), Point(0, 1), Point(0, -1)}
 
 
 def print_scaffold(scaffold: Dict[Point, str]) -> None:
@@ -52,7 +47,7 @@ def cam_out_to_point_cloud(cam_out):
 
 def find_scaffold_intersections(point_cloud):
     scaffold = {p for p, c in point_cloud.items() if c == "#"}
-    return {p for p in scaffold if sum(1 for m in MOVE_VEC if (p + m) in scaffold) == 4}
+    return {p for p in scaffold if sum((p + m) in scaffold for m in ADJACENT) == 4}
 
 
 def part_1(program: List[int]):
