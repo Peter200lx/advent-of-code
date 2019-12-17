@@ -119,18 +119,6 @@ C: R,8,L,6,L,4,L,10,R,8
 """
 
 
-def build_input(m_r, a_f, b_f, c_f, video=0):
-    input_list = []
-    for instructions in (m_r, a_f, b_f, c_f):
-        inst_str = ",".join(str(c) for c in instructions)
-        assert len(inst_str) <= 20
-        input_list.extend(inst_str)
-        input_list.append("\n")
-    input_list.append("y" if video else "n")
-    input_list.append("\n")
-    return input_list
-
-
 def run_bot(program: List[int], debug: int = 0):
     room = {}
     running_bot = Processor(program, ((0, 2),),).run_on_input_generator()
@@ -139,20 +127,23 @@ def run_bot(program: List[int], debug: int = 0):
     if debug:
         print_scaffold(point_cloud)
         print("".join(chr(i) for i in remaining), end="")
-    main_routine = ["A", "C", "A", "B", "C", "B", "C", "B", "A", "C"]
-    func_a = ["L", 6, "L", 4, "R", 8]
-    func_b = ["L", 4, "R", 4, "L", 4, "R", 8]
-    func_c = ["R", 8, "L", 6, "L", 4, "L", 10, "R", 8]
-    input_list = build_input(main_routine, func_a, func_b, func_c, video=debug > 3)
+    main_routine = "A,C,A,B,C,B,C,B,A,C"
+    func_a = "L,6,L,4,R,8"
+    func_b = "L,4,R,4,L,4,R,8"
+    func_c = "R,8,L,6,L,4,L,10,R,8"
+    video = "y" if debug > 3 else "n"
+    input_str = "\n".join((main_routine, func_a, func_b, func_c, video)) + "\n"
     if debug:
-        print("".join(input_list[: input_list.index("\n")]))
+        print(input_str.split("\n", 1)[0])
     try:
-        while input_list:
-            output = running_bot.send(ord(input_list.pop(0)))
-            if input_list:
+        i = 0
+        while i < len(input_str):
+            output = running_bot.send(ord(input_str[i]))
+            i += 1
+            if i < len(input_str):
                 if debug and len(output) != 0:
                     print("".join(chr(i) for i in output), end="")
-                    print("".join(input_list[: input_list.index("\n")]))
+                    print(input_str[i:].split("\n", 1)[0])
             else:
                 if debug:
                     point_cloud, remaining = cam_out_to_point_cloud(cam_out)
