@@ -125,20 +125,18 @@ def run_bot(program: List[int], debug: int = 0):
         print(input_str.split("\n", 1)[0])
     try:
         i = 0
+        output = []  # Stop Pycharm complaining about reference before assignment
         while i < len(input_str):
+            if debug and len(output) != 0:
+                print("".join(chr(i) for i in output), end="")
+                print(input_str[i:].split("\n", 1)[0])
             output = running_bot.send(ord(input_str[i]))
             i += 1
-            if i < len(input_str):
-                if debug and len(output) != 0:
-                    print("".join(chr(i) for i in output), end="")
-                    print(input_str[i:].split("\n", 1)[0])
-            else:
-                if debug:
-                    point_cloud, remaining = cam_out_to_point_cloud(cam_out)
-                    print_view(point_cloud)
-                    return part1, remaining[0]
-                return part1, output[-1]
-        raise NotImplementedError(f"Don't expect the bot ask for input again")
+
+        if debug:
+            point_cloud, remaining = cam_out_to_point_cloud(cam_out)
+            print_view(point_cloud)
+        return part1, output[-1]
 
     except StopIteration:
         return NotImplementedError(f"Don't expect the bot to ever halt the program")
