@@ -15,16 +15,12 @@ class Point(NamedTuple):
 ADJACENT = {Point(-1, 0), Point(1, 0), Point(0, 1), Point(0, -1)}
 
 
-def print_scaffold(scaffold: Dict[Point, str]) -> None:
+def print_view(scaffold: Dict[Point, str]) -> None:
     maxy = max(p.y for p in scaffold)
     maxx = max(p.x for p in scaffold)
     for row in range(maxy + 1):
         line = [scaffold.get(Point(row, x), "?") for x in range(maxx + 1)]
-        try:
-            print("".join(c for c in line))
-        except ValueError:
-            print(line)
-            raise
+        print("".join(line))
 
 
 def cam_out_to_point_cloud(cam_out):
@@ -50,10 +46,12 @@ def find_scaffold_intersections(point_cloud):
     return {p for p in scaffold if sum((p + m) in scaffold for m in ADJACENT) == 4}
 
 
-def part_1(program: List[int]):
+def part_1(program: List[int], debug: int = 0):
     running_bot = Processor(program).run_on_input_generator()
     cam_out = next(running_bot)  # Move to first yield for .send(
     point_cloud, _ = cam_out_to_point_cloud(cam_out)
+    if debug:
+        print_view(point_cloud)
     scaffold_intersect = find_scaffold_intersections(point_cloud)
     return sum(p.y * p.x for p in scaffold_intersect)
 
@@ -120,7 +118,7 @@ def run_bot(program: List[int], debug: int = 0):
     cam_out = next(running_bot)  # Move to first yield for .send(
     point_cloud, remaining = cam_out_to_point_cloud(cam_out)
     if debug:
-        print_scaffold(point_cloud)
+        print_view(point_cloud)
         print("".join(chr(i) for i in remaining), end="")
     main_routine = "A,C,A,B,C,B,C,B,A,C"
     func_a = "L,6,L,4,R,8"
@@ -142,7 +140,7 @@ def run_bot(program: List[int], debug: int = 0):
             else:
                 if debug:
                     point_cloud, remaining = cam_out_to_point_cloud(cam_out)
-                    print_scaffold(point_cloud)
+                    print_view(point_cloud)
                     return remaining[0]
                 return output[-1]
         raise NotImplementedError(f"Don't expect the bot ask for input again")
