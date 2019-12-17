@@ -46,16 +46,6 @@ def find_scaffold_intersections(point_cloud):
     return {p for p in scaffold if sum((p + m) in scaffold for m in ADJACENT) == 4}
 
 
-def part_1(program: List[int], debug: int = 0):
-    running_bot = Processor(program).run_on_input_generator()
-    cam_out = next(running_bot)  # Move to first yield for .send(
-    point_cloud, _ = cam_out_to_point_cloud(cam_out)
-    if debug:
-        print_view(point_cloud)
-    scaffold_intersect = find_scaffold_intersections(point_cloud)
-    return sum(p.y * p.x for p in scaffold_intersect)
-
-
 PART2_MANUAL_ANALYSIS = """
 L,6,L,4,R,8,R,8,L,6,L,4,L,10,R,8,L,6,L,4,R,8,L,4,R,4,L,4,R,8,R,8,L,6,L,4,L,10,
 AAAAAAAAAAA CCCCCCCCCCCCCCCCCCCC AAAAAAAAAAA BBBBBBBBBBBBBBB CCCCCCCCCCCCCCCC
@@ -113,19 +103,24 @@ C: R,8,L,6,L,4,L,10,R,8
 
 
 def run_bot(program: List[int], debug: int = 0):
-    room = {}
     running_bot = Processor(program, ((0, 2),),).run_on_input_generator()
     cam_out = next(running_bot)  # Move to first yield for .send(
     point_cloud, remaining = cam_out_to_point_cloud(cam_out)
+
+    scaffold_intersect = find_scaffold_intersections(point_cloud)
+    part1 = sum(p.y * p.x for p in scaffold_intersect)
+
     if debug:
         print_view(point_cloud)
         print("".join(chr(i) for i in remaining), end="")
+
     main_routine = "A,C,A,B,C,B,C,B,A,C"
     func_a = "L,6,L,4,R,8"
     func_b = "L,4,R,4,L,4,R,8"
     func_c = "R,8,L,6,L,4,L,10,R,8"
     video = "y" if debug > 3 else "n"
     input_str = "\n".join((main_routine, func_a, func_b, func_c, video)) + "\n"
+
     if debug:
         print(input_str.split("\n", 1)[0])
     try:
@@ -141,8 +136,8 @@ def run_bot(program: List[int], debug: int = 0):
                 if debug:
                     point_cloud, remaining = cam_out_to_point_cloud(cam_out)
                     print_view(point_cloud)
-                    return remaining[0]
-                return output[-1]
+                    return part1, remaining[0]
+                return part1, output[-1]
         raise NotImplementedError(f"Don't expect the bot ask for input again")
 
     except StopIteration:
@@ -153,5 +148,4 @@ if __name__ == "__main__":
     DATA = Path("day17.input").read_text().strip()
     int_list = [int(i) for i in DATA.split(",")]
 
-    print(part_1(int_list))
     print(run_bot(int_list))
