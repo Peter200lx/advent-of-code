@@ -12,11 +12,6 @@ class FoundKey(NamedTuple):
     dist: int
 
 
-class State(NamedTuple):
-    loc: Tuple[int, int]
-    keys: frozenset
-
-
 ADJACENT = [(-1, 0), (1, 0), (0, 1), (0, -1)]
 
 
@@ -46,9 +41,7 @@ def build_p2_map(paths, start):
     )
 
 
-def key_distance(pathways, start, keys_grabbed=None):
-    if keys_grabbed is None:
-        keys_grabbed = set()
+def key_distance(pathways, start, keys_grabbed):
     mapping_points = deque()
     mapping_points.append(start)
     new_keys = list()
@@ -78,29 +71,29 @@ def key_distance(pathways, start, keys_grabbed=None):
     return new_keys
 
 
-def find_shortest_path(pathways, bots_pos, has_keys, already_checked):
-    state = State(bots_pos, frozenset(has_keys))
-    if state in already_checked:
-        return already_checked[state]
+def find_shortest_path(pathways, bots_pos, has_keys, cache):
+    state = (bots_pos, has_keys)
+    if state in cache:
+        return cache[state]
     keys = {
         k: i
         for i, s in enumerate(bots_pos)
         for k in key_distance(pathways, s, has_keys)
     }
     if not keys:
-        already_checked[state] = 0
-        return 0
-    already_checked[state] = min(
-        k.dist
-        + find_shortest_path(
-            pathways,
-            tuple(k.loc if j == i else p for j, p in enumerate(bots_pos)),
-            has_keys | {k.name},
-            already_checked,
+        cache[state] = 0
+    else:
+        cache[state] = min(
+            k.dist
+            + find_shortest_path(
+                pathways,
+                tuple(k.loc if j == i else p for j, p in enumerate(bots_pos)),
+                has_keys | {k.name},
+                cache,
+            )
+            for k, i in keys.items()
         )
-        for k, i in keys.items()
-    )
-    return already_checked[state]
+    return cache[state]
 
 
 if __name__ == "__main__":
@@ -108,7 +101,7 @@ if __name__ == "__main__":
     lines = DATA.split("\n")
 
     starting_point = find_start(lines)
-    print(find_shortest_path(lines, (starting_point,), set(), {}))
+    print(find_shortest_path(lines, (starting_point,), frozenset(), {}))
 
     p2_field, bot_starts = build_p2_map(lines, starting_point)
-    print(find_shortest_path(p2_field, bot_starts, set(), {}))
+    print(find_shortest_path(p2_field, bot_starts, frozenset(), {}))
