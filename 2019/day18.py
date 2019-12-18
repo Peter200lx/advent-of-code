@@ -52,7 +52,8 @@ def key_distance(pathways, start, keys_grabbed=None):
     mapping_points = deque()
     mapping_points.append(start)
     new_keys = list()
-    point_depth = {start: 0}
+    depth_map = [[MAX_DEPTH for _ in line] for line in pathways]
+    depth_map[start[0]][start[1]] = 0
     while mapping_points:
         current = mapping_points.popleft()
         for loc in (
@@ -63,16 +64,16 @@ def key_distance(pathways, start, keys_grabbed=None):
         ):
             if pathways[loc[0]][loc[1]] == "#":
                 continue
-            if loc in point_depth:
+            if depth_map[loc[0]][loc[1]] != MAX_DEPTH:
                 continue
             char = pathways[loc[0]][loc[1]]
             if char in string.ascii_uppercase:
                 if char.lower() not in keys_grabbed:
                     continue
-            point_depth[loc] = point_depth[current] + 1
+            depth_map[loc[0]][loc[1]] = depth_map[current[0]][current[1]] + 1
             if char in string.ascii_lowercase:
                 if char not in keys_grabbed:
-                    new_keys.append(FoundKey(char, loc, point_depth[loc]))
+                    new_keys.append(FoundKey(char, loc, depth_map[loc[0]][loc[1]]))
             mapping_points.append(loc)
     return new_keys
 
