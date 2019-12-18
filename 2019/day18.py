@@ -65,22 +65,6 @@ def key_distance(pathways, start, keys_grabbed=None):
     return new_keys
 
 
-def find_shortest_path(pathways, start, has_keys, already_checked):
-    state = State(start, frozenset(has_keys))
-    if state in already_checked:
-        return already_checked[state]
-    keys = key_distance(pathways, start, has_keys)
-    if not keys:
-        already_checked[state] = 0
-        return 0
-    already_checked[state] = min(
-        k.dist
-        + find_shortest_path(pathways, k.loc, has_keys | {k.name}, already_checked)
-        for k in keys
-    )
-    return already_checked[state]
-
-
 def split_paths(paths, start):
     p2_path = paths.copy()
     for wall in ((start[0] + m[0], start[1] + m[1]) for m in ADJACENT):
@@ -94,7 +78,7 @@ def split_paths(paths, start):
     )
 
 
-def find_shortest_path_p2(pathways, bots_pos, has_keys, already_checked):
+def find_shortest_path(pathways, bots_pos, has_keys, already_checked):
     state = State(bots_pos, frozenset(has_keys))
     if state in already_checked:
         return already_checked[state]
@@ -108,7 +92,7 @@ def find_shortest_path_p2(pathways, bots_pos, has_keys, already_checked):
         return 0
     already_checked[state] = min(
         k.dist
-        + find_shortest_path_p2(
+        + find_shortest_path(
             pathways,
             tuple(k.loc if j == i else p for j, p in enumerate(bots_pos)),
             has_keys | {k.name},
@@ -124,7 +108,7 @@ if __name__ == "__main__":
     lines = DATA.split("\n")
 
     field, starting_point = parse_data(lines)
-    print(find_shortest_path(field, starting_point, set(), {}))
+    print(find_shortest_path(field, (starting_point,), set(), {}))
 
     p2_field, bot_starts = split_paths(field, starting_point)
-    print(find_shortest_path_p2(p2_field, bot_starts, set(), {}))
+    print(find_shortest_path(p2_field, bot_starts, set(), {}))
