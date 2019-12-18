@@ -20,11 +20,30 @@ class State(NamedTuple):
 ADJACENT = [(-1, 0), (1, 0), (0, 1), (0, -1)]
 
 
-def parse_data(maze_lines):
+def find_start(maze_lines):
     for y, line in enumerate(maze_lines):
         for x, c in enumerate(line):
             if c == "@":
                 return (y, x)
+
+
+def build_p2_map(paths, start):
+    p2_path = paths.copy()
+    for y in (start[0] - 1, start[0], start[0] + 1):
+        row = list(p2_path[y])
+        if y == start[0]:
+            row[start[1] - 1] = "#"
+            row[start[1] + 1] = "#"
+        else:
+            row[start[1]] = "#"
+        p2_path[y] = "".join(row)
+    return (
+        p2_path,
+        tuple(
+            (start[0] + m[0], start[1] + m[1])
+            for m in ((1, 1), (-1, -1), (1, -1), (-1, 1))
+        ),
+    )
 
 
 def key_distance(pathways, start, keys_grabbed=None):
@@ -58,25 +77,6 @@ def key_distance(pathways, start, keys_grabbed=None):
     return new_keys
 
 
-def split_paths(paths, start):
-    p2_path = paths.copy()
-    for y in (start[0] - 1, start[0], start[0] + 1):
-        row = list(p2_path[y])
-        if y == start[0]:
-            row[start[1] - 1] = "#"
-            row[start[1] + 1] = "#"
-        else:
-            row[start[1]] = "#"
-        p2_path[y] = "".join(row)
-    return (
-        p2_path,
-        tuple(
-            (start[0] + m[0], start[1] + m[1])
-            for m in ((1, 1), (-1, -1), (1, -1), (-1, 1))
-        ),
-    )
-
-
 def find_shortest_path(pathways, bots_pos, has_keys, already_checked):
     state = State(bots_pos, frozenset(has_keys))
     if state in already_checked:
@@ -106,8 +106,8 @@ if __name__ == "__main__":
     DATA = Path("day18.input").read_text().strip()
     lines = DATA.split("\n")
 
-    starting_point = parse_data(lines)
+    starting_point = find_start(lines)
     print(find_shortest_path(lines, (starting_point,), set(), {}))
 
-    p2_field, bot_starts = split_paths(lines, starting_point)
+    p2_field, bot_starts = build_p2_map(lines, starting_point)
     print(find_shortest_path(p2_field, bot_starts, set(), {}))
