@@ -41,10 +41,14 @@ def build_p2_map(paths, start):
     )
 
 
-def key_distance(pathways, start, keys_grabbed):
+def key_distance(pathways, start, keys_grabbed, cache):
+    state = (start, keys_grabbed)
+    if state in cache:
+        return cache[state]
     mapping_points = deque()
     mapping_points.append(start)
     new_keys = list()
+    cache[state] = new_keys
     depth_map = [[MAX_DEPTH for _ in line] for line in pathways]
     depth_map[start[0]][start[1]] = 0
     while mapping_points:
@@ -71,14 +75,14 @@ def key_distance(pathways, start, keys_grabbed):
     return new_keys
 
 
-def find_shortest_path(pathways, bots_pos, has_keys, cache):
+def find_shortest_path(pathways, bots_pos, has_keys, cache, key_cache):
     state = (bots_pos, has_keys)
     if state in cache:
         return cache[state]
     keys = {
         k: i
         for i, s in enumerate(bots_pos)
-        for k in key_distance(pathways, s, has_keys)
+        for k in key_distance(pathways, s, has_keys, key_cache)
     }
     if not keys:
         cache[state] = 0
@@ -90,6 +94,7 @@ def find_shortest_path(pathways, bots_pos, has_keys, cache):
                 tuple(k.loc if j == i else p for j, p in enumerate(bots_pos)),
                 has_keys | {k.name},
                 cache,
+                key_cache,
             )
             for k, i in keys.items()
         )
@@ -101,7 +106,7 @@ if __name__ == "__main__":
     lines = DATA.split("\n")
 
     starting_point = find_start(lines)
-    print(find_shortest_path(lines, (starting_point,), frozenset(), {}))
+    print(find_shortest_path(lines, (starting_point,), frozenset(), {}, {}))
 
     p2_field, bot_starts = build_p2_map(lines, starting_point)
-    print(find_shortest_path(p2_field, bot_starts, frozenset(), {}))
+    print(find_shortest_path(p2_field, bot_starts, frozenset(), {}, {}))
