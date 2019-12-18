@@ -21,17 +21,10 @@ ADJACENT = [(-1, 0), (1, 0), (0, 1), (0, -1)]
 
 
 def parse_data(maze_lines):
-    start = (0, 0)
-    pathways = {}
     for y, line in enumerate(maze_lines):
         for x, c in enumerate(line):
-            if c != "#":
-                location = (y, x)
-                pathways[location] = c
-                if c == "@":
-                    start = location
-
-    return pathways, start
+            if c == "@":
+                return (y, x)
 
 
 def key_distance(pathways, start, keys_grabbed=None):
@@ -49,11 +42,11 @@ def key_distance(pathways, start, keys_grabbed=None):
             (current[0], current[1] - 1),
             (current[0], current[1] + 1),
         ):
-            if loc not in pathways:
+            if pathways[loc[0]][loc[1]] == "#":
                 continue
             if loc in point_depth:
                 continue
-            char = pathways[loc]
+            char = pathways[loc[0]][loc[1]]
             if char in string.ascii_uppercase:
                 if char.lower() not in keys_grabbed:
                     continue
@@ -67,8 +60,14 @@ def key_distance(pathways, start, keys_grabbed=None):
 
 def split_paths(paths, start):
     p2_path = paths.copy()
-    for wall in ((start[0] + m[0], start[1] + m[1]) for m in ADJACENT):
-        del p2_path[wall]
+    for y in (start[0] - 1, start[0], start[0] + 1):
+        row = list(p2_path[y])
+        if y == start[0]:
+            row[start[1] - 1] = "#"
+            row[start[1] + 1] = "#"
+        else:
+            row[start[1]] = "#"
+        p2_path[y] = "".join(row)
     return (
         p2_path,
         tuple(
@@ -107,8 +106,8 @@ if __name__ == "__main__":
     DATA = Path("day18.input").read_text().strip()
     lines = DATA.split("\n")
 
-    field, starting_point = parse_data(lines)
-    print(find_shortest_path(field, (starting_point,), set(), {}))
+    starting_point = parse_data(lines)
+    print(find_shortest_path(lines, (starting_point,), set(), {}))
 
-    p2_field, bot_starts = split_paths(field, starting_point)
+    p2_field, bot_starts = split_paths(lines, starting_point)
     print(find_shortest_path(p2_field, bot_starts, set(), {}))
