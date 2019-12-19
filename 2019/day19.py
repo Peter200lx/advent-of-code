@@ -69,13 +69,9 @@ def part_2(program: List[int], scan):
         top_edge += RIGHT
         while not check_location(bot, program, top_edge):
             top_edge += DOWN
-        scan[top_edge] = 1
-        if top_edge + OPPOSITE_CORNER in scan and scan[top_edge + OPPOSITE_CORNER]:
+        check_corner = top_edge + OPPOSITE_CORNER
+        if check_corner.x > 0 and check_location(bot, program, check_corner):
             return top_edge + RESULT_CORNER
-        sweep = top_edge + DOWN
-        while check_location(bot, program, sweep):
-            scan[sweep] = 1
-            sweep += DOWN
 
 
 if __name__ == "__main__":
