@@ -43,6 +43,19 @@ def run_bot(program: List[int]):
     return scan
 
 
+def find_top_right(scan):
+    square_size = max(p.x for p in scan)
+    for y in range(square_size):
+        p = Point(y, square_size)
+        if scan[p]:
+            return p
+    for x in range(square_size, 0, -1):
+        p = Point(square_size, x)
+        if scan[p]:
+            return p
+    raise NotImplementedError("Unable to find beam on far edges of sweep")
+
+
 RIGHT = Point(0, 1)
 DOWN = Point(1, 0)
 OPPOSITE_CORNER = Point(99, -99)
@@ -51,13 +64,7 @@ RESULT_CORNER = Point(0, -99)
 
 def part_2(program: List[int], scan):
     bot = Processor(program)
-    start_point = Point(0, 0)
-    maxx = max(p.x for p in scan)
-    for y in range(maxx):
-        p = Point(y, maxx)
-        if scan[p]:
-            start_point = p
-    top_edge = start_point
+    top_edge = find_top_right(scan)
     while True:
         top_edge += RIGHT
         while not check_location(bot, program, top_edge):
