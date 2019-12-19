@@ -13,7 +13,7 @@ class Point(NamedTuple):
         return Point(self.y + other.y, self.x + other.x)
 
 
-def print_view(scan: Dict[Point, int], starty=0, startx=0) -> None:
+def print_view(scan: Dict[Point, int], starty: int = 0, startx: int = 0) -> None:
     maxy = max(p.y for p in scan if scan[p])
     maxx = max(p.x for p in scan if scan[p])
     for row in range(starty, maxy + 1):
@@ -21,7 +21,7 @@ def print_view(scan: Dict[Point, int], starty=0, startx=0) -> None:
         print("".join(" X."[i] for i in line))
 
 
-def check_location(bot: Processor, program, point: Point):
+def check_location(bot: Processor, program: List[int], point: Point) -> int:
     bot.memory = defaultdict(int, enumerate(program))
     try:
         running_bot = bot.run_on_input_generator()
@@ -34,7 +34,7 @@ def check_location(bot: Processor, program, point: Point):
         raise NotImplementedError(f"Don't expect the bot to ever halt the program")
 
 
-def run_bot(program: List[int]):
+def run_bot(program: List[int]) -> Dict[Point, int]:
     bot = Processor(program)
     points_to_scan = [Point(y, x) for x in range(50) for y in range(50)]
     scan = {}
@@ -43,7 +43,7 @@ def run_bot(program: List[int]):
     return scan
 
 
-def find_top_right(scan):
+def find_top_right(scan: Dict[Point, int]) -> Point:
     square_size = max(p.x for p in scan)
     for y in range(square_size):
         p = Point(y, square_size)
@@ -62,7 +62,7 @@ OPPOSITE_CORNER = Point(99, -99)
 RESULT_CORNER = Point(0, -99)
 
 
-def part_2(program: List[int], scan):
+def part_2(program: List[int], scan: Dict[Point, int]) -> Point:
     bot = Processor(program)
     top_edge = find_top_right(scan)
     while True:
