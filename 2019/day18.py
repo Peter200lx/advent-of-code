@@ -49,7 +49,8 @@ def key_distance(pathways, start, keys_grabbed, cache):
     mapping_points.append(start)
     new_keys = list()
     cache[state] = new_keys
-    depth_map = [[MAX_DEPTH for _ in line] for line in pathways]
+    width = len(pathways[0])
+    depth_map = [[MAX_DEPTH] * width for _ in pathways]
     depth_map[start[0]][start[1]] = 0
     while mapping_points:
         current = mapping_points.popleft()
