@@ -21,22 +21,6 @@ def print_view(scan: Dict[Point, int], starty=0, startx=0) -> None:
         print("".join(" X."[i] for i in line))
 
 
-def run_bot(program: List[int]):
-    points_to_scan = [Point(y, x) for x in range(50) for y in range(50)]
-    scan = {}
-    try:
-        for point in points_to_scan:
-            running_bot = Processor(program).run_on_input_generator()
-            next(running_bot)  # Move to first yield for .send(
-            running_bot.send(point.x)
-            (output,) = running_bot.send(point.y)
-            scan[point] = output
-        return scan
-
-    except StopIteration:
-        raise NotImplementedError(f"Don't expect the bot to ever halt the program")
-
-
 def check_location(bot: Processor, program, point: Point):
     bot.memory = defaultdict(int, enumerate(program))
     try:
@@ -48,6 +32,15 @@ def check_location(bot: Processor, program, point: Point):
 
     except StopIteration:
         raise NotImplementedError(f"Don't expect the bot to ever halt the program")
+
+
+def run_bot(program: List[int]):
+    bot = Processor(program)
+    points_to_scan = [Point(y, x) for x in range(50) for y in range(50)]
+    scan = {}
+    for point in points_to_scan:
+        scan[point] = check_location(bot, program, point)
+    return scan
 
 
 RIGHT = Point(0, 1)
