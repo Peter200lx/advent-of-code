@@ -80,6 +80,6 @@ if __name__ == "__main__":
 
     field = run_bot(int_list)
     print_view(field)
-    print(sum(i == 1 for i in field.values()))
+    print(sum(field.values()))
     result = part_2(int_list, field)
     print(result.x * 10_000 + result.y)
