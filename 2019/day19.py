@@ -1,4 +1,3 @@
-from collections import defaultdict
 from pathlib import Path
 from typing import List, NamedTuple, Dict
 
@@ -22,7 +21,7 @@ def print_view(scan: Dict[Point, int], starty: int = 0, startx: int = 0) -> None
 
 
 def check_location(bot: Processor, program: List[int], point: Point) -> int:
-    bot.memory = defaultdict(int, enumerate(program))
+    bot.reset_memory(program)
     try:
         running_bot = bot.run_on_input_generator()
         next(running_bot)  # Move to first yield for .send(

@@ -108,6 +108,12 @@ class Processor:
         for loc, val in overrides:
             self.memory[loc] = val
 
+    def reset_memory(self, program: List[int]):
+        self.input = []
+        self.output = []
+        self.rel_base = 0
+        self.memory = defaultdict(int, enumerate(program))
+
     def run_no_io(self) -> int:
         ip = 0
         try:
