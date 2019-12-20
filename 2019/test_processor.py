@@ -220,3 +220,51 @@ def test_day15():
 
     locations = run_bot(int_list)
     assert 268 == fill_oxygen(locations)
+
+
+def test_day17():
+    data = Path("day17.input").read_text().strip()
+    int_list = [int(i) for i in data.split(",")]
+
+    ADJACENT = {Point(-1, 0), Point(1, 0), Point(0, 1), Point(0, -1)}
+
+    def cam_out_to_point_cloud(cam_out):
+        y = x = 0
+        point_cloud = set()
+        for value in cam_out:
+            character = chr(value)
+            if character == "\n":
+                x = 0
+                y += 1
+                continue
+            if character == "#":
+                point_cloud.add(Point(y, x))
+            x += 1
+        return point_cloud
+
+    def run_bot(program):
+        running_bot = Processor(program, ((0, 2),),).run_on_input_generator()
+        cam_out = next(running_bot)
+        point_cloud = cam_out_to_point_cloud(cam_out)
+        part1 = sum(
+            p.y * p.x
+            for p in point_cloud
+            if sum((p + m) in point_cloud for m in ADJACENT) == 4
+        )
+
+        main_routine = "A,C,A,B,C,B,C,B,A,C"
+        func_a = "L,6,L,4,R,8"
+        func_b = "L,4,R,4,L,4,R,8"
+        func_c = "R,8,L,6,L,4,L,10,R,8"
+        input_str = "\n".join((main_routine, func_a, func_b, func_c, "n")) + "\n"
+
+        try:
+            output = []  # Stop Pycharm complaining about reference before assignment
+            for c in input_str:
+                output = running_bot.send(ord(c))
+            return part1, output[-1]
+
+        except StopIteration:
+            return NotImplementedError(f"Don't expect the bot to ever halt the program")
+
+    assert run_bot(int_list) == (4688, 714866)
