@@ -3,8 +3,6 @@ from collections import deque
 from pathlib import Path
 from typing import NamedTuple, Tuple
 
-MAX_DEPTH = 9999
-
 
 class FoundKey(NamedTuple):
     name: str
@@ -50,7 +48,7 @@ def key_distance(pathways, start, keys_grabbed, cache):
     new_keys = list()
     cache[state] = new_keys
     width = len(pathways[0])
-    depth_map = [[MAX_DEPTH] * width for _ in pathways]
+    depth_map = [[-1] * width for _ in pathways]
     depth_map[start[0]][start[1]] = 0
     while mapping_points:
         current = mapping_points.popleft()
@@ -62,7 +60,7 @@ def key_distance(pathways, start, keys_grabbed, cache):
         ):
             if pathways[loc[0]][loc[1]] == "#":
                 continue
-            if depth_map[loc[0]][loc[1]] != MAX_DEPTH:
+            if depth_map[loc[0]][loc[1]] != -1:
                 continue
             char = pathways[loc[0]][loc[1]]
             if char in string.ascii_uppercase:

@@ -3,8 +3,6 @@ from collections import deque
 from pathlib import Path
 from typing import NamedTuple, List, Dict, Tuple
 
-MAX_DEPTH = 9999
-
 
 class Point(NamedTuple):
     y: int
@@ -84,7 +82,7 @@ def run_maze(maze: List[str], warps: Dict[str, Warp], part_1: bool = True) -> in
     mapping_points = deque()
     mapping_points.append((start, 0, ""))
     width = len(maze[3])
-    all_depths = [[[MAX_DEPTH] * width for _ in maze]]
+    all_depths = [[[-1] * width for _ in maze]]
     all_depths[0][start[0]][start[1]] = 0
     while mapping_points:
         current, depth, path = mapping_points.popleft()
@@ -96,7 +94,7 @@ def run_maze(maze: List[str], warps: Dict[str, Warp], part_1: bool = True) -> in
         ):
             if maze[loc[0]][loc[1]] != ".":
                 continue
-            if all_depths[depth][loc[0]][loc[1]] != MAX_DEPTH:
+            if all_depths[depth][loc[0]][loc[1]] != -1:
                 continue
             if (part_1 or not depth) and loc == end:
                 return all_depths[0][current[0]][current[1]] + 1
@@ -107,7 +105,7 @@ def run_maze(maze: List[str], warps: Dict[str, Warp], part_1: bool = True) -> in
                 wname, new_loc = jump_down[loc]
                 new_depth = depth if part_1 else depth + 1
                 if len(all_depths) <= new_depth:
-                    all_depths.append([[MAX_DEPTH] * width for _ in maze])
+                    all_depths.append([[-1] * width for _ in maze])
                 all_depths[new_depth][new_loc[0]][new_loc[1]] = (
                     all_depths[depth][current[0]][current[1]] + 2
                 )
