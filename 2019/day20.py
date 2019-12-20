@@ -1,7 +1,7 @@
 import string
 from collections import deque
 from pathlib import Path
-from typing import NamedTuple, List
+from typing import NamedTuple, List, Dict, Tuple
 
 MAX_DEPTH = 9999
 
@@ -28,7 +28,7 @@ class Warp(NamedTuple):
     up_points: List[Point]
 
 
-def find_warps(maze_lines):
+def find_warps(maze_lines: List[str]) -> Dict[str, Warp]:
     width = len(maze_lines[3])
     height = len(maze_lines)
     warps = {}
@@ -55,7 +55,12 @@ def find_warps(maze_lines):
     return warps
 
 
-def map_warps(warps):
+JUMP_DICT = Dict[Point, Tuple[str, Point]]
+
+
+def map_warps(warps: Dict[str, Warp]) -> Tuple[Point, Point, JUMP_DICT, JUMP_DICT]:
+    start = None
+    end = None
     jump_up = {}
     jump_down = {}
     for warp in warps.values():
@@ -74,7 +79,7 @@ def map_warps(warps):
     return start, end, jump_up, jump_down
 
 
-def run_maze(maze, warps, part_1=True):
+def run_maze(maze: List[str], warps: Dict[str, Warp], part_1: bool = True) -> int:
     start, end, jump_up, jump_down = map_warps(warps)
     mapping_points = deque()
     mapping_points.append((start, 0, ""))
