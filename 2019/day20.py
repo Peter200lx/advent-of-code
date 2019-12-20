@@ -47,16 +47,11 @@ def find_warps(maze_lines):
                                 maze_lines[y + 2 * m.y][x + 2 * m.x]
                                 + maze_lines[y + m.y][x + m.x]
                             )
+                        warp = warps.setdefault(name, Warp(name, [], []))
                         if 4 < x < (width - 2) and 4 < y < (height - 4):
-                            if name in warps:
-                                warps[name].down_points.append(Point(y, x))
-                            else:
-                                warps[name] = Warp(name, [Point(y, x)], [])
+                            warp.down_points.append(Point(y, x))
                         else:
-                            if name in warps:
-                                warps[name].up_points.append(Point(y, x))
-                            else:
-                                warps[name] = Warp(name, [], [Point(y, x)])
+                            warp.up_points.append(Point(y, x))
     return warps
 
 
