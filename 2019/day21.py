@@ -42,9 +42,7 @@ if __name__ == "__main__":
         "OR T J",
         "NOT A T",
         "OR T J",  # _J == ~A | ~B | ~C
-        "NOT D T",
-        "NOT T T",  # T == D
-        "AND T J",  # J == ~(A & B & C) & D
+        "AND D J",  # J == ~(A & B & C) & D
         "WALK",
     ]
     print(run_bot(int_list, p1))
@@ -54,9 +52,7 @@ if __name__ == "__main__":
         "OR T J",
         "NOT A T",
         "OR T J",
-        "NOT D T",
-        "NOT T T",
-        "AND T J",  # J == ~(A & B & C) & D
+        "AND D J",  # J == ~(A & B & C) & D
         "NOT E T",
         "NOT T T",  # T == E
         "OR H T",  # _T == H | E
