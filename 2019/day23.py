@@ -10,20 +10,15 @@ class D23Processor(Processor):
         try:
             while True:
                 if self.memory[ip] % 10 == 3:  # If next instruction is input...
-                    next_input = yield None
-                    if next_input is None:
-                        if not self.input:
-                            self.input.append((-1))
-                    else:
-                        self.input.extend(next_input)
+                    yield
+                    if not self.input:
+                        self.input.append((-1))
 
                 ip = self.func_by_instruction_pointer(ip)
 
                 if len(self.output) == output_batch:
-                    next_input = yield self.output
+                    yield self.output
                     self.output.clear()
-                    if next_input is not None:
-                        self.input.extend(next_input)
         except ProgramHalt:
             raise NotImplementedError(f"Don't expect the bot to ever halt the program")
 
@@ -32,19 +27,13 @@ def run_network(program, num_comps: int, part_1=True) -> int:
     machines = [D23Processor(program) for _ in range(num_comps)]
     processors = [bot.run_network_generator(n, 3) for n, bot in enumerate(machines)]
     [next(proc) for proc in processors]  # Move to first yield to accept .send()
-    comp_queue = [[] for _ in range(num_comps)]
     nat_y_last = None
     idle_check = 0
     try:
         while True:
             any_output = False
             for i in range(num_comps):
-                in_queue = comp_queue[i]
-                if not in_queue:
-                    output = processors[i].send(None)
-                else:
-                    output = processors[i].send(in_queue)
-                    comp_queue[i] = []
+                output = next(processors[i])
                 if output is not None:
                     any_output = True
                     address, X, Y = output
@@ -54,16 +43,13 @@ def run_network(program, num_comps: int, part_1=True) -> int:
                         else:
                             natX, natY = X, Y
                     else:
-                        comp_queue[address] += [X, Y]
-            if (
-                not any_output
-                and all(not v for v in comp_queue)
-                and all(len(m.input) <= 1 for m in machines)
-            ):
+                        machines[address].input += [X, Y]
+
+            if not any_output and all(len(m.input) <= 1 for m in machines):
                 idle_check += 1
                 if idle_check > 2:
                     idle_check = 0
-                    comp_queue[0] += [natX, natY]
+                    machines[0].input += [natX, natY]
                     if natY == nat_y_last:
                         return natY
                     else:
