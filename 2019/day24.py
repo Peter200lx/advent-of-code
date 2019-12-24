@@ -116,37 +116,34 @@ def recursive_adjacent_values(recursive_bugs: Dict[int, set], level: int, loc: P
                 yield BUG
 
 
-def minute_passes_recursive(recursive_bugs: Dict[int, set]) -> None:
-    below = min(recursive_bugs) - 1
-    above = max(recursive_bugs) + 1
-    recursive_bugs[below] = set()
-    recursive_bugs[above] = set()
+def minute_passes_recursive(reference_bugs: Dict[int, set]) -> Dict[int, set]:
+    below, above = min(reference_bugs) - 1, max(reference_bugs) + 1
 
-    reference_bugs = {k: frozenset(v) for k, v in recursive_bugs.items()}
-    for level in recursive_bugs:
+    recursive_bugs = {}
+    for level in range(below, above + 1):
         new_array = set()
         for loc in ALL_LOCATIONS:
             if loc == (2, 2):
                 continue
             bug_count = sum(recursive_adjacent_values(reference_bugs, level, loc))
-            if loc in reference_bugs[level]:
+            if level in reference_bugs and loc in reference_bugs[level]:
                 if bug_count == 1:
                     new_array.add(loc)
             else:
                 if bug_count in (1, 2):
                     new_array.add(loc)
-        recursive_bugs[level] = new_array
-
-    if not recursive_bugs[below]:
-        del recursive_bugs[below]
-    if not recursive_bugs[above]:
-        del recursive_bugs[above]
+        if level in (below, above):
+            if new_array:
+                recursive_bugs[level] = new_array
+        else:
+            recursive_bugs[level] = new_array
+    return recursive_bugs
 
 
 def part_2(bug_locs: set, runtime=200) -> int:
     infinite_fields = {0: bug_locs}
     for i in range(runtime):
-        minute_passes_recursive(infinite_fields)
+        infinite_fields = minute_passes_recursive(infinite_fields)
     # for level in sorted(infinite_fields.keys()):
     #     print(f"Depth {level}:")
     #     print_field(infinite_fields[level])
