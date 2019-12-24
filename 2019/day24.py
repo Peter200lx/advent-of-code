@@ -1,7 +1,4 @@
-from copy import deepcopy
 from typing import NamedTuple, Dict
-
-import numpy as np
 
 DATA = """
 .##..
@@ -20,12 +17,6 @@ EXAMPLE_DATA = """
 OPEN = 0
 BUG = 1
 
-MAP_TYPE = {".": OPEN, "#": BUG}
-
-REV_MAP_TYPE = {v: k for k, v in MAP_TYPE.items()}
-
-np.set_printoptions(formatter={"int": lambda x: REV_MAP_TYPE[x]})
-
 
 class Point(NamedTuple):
     y: int
@@ -37,143 +28,136 @@ class Point(NamedTuple):
 
 ADJACENT = (Point(-1, 0), Point(1, 0), Point(0, 1), Point(0, -1))
 
+ALL_LOCATIONS = [Point(y, x) for y in range(5) for x in range(5)]
 
-def parse_input(input_str: str) -> np.ndarray:
+
+def print_field(bug_locations: set):
+    for y in range(5):
+        print("".join("#" if (y, x) in bug_locations else "." for x in range(5)))
+
+
+def parse_input(input_str: str) -> set:
     lines = input_str.split("\n")
-    y_range = len(lines)
-    x_range = len(lines[0])
+    bug_locations = set()
 
-    def from_input(y, x):
-        return MAP_TYPE[lines[y][x]]
-
-    from_input_vector = np.vectorize(from_input)
-    return np.fromfunction(from_input_vector, (y_range, x_range), dtype=np.uint8)
-
-
-def adjacent_values(array: np.ndarray, loc: Point):
-    for direction in ADJACENT:
-        move = loc + direction
-        if 0 <= move.y < array.shape[1] and 0 <= move.x < array.shape[0]:
-            yield array[move]
+    for y, line in enumerate(lines):
+        for x, c in enumerate(line):
+            if c == "#":
+                bug_locations.add(Point(y, x))
+    return bug_locations
 
 
-def minute_passes(array: np.ndarray) -> None:
-    reference_array: np.ndarray = array.copy()
-    for y, x in np.ndindex(reference_array.shape):
-        loc = Point(y, x)
-        loc_type = reference_array[loc]
-        bug_count = sum(adjacent_values(reference_array, loc))
-        if loc_type == BUG:
-            if bug_count != 1:
-                array[loc] = OPEN
-        if loc_type == OPEN:
+def adjacent_values(bug_locs: set, loc: Point):
+    return (1 for d in ADJACENT if loc + d in bug_locs)
+
+
+def minute_passes(bug_locs: set) -> set:
+    new_array = set()
+    for loc in ALL_LOCATIONS:
+        bug_count = sum(adjacent_values(bug_locs, loc))
+        if loc in bug_locs:
+            if bug_count == 1:
+                new_array.add(loc)
+        else:
             if bug_count in (1, 2):
-                array[loc] = BUG
+                new_array.add(loc)
+    return new_array
 
 
-def calc_biodiversity(array: np.ndarray) -> int:
+def calc_biodiversity(bug_locs: set) -> int:
     power = 0
     bio = 0
-    for x in np.nditer(array):
-        if x == BUG:
+    for loc in ALL_LOCATIONS:
+        if loc in bug_locs:
             bio += 2 ** power
         power += 1
     return bio
 
 
-def part_1(array: np.ndarray) -> int:
-    previous_fields = {array.tobytes()}
+def part_1(bug_locs: set) -> int:
+    previous_fields = {frozenset(bug_locs)}
     while True:
-        minute_passes(array)
-        array_hash = array.tobytes()
+        bug_locs = minute_passes(bug_locs)
+        array_hash = frozenset(bug_locs)
         if array_hash in previous_fields:
-            return calc_biodiversity(array)
+            return calc_biodiversity(bug_locs)
         else:
             previous_fields.add(array_hash)
 
 
-def recursive_adjacent_values(
-    array_dict: Dict[int, np.ndarray], level: int, loc: Point
-):
+def recursive_adjacent_values(recursive_bugs: Dict[int, set], level: int, loc: Point):
     for direction in ADJACENT:
         move = (loc.y + direction.y, loc.x + direction.x)
         if move == (2, 2):
-            if level + 1 in array_dict:
-                inside_array = array_dict[level + 1]
+            if level + 1 in recursive_bugs:
+                interior_bugs = recursive_bugs[level + 1]
                 if loc == (1, 2):
-                    yield from inside_array[0, :]
+                    yield from (BUG for b in interior_bugs if b.y == 0)
                 elif loc == (3, 2):
-                    yield from inside_array[4, :]
+                    yield from (BUG for b in interior_bugs if b.y == 4)
                 elif loc == (2, 1):
-                    yield from inside_array[:, 0]
+                    yield from (BUG for b in interior_bugs if b.x == 0)
                 elif loc == (2, 3):
-                    yield from inside_array[:, 4]
-            else:
-                yield OPEN
-        elif 0 <= move[0] < 5 and 0 <= move[1] < 5:
-            if level in array_dict:
-                yield array_dict[level][move]
-            else:
-                yield OPEN
+                    yield from (BUG for b in interior_bugs if b.x == 4)
+        elif move[0] < 0:
+            if level - 1 in recursive_bugs and (1, 2) in recursive_bugs[level - 1]:
+                yield BUG
+        elif move[0] >= 5:
+            if level - 1 in recursive_bugs and (3, 2) in recursive_bugs[level - 1]:
+                yield BUG
+        elif move[1] < 0:
+            if level - 1 in recursive_bugs and (2, 1) in recursive_bugs[level - 1]:
+                yield BUG
+        elif move[1] >= 5:
+            if level - 1 in recursive_bugs and (2, 3) in recursive_bugs[level - 1]:
+                yield BUG
         else:
-            if level - 1 in array_dict:
-                outside_array = array_dict[level - 1]
-                if move[0] < 0:
-                    yield outside_array[(1, 2)]
-                elif move[0] >= 5:
-                    yield outside_array[(3, 2)]
-                elif move[1] < 0:
-                    yield outside_array[(2, 1)]
-                elif move[1] >= 5:
-                    yield outside_array[(2, 3)]
-            else:
-                yield OPEN
+            if level in recursive_bugs and move in recursive_bugs[level]:
+                yield BUG
 
 
-def minute_passes_recursive(array_dict: Dict[int, np.ndarray]) -> None:
-    reference_array_dict = deepcopy(array_dict)
-    below = min(array_dict.keys()) - 1
-    above = max(array_dict.keys()) + 1
-    array_dict[below] = np.zeros(array_dict[0].shape, dtype=np.uint8)
-    array_dict[above] = np.zeros(array_dict[0].shape, dtype=np.uint8)
-    for level in sorted(array_dict.keys()):
-        for y, x in np.ndindex(array_dict[level].shape):
-            if 2 == y == x:
+def minute_passes_recursive(recursive_bugs: Dict[int, set]) -> None:
+    below = min(recursive_bugs) - 1
+    above = max(recursive_bugs) + 1
+    recursive_bugs[below] = set()
+    recursive_bugs[above] = set()
+
+    reference_bugs = {k: frozenset(v) for k, v in recursive_bugs.items()}
+    for level in recursive_bugs:
+        new_array = set()
+        for loc in ALL_LOCATIONS:
+            if loc == (2, 2):
                 continue
-            loc = Point(y, x)
-            loc_type = (
-                reference_array_dict[level][loc]
-                if level in reference_array_dict
-                else OPEN
-            )
-            bug_count = sum(recursive_adjacent_values(reference_array_dict, level, loc))
-            if loc_type == BUG:
-                if bug_count != 1:
-                    array_dict[level][loc] = OPEN
-            if loc_type == OPEN:
+            bug_count = sum(recursive_adjacent_values(reference_bugs, level, loc))
+            if loc in reference_bugs[level]:
+                if bug_count == 1:
+                    new_array.add(loc)
+            else:
                 if bug_count in (1, 2):
-                    array_dict[level][loc] = BUG
-    if array_dict[below].sum() == 0:
-        del array_dict[below]
-    if array_dict[above].sum() == 0:
-        del array_dict[above]
+                    new_array.add(loc)
+        recursive_bugs[level] = new_array
+
+    if not recursive_bugs[below]:
+        del recursive_bugs[below]
+    if not recursive_bugs[above]:
+        del recursive_bugs[above]
 
 
-def part_2(array: np.ndarray, runtime=200) -> int:
-    infinite_fields = {0: array}
+def part_2(bug_locs: set, runtime=200) -> int:
+    infinite_fields = {0: bug_locs}
     for i in range(runtime):
         minute_passes_recursive(infinite_fields)
-    bug_count = 0
     # for level in sorted(infinite_fields.keys()):
     #     print(f"Depth {level}:")
-    #     print(infinite_fields[level])
+    #     print_field(infinite_fields[level])
+    bug_count = 0
     for level, field in infinite_fields.items():
-        bug_count += (field == BUG).sum()
+        bug_count += len(field)
     return bug_count
 
 
 if __name__ == "__main__":
     scan_field = parse_input(DATA)
 
-    print(part_1(scan_field.copy()))
+    print(part_1(scan_field))
     print(part_2(scan_field))
