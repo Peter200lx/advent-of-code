@@ -1,13 +1,14 @@
 import string
 from collections import deque
 from pathlib import Path
-from typing import NamedTuple, Tuple
+from typing import NamedTuple, Tuple, FrozenSet
 
 
 class FoundKey(NamedTuple):
     name: str
     loc: Tuple[int, int]
     dist: int
+    doors: FrozenSet[str]
 
 
 ADJACENT = [(-1, 0), (1, 0), (0, 1), (0, -1)]
@@ -39,19 +40,15 @@ def build_p2_map(paths, start):
     )
 
 
-def key_distance(pathways, start, keys_grabbed, cache):
-    state = (start, keys_grabbed)
-    if state in cache:
-        return cache[state]
+def key_distance(pathways, start):
     mapping_points = deque()
-    mapping_points.append(start)
+    mapping_points.append((start, frozenset()))
     new_keys = list()
-    cache[state] = new_keys
     width = len(pathways[0])
     depth_map = [[-1] * width for _ in pathways]
     depth_map[start[0]][start[1]] = 0
     while mapping_points:
-        current = mapping_points.popleft()
+        current, blocking_doors = mapping_points.popleft()
         for loc in (
             (current[0] - 1, current[1]),
             (current[0] + 1, current[1]),
@@ -64,24 +61,34 @@ def key_distance(pathways, start, keys_grabbed, cache):
                 continue
             char = pathways[loc[0]][loc[1]]
             if char in string.ascii_uppercase:
-                if char.lower() not in keys_grabbed:
-                    continue
+                blocking_doors = blocking_doors | {char.lower()}
             depth_map[loc[0]][loc[1]] = depth_map[current[0]][current[1]] + 1
             if char in string.ascii_lowercase:
-                if char not in keys_grabbed:
-                    new_keys.append(FoundKey(char, loc, depth_map[loc[0]][loc[1]]))
-            mapping_points.append(loc)
+                new_keys.append(
+                    FoundKey(char, loc, depth_map[loc[0]][loc[1]], blocking_doors)
+                )
+            mapping_points.append((loc, blocking_doors))
     return new_keys
 
 
-def find_shortest_path(pathways, bots_pos, has_keys, cache, key_cache):
+def build_key_paths(pathways, bots_pos):
+    locs_to_keys = {loc: key_distance(pathways, loc) for loc in bots_pos}
+    for loc in list(locs_to_keys):
+        for key in locs_to_keys[loc]:
+            if key.loc not in locs_to_keys:
+                locs_to_keys[key.loc] = key_distance(pathways, key.loc)
+    return locs_to_keys
+
+
+def find_shortest_path(pathways, bots_pos, has_keys, cache, locs_to_keys):
     state = (bots_pos, has_keys)
     if state in cache:
         return cache[state]
     keys = {
         k: i
         for i, s in enumerate(bots_pos)
-        for k in key_distance(pathways, s, has_keys, key_cache)
+        for k in locs_to_keys[s]
+        if k.doors.issubset(has_keys) and k.name not in has_keys
     }
     if not keys:
         cache[state] = 0
@@ -93,7 +100,7 @@ def find_shortest_path(pathways, bots_pos, has_keys, cache, key_cache):
                 tuple(k.loc if j == i else p for j, p in enumerate(bots_pos)),
                 has_keys | {k.name},
                 cache,
-                key_cache,
+                locs_to_keys,
             )
             for k, i in keys.items()
         )
@@ -105,7 +112,16 @@ if __name__ == "__main__":
     lines = DATA.split("\n")
 
     starting_point = find_start(lines)
-    print(find_shortest_path(lines, (starting_point,), frozenset(), {}, {}))
+    bot_starts = (starting_point,)
+    print(
+        find_shortest_path(
+            lines, bot_starts, frozenset(), {}, build_key_paths(lines, bot_starts),
+        )
+    )
 
     p2_field, bot_starts = build_p2_map(lines, starting_point)
-    print(find_shortest_path(p2_field, bot_starts, frozenset(), {}, {}))
+    print(
+        find_shortest_path(
+            p2_field, bot_starts, frozenset(), {}, build_key_paths(p2_field, bot_starts)
+        )
+    )
