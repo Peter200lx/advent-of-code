@@ -1,4 +1,5 @@
 import heapq
+from collections import defaultdict
 from datetime import datetime
 from itertools import permutations
 
@@ -11,6 +12,7 @@ from typing import (
     FrozenSet,
     AbstractSet,
     Sequence,
+    Dict,
 )
 
 """The first floor contains a hydrogen-compatible microchip and a lithium-compatible microchip.
@@ -60,7 +62,9 @@ class MoveException(Exception):
     pass
 
 
-def move_elevator(building: Tuple[FrozenSet[str], ...], direction: str, item_set: Set[str]) -> Tuple[FrozenSet[str]]:
+def move_elevator(
+    building: Tuple[FrozenSet[str], ...], direction: str, item_set: FrozenSet[str]
+) -> Tuple[FrozenSet[str], ...]:
     if not is_valid_elevator(item_set):
         raise MoveException(f"Invalid contents for elevator (it would have {item_set}")
     cur_floor_num = elevator_floor(building)
@@ -82,7 +86,7 @@ def move_elevator(building: Tuple[FrozenSet[str], ...], direction: str, item_set
     return tuple(unlocked_building)
 
 
-def hand_written(building: Tuple[AbstractSet[str]], item_list: Sequence[str]):
+def hand_written(building: Tuple[AbstractSet[str], ...], item_list: Sequence[str]):
     moves = [
         ("U", {"PG", "SG"}),
         ("D", {"SM", "SG"}),
@@ -105,10 +109,10 @@ def hand_written(building: Tuple[AbstractSet[str]], item_list: Sequence[str]):
 
 class PriorityStates(NamedTuple):
     priority: int
-    building: Tuple[FrozenSet[str]]
+    building: Tuple[FrozenSet[str], ...]
 
 
-seen_buildings: Set[Tuple[FrozenSet[str]]] = set()
+seen_buildings: Set[Tuple[Tuple[int, ...], ...]] = set()
 priority_states: List[PriorityStates] = []
 
 
@@ -127,25 +131,40 @@ def possible_moves_raw(building: Tuple[AbstractSet[str], ...]) -> Iterator[Tuple
     return ((d, frozenset(t)) for t in possible_combos for d in directions)
 
 
+def hash_state(building: Sequence[AbstractSet[str]]) -> Tuple[Tuple[int, ...], ...]:
+    part_mapping: Dict[str, List[int]] = defaultdict(lambda: [-1, -1])
+    elevator = -1
+    for i, floor in enumerate(building):
+        for part in floor:
+            if part[1] == "G":
+                part_mapping[part[0]][0] = i
+            elif part[1] == "M":
+                part_mapping[part[0]][1] = i
+            elif part[1] == "E":
+                elevator = i
+    return tuple(sorted(tuple(v) for v in part_mapping.values())) + ((-2, elevator),)
+
+
 def find_moves(building: List[AbstractSet[str]], item_list: Sequence[str]):
     locked_building = tuple(frozenset(floor) for floor in building)
     heapq.heappush(priority_states, PriorityStates(0, locked_building))
-    seen_buildings.add(locked_building)
+    seen_buildings.add(hash_state(locked_building))
     while True:
         next_move = heapq.heappop(priority_states)
         if next_move.building[-1].issuperset(item_list):
             print(f"Found destination in {next_move.priority} turns")
             return
-        for instruction in possible_moves_raw(next_move.building):
+        for direction, items in possible_moves_raw(next_move.building):
             try:
-                new_building = move_elevator(next_move.building, *instruction)
+                new_building = move_elevator(next_move.building, direction, items)
             except MoveException as e:
                 # print(f"Instruction {next_move.move} failed with: {e}")
                 # print_board(next_move.building, item_list)
                 continue
-            if new_building in seen_buildings:
+            new_hash = hash_state(new_building)
+            if new_hash in seen_buildings:
                 continue
-            seen_buildings.add(new_building)
+            seen_buildings.add(new_hash)
             heapq.heappush(priority_states, PriorityStates(next_move.priority + 1, new_building))
 
 
@@ -156,6 +175,8 @@ if __name__ == "__main__":
     find_moves(DATA, PARTS)
     p1_done_time = datetime.now()
     print(f"Part 1 Took {p1_done_time - start_time}")
+    priority_states = []
+    seen_buildings = set()
     extra_parts = ["EG", "EM", "DG", "DM"]
     part2_data = list(DATA)
     part2_data[0] |= set(extra_parts)
