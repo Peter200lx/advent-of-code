@@ -7,12 +7,21 @@ if __name__ == "__main__":
     DATA = (FILEDIR / "day02.input").read_text().strip()
     INSTRUCTIONS = [[char for char in line] for line in DATA.split("\n")]
 
-    GRID = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+    GRID = [
+        [1, 2, 3],
+        [4, 5, 6],
+        [7, 8, 9],
+    ]
 
     MIN_LOC = 0
     MAX_LOC = 2
 
-    MOVE_MAP = {"U": (0, -1), "D": (0, 1), "L": (1, -1), "R": (1, 1)}
+    MOVE_MAP = {
+        "U": (0, -1),
+        "D": (0, 1),
+        "L": (1, -1),
+        "R": (1, 1),
+    }
 
     def move(position, direction):
         movement = MOVE_MAP[direction]
@@ -37,13 +46,15 @@ if __name__ == "__main__":
 
     print(code)
 
+    # fmt: off
     GRID = [
-        [None, None, 1, None, None],
-        [None, 2, 3, 4, None],
-        [5, 6, 7, 8, 9],
-        [None, "A", "B", "C", None],
-        [None, None, "D", None, None],
+        [None, None,   1 , None, None],
+        [None,   2 ,   3 ,   4 , None],
+        [  5 ,   6 ,   7 ,   8 ,   9 ],
+        [None,  "A",  "B",  "C", None],
+        [None,  None, "D", None, None],
     ]
+    # fmt: on
 
     MIN_LOC = 0
     MAX_LOC = 4
