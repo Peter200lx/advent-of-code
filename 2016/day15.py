@@ -1,5 +1,5 @@
 import re
-from typing import NamedTuple, List
+from typing import NamedTuple
 
 DATA = """Disc #1 has 17 positions; at time=0, it is at position 5.
 Disc #2 has 19 positions; at time=0, it is at position 8.
@@ -29,17 +29,14 @@ def parse_input(text: str):
 
 
 def generate_available_times(disk: Disk):
-    zero_time = (disk.num_pos - disk.id) - disk.start_pos
-    if zero_time < 0:
-        zero_time += disk.num_pos
+    time = (disk.num_pos - disk.start_pos) - disk.id
     while True:
-        yield zero_time
-        zero_time += disk.num_pos
+        yield time
+        time += disk.num_pos
 
 
 def generate_matching_times(disks):
-    disk_sizes = sorted(disks, key=lambda x: x.num_pos)
-    generators = [generate_available_times(d) for d in disk_sizes]
+    generators = [generate_available_times(d) for d in disks]
     lineup = [[next(g), g] for g in generators]
     while not all(t[0] == lineup[0][0] for t in lineup):
         min_item = min(lineup, key=lambda x: x[0])
