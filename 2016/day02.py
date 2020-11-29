@@ -1,8 +1,10 @@
 from pathlib import Path
 
+FILEDIR = Path(__file__).parent
+
 
 if __name__ == "__main__":
-    DATA = Path("day02.input").read_text().strip()
+    DATA = (FILEDIR / "day02.input").read_text().strip()
     INSTRUCTIONS = [[char for char in line] for line in DATA.split("\n")]
 
     GRID = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]

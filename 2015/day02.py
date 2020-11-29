@@ -2,6 +2,8 @@ import itertools
 from pathlib import Path
 from typing import List
 
+FILEDIR = Path(__file__).parent
+
 
 def calc_needed_paper(dimen: List[int]) -> int:
     # Calculation required dimen to be pre-sorted
@@ -23,7 +25,7 @@ def calc_needed_ribbon(dimen: List[int]) -> int:
 
 
 if __name__ == "__main__":
-    DATA = Path("day02.input").read_text().strip()
+    DATA = (FILEDIR / "day02.input").read_text().strip()
     INPUT_DATA = [sorted(int(x) for x in sub.split("x")) for sub in DATA.split()]
 
     print(calc_needed_paper([2, 3, 4]))

@@ -1,5 +1,7 @@
 from pathlib import Path
 
+FILEDIR = Path(__file__).parent
+
 
 def parse_data(program):
     parsed_prog = []
@@ -53,7 +55,7 @@ class Processor:
 
 
 if __name__ == "__main__":
-    DATA = Path("day12.input").read_text().strip()
+    DATA = (FILEDIR / "day12.input").read_text().strip()
     INSTRUCTIONS = parse_data(DATA)
     proc = Processor()
     proc.run_program(INSTRUCTIONS)

@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import List, Tuple, Set
 
+FILEDIR = Path(__file__).parent
 
 DIRECTION_STRS = {"^": (-1, 0), "v": (1, 0), ">": (0, 1), "<": (0, -1)}
 START = (0, 0)
@@ -19,7 +20,7 @@ def visited_locations(directions: List[str], already_visited: Set[Tuple[int]] = 
 
 
 if __name__ == "__main__":
-    DATA = Path("day03.input").read_text().strip()
+    DATA = (FILEDIR / "day03.input").read_text().strip()
     print(len(visited_locations([x for x in DATA])))
 
     santa_dir = [x for i, x in enumerate(DATA) if i % 2]

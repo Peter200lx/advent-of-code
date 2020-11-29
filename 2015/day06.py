@@ -4,6 +4,8 @@ import numpy as np
 import re
 from typing import Tuple, List
 
+FILEDIR = Path(__file__).parent
+
 TURN_RE = re.compile(r"turn (on|off) (\d+),(\d+) through (\d+),(\d+)")
 TOGGLE_RE = re.compile(r"toggle (\d+),(\d+) through (\d+),(\d+)")
 
@@ -48,7 +50,7 @@ def process_instructions_p2(grid, cmds: List[str]):
 
 
 if __name__ == "__main__":
-    DATA = Path("day06.input").read_text().strip()
+    DATA = (FILEDIR / "day06.input").read_text().strip()
     grid = np.zeros((1000, 1000), dtype=np.bool)
     process_instructions_p1(grid, DATA.split("\n"))
     print(np.count_nonzero(grid))

@@ -2,6 +2,8 @@ from pathlib import Path
 
 import numpy as np
 
+FILEDIR = Path(__file__).parent
+
 np.set_printoptions(linewidth=120)
 
 example_data = """rect 3x2
@@ -66,7 +68,7 @@ def disp_print(disp):
 
 
 if __name__ == "__main__":
-    DATA = Path("day08.input").read_text().strip()
+    DATA = (FILEDIR / "day08.input").read_text().strip()
     INSTRUCTIONS = [[word for word in line.split()] for line in DATA.split("\n")]
 
     # run_example(example_data)

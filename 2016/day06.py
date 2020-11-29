@@ -1,6 +1,8 @@
 from collections import Counter
 from pathlib import Path
 
+FILEDIR = Path(__file__).parent
+
 example_data = """eedadn
 drvtee
 eandsr
@@ -19,7 +21,7 @@ dvrsen
 enarar"""
 
 if __name__ == "__main__":
-    DATA = Path("day06.input").read_text().strip()
+    DATA = (FILEDIR / "day06.input").read_text().strip()
     TRANSMISSION = [l for l in DATA.split("\n")]
 
     counters = [Counter() for _ in range(len(TRANSMISSION[0]))]
