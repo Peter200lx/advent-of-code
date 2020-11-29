@@ -1,4 +1,3 @@
-
 import re
 from collections import Counter
 
@@ -966,12 +965,12 @@ val_list = []
 
 def calc_checksum(name: str) -> str:
     char_count = Counter(name)
-    del char_count['-']
-    return ''.join(sorted(sorted(char_count), key=lambda x: char_count[x], reverse=True)[:5])
+    del char_count["-"]
+    return "".join(sorted(sorted(char_count), key=lambda x: char_count[x], reverse=True)[:5])
 
 
-regex = re.compile(r'([a-z-]*)-([0-9]*)\[([a-z]*)\]')
-for row in data.split('\n'):
+regex = re.compile(r"([a-z-]*)-([0-9]*)\[([a-z]*)\]")
+for row in data.split("\n"):
     results = regex.findall(row)
     name = results[0][0]
     num = int(results[0][1])
@@ -990,13 +989,13 @@ print(val_sum)
 
 
 def c_cipher(char, num):
-    if char == '-':
-        return ' '
-    norm = ord(char) - ord('a')
-    return chr(ord('a') + (norm + num) % 26)
+    if char == "-":
+        return " "
+    norm = ord(char) - ord("a")
+    return chr(ord("a") + (norm + num) % 26)
 
 
 for valid in val_list:
-    name = ''.join((c_cipher(c, valid[1]) for c in valid[0]))
-    if 'north' in name:
+    name = "".join((c_cipher(c, valid[1]) for c in valid[0]))
+    if "north" in name:
         print(f"{name} -> {valid[1]}")

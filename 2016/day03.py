@@ -1,4 +1,3 @@
-
 data = """  566  477  376
   575  488  365
    50   18  156
@@ -1993,7 +1992,7 @@ data = """  566  477  376
   103  324  576"""
 
 
-list_o_tri = [[int(x) for x in line.split()] for line in data.split('\n')]
+list_o_tri = [[int(x) for x in line.split()] for line in data.split("\n")]
 
 num_valid = 0
 for triangle in list_o_tri:
@@ -2007,17 +2006,17 @@ import numpy
 
 num_valid = 0
 
-np_o_tri = numpy.array([[int(x) for x in line.split()] for line in data.split('\n')])
+np_o_tri = numpy.array([[int(x) for x in line.split()] for line in data.split("\n")])
 
 for i in range(0, len(np_o_tri), 3):
-    sublist = np_o_tri[i:i+3]
-    #print(sublist)
+    sublist = np_o_tri[i : i + 3]
+    # print(sublist)
     for triangle in numpy.transpose(sublist):
-        #print(triangle)
+        # print(triangle)
         triangle.sort()
-        #print(triangle)
+        # print(triangle)
         if triangle[0] + triangle[1] > triangle[2]:
-            #print('---VALID')
+            # print('---VALID')
             num_valid += 1
 
 print(num_valid)

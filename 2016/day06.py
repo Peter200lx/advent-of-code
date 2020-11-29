@@ -643,7 +643,7 @@ qgolehtg
 keeskeyb"""
 
 
-transmission = [l for l in data.split('\n')]
+transmission = [l for l in data.split("\n")]
 
 counters = [Counter() for _ in range(len(transmission[0]))]
 
@@ -653,8 +653,8 @@ for attempt in transmission:
 
 message = (c.most_common(1)[0][0] for c in counters)
 
-print(''.join(message))
+print("".join(message))
 
 message = (c.most_common()[-1][0] for c in counters)
 
-print(''.join(message))
+print("".join(message))

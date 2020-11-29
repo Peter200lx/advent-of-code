@@ -303,8 +303,8 @@ turn on 550,460 through 964,782
 turn on 31,760 through 655,892
 toggle 628,958 through 811,992"""
 
-TURN_RE = re.compile(r'turn (on|off) (\d+),(\d+) through (\d+),(\d+)')
-TOGGLE_RE = re.compile(r'toggle (\d+),(\d+) through (\d+),(\d+)')
+TURN_RE = re.compile(r"turn (on|off) (\d+),(\d+) through (\d+),(\d+)")
+TOGGLE_RE = re.compile(r"toggle (\d+),(\d+) through (\d+),(\d+)")
 
 
 def parse_line(line: str) -> Tuple[str, int, int, int, int]:
@@ -322,12 +322,12 @@ def parse_line(line: str) -> Tuple[str, int, int, int, int]:
 def process_instructions_p1(grid, cmds: List[str]):
     for line in cmds:
         instruction, x1, y1, x2, y2 = parse_line(line)
-        if instruction == 'on':
-            grid[y1:y2 + 1, x1:x2 + 1] = 1
-        elif instruction == 'off':
-            grid[y1:y2 + 1, x1:x2 + 1] = 0
-        elif instruction == 'toggle':
-            grid[y1:y2 + 1, x1:x2 + 1] = np.invert(grid[y1:y2 + 1, x1:x2 + 1])
+        if instruction == "on":
+            grid[y1 : y2 + 1, x1 : x2 + 1] = 1
+        elif instruction == "off":
+            grid[y1 : y2 + 1, x1 : x2 + 1] = 0
+        elif instruction == "toggle":
+            grid[y1 : y2 + 1, x1 : x2 + 1] = np.invert(grid[y1 : y2 + 1, x1 : x2 + 1])
         else:
             raise ValueError(f"Unrecognized instruction '{instruction}'")
 
@@ -335,21 +335,21 @@ def process_instructions_p1(grid, cmds: List[str]):
 def process_instructions_p2(grid, cmds: List[str]):
     for line in cmds:
         instruction, x1, y1, x2, y2 = parse_line(line)
-        if instruction == 'on':
-            grid[y1:y2 + 1, x1:x2 + 1] += 1
-        elif instruction == 'off':
+        if instruction == "on":
+            grid[y1 : y2 + 1, x1 : x2 + 1] += 1
+        elif instruction == "off":
             sub_by_1_down_to_0 = np.vectorize(lambda x: x - 1 if x - 1 >= 0 else 0)
-            grid[y1:y2 + 1, x1:x2 + 1] = sub_by_1_down_to_0(grid[y1:y2 + 1, x1:x2 + 1])
-        elif instruction == 'toggle':
-            grid[y1:y2 + 1, x1:x2 + 1] += 2
+            grid[y1 : y2 + 1, x1 : x2 + 1] = sub_by_1_down_to_0(grid[y1 : y2 + 1, x1 : x2 + 1])
+        elif instruction == "toggle":
+            grid[y1 : y2 + 1, x1 : x2 + 1] += 2
         else:
             raise ValueError(f"Unrecognized instruction '{instruction}'")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     grid = np.zeros((1000, 1000), dtype=np.bool)
-    process_instructions_p1(grid, DATA.split('\n'))
+    process_instructions_p1(grid, DATA.split("\n"))
     print(np.count_nonzero(grid))
     grid = np.zeros((1000, 1000), dtype=np.uint64)
-    process_instructions_p2(grid, DATA.split('\n'))
+    process_instructions_p2(grid, DATA.split("\n"))
     print(np.sum(grid))

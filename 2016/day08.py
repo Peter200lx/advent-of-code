@@ -181,43 +181,43 @@ rotate column x=1 by 1"""
 
 
 def draw_rect(disp, square) -> None:
-    x, y = square.split('x')
+    x, y = square.split("x")
     x = int(x)
     y = int(y)
     disp[0:y, 0:x] = 1
 
 
 def rotate_rect(disp, rc: str, selector: str, _, num: str) -> None:
-    xy, which = selector.split('=')
+    xy, which = selector.split("=")
     which = int(which)
     num = int(num)
     if rc == "column":
-        assert xy == 'x'
+        assert xy == "x"
         disp[:, which] = np.roll(disp[:, which], num)
     elif rc == "row":
-        assert xy == 'y'
+        assert xy == "y"
         disp[which, :] = np.roll(disp[which, :], num)
     else:
         raise ValueError("Second message must be 'row' or 'column'")
 
 
-cmd_map = {'rect': draw_rect, 'rotate': rotate_rect}
+cmd_map = {"rect": draw_rect, "rotate": rotate_rect}
 
 
 def run_example(data):
     disp = np.zeros((3, 7), dtype=np.uint8)
     print(disp)
-    instructions = [[word for word in line.split()] for line in data.split('\n')]
+    instructions = [[word for word in line.split()] for line in data.split("\n")]
     for inst in instructions:
         cmd_map[inst[0]](disp, *inst[1:])
         print(disp)
 
 
-#run_example(example_data)
+# run_example(example_data)
 
 display = np.zeros((6, 50), dtype=np.uint8)
 
-instructions = [[word for word in line.split()] for line in data.split('\n')]
+instructions = [[word for word in line.split()] for line in data.split("\n")]
 for inst in instructions:
     cmd_map[inst[0]](display, *inst[1:])
 
@@ -228,10 +228,10 @@ def disp_print(disp):
     for row in disp:
         line = ""
         for value in row:
-            line += '█' if value else ' '
+            line += "█" if value else " "
         print(line)
 
 
 disp_print(display)
-#print(display)
-#ZJHRKCPLYJ
+# print(display)
+# ZJHRKCPLYJ

@@ -5,9 +5,9 @@ data = "uqwqemis"
 
 
 def calc_digit(door_id, num):
-    mystr = (str(door_id) + str(num))
-    myhash = md5(mystr.encode('utf-8')).hexdigest()
-    if myhash.startswith('00000'):
+    mystr = str(door_id) + str(num)
+    myhash = md5(mystr.encode("utf-8")).hexdigest()
+    if myhash.startswith("00000"):
         print(f"{mystr} --hash-> {myhash}")
         return myhash[5]
     return None
@@ -15,7 +15,7 @@ def calc_digit(door_id, num):
 
 code = ""
 for i in range(29999999):
-    code += calc_digit(data, i) or ''
+    code += calc_digit(data, i) or ""
     if i % 1000000 == 0:
         print(f"{i} currently >{code}<")
     if len(code) >= 8:
@@ -25,9 +25,9 @@ print(f"--- Answer is: {code}\n\n")
 
 
 def calc_digit(door_id, num):
-    mystr = (str(door_id) + str(num))
-    myhash = md5(mystr.encode('utf-8')).hexdigest()
-    if myhash.startswith('00000') and myhash[5] in (str(i) for i in range(8)):
+    mystr = str(door_id) + str(num)
+    myhash = md5(mystr.encode("utf-8")).hexdigest()
+    if myhash.startswith("00000") and myhash[5] in (str(i) for i in range(8)):
         print(f"{mystr} --hash-> {myhash}")
         return int(myhash[5]), myhash[6]
     return None

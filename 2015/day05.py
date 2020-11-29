@@ -1,4 +1,3 @@
-
 DATA = """rthkunfaakmwmush
 qxlnvjguikqcyfzt
 sleaoasjspnjctqt
@@ -1004,7 +1003,7 @@ INPUT_DATA = [s for s in DATA.split()]
 
 VOWELS = "aeiou"
 
-BAD_STRS = ('ab', 'cd', 'pq', 'xy')
+BAD_STRS = ("ab", "cd", "pq", "xy")
 
 
 def is_good_str_p1(input: str) -> bool:
@@ -1018,7 +1017,7 @@ def is_good_str_p1(input: str) -> bool:
         if input[i] in VOWELS:
             verb_count += 1
         if i + 1 < input_len:
-            if input[i:i + 2] in BAD_STRS:
+            if input[i : i + 2] in BAD_STRS:
                 return False
             if input[i] == input[i + 1]:
                 found_dupe = True
@@ -1032,7 +1031,7 @@ def is_good_str_p2(input: str) -> bool:
     found_pair_match = False
     for i in range(input_len):
         if i + 1 < input_len:
-            pair = input[i:i + 2]
+            pair = input[i : i + 2]
             if pair in pair_dict and pair_dict[pair] + 1 < i:
                 found_pair_match = True
             if pair not in pair_dict:
@@ -1043,6 +1042,6 @@ def is_good_str_p2(input: str) -> bool:
     return found_pair_match and found_mirror
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     print((len([s for s in INPUT_DATA if is_good_str_p1(s)])))
     print((len([s for s in INPUT_DATA if is_good_str_p2(s)])))

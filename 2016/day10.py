@@ -246,7 +246,7 @@ bot 123 gives low to bot 33 and high to bot 195
 bot 183 gives low to bot 83 and high to bot 90
 bot 71 gives low to bot 152 and high to bot 121"""
 
-instructions = [line for line in data.split('\n')]
+instructions = [line for line in data.split("\n")]
 
 
 class Holder(object):
@@ -266,7 +266,7 @@ class Bot(Holder):
         self.low_target = None
         self.high_target = None
         super(Bot, self).__init__(*args)
-    
+
     def receive(self, chip: int):
         self.contents.append(chip)
         if len(self.contents) > 1:
@@ -307,27 +307,27 @@ def get_output(id: int) -> Output:
 
 
 def get_holder(type: str, id: int) -> Holder:
-    if type == 'bot':
+    if type == "bot":
         return get_bot(id)
-    elif type == 'output':
+    elif type == "output":
         return get_output(id)
     else:
         raise ValueError(f"Unknown type {type}")
 
 
-BOT_REGEX = re.compile(r'bot (\d*) gives low to (bot|output) (\d*) and high to (bot|output) (\d*)')
-VALUE_REGEX = re.compile(r'value (\d*) goes to (bot|output) (\d*)')
+BOT_REGEX = re.compile(r"bot (\d*) gives low to (bot|output) (\d*) and high to (bot|output) (\d*)")
+VALUE_REGEX = re.compile(r"value (\d*) goes to (bot|output) (\d*)")
 
 
 def setup_state(input):
     for inst in instructions:
-        if inst.startswith('bot'):
+        if inst.startswith("bot"):
             act_list = BOT_REGEX.findall(inst)[0]
             this = get_bot(int(act_list[0]))
             low = get_holder(act_list[1], int(act_list[2]))
             high = get_holder(act_list[3], int(act_list[4]))
             this.setup_inst(low, high)
-        elif inst.startswith('value'):
+        elif inst.startswith("value"):
             act_list = VALUE_REGEX.findall(inst)[0]
             holder = get_holder(act_list[1], int(act_list[2]))
             holder.receive(int(act_list[0]))

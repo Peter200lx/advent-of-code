@@ -2006,10 +2006,10 @@ btrucplpxrokmcts[gytdxlzkfakenliallw]qhxznozsjsvhvnzhf
 nefefqadkmytguyp[ucqagcoyxinbrvbw]neksoxgtnnfojobtx[bxhdwvwfhybtbzkijj]poayieifsaocrboesfe[tnggfefcucifowqp]olmjwaqlaiwkkbtruw
 tivudfusgnewzshs[mausfjbgxmyibin]yponuityptavbhekrlg[qeyafuevtlqemtfa]owtdxadrwwbxbrkl[obfcyxbifipwhduubu]mjocivgvrcbrllso"""
 
-addresses = [l for l in data.split('\n')]
+addresses = [l for l in data.split("\n")]
 
-hypernet = re.compile(r'\[([a-zA-Z]*)\]')
-abba = re.compile(r'([a-zA-Z])((?!\1)[a-zA-Z])\2\1')
+hypernet = re.compile(r"\[([a-zA-Z]*)\]")
+abba = re.compile(r"([a-zA-Z])((?!\1)[a-zA-Z])\2\1")
 
 count = 0
 for addr in addresses:
@@ -2027,18 +2027,18 @@ example_data = """aba[bab]xyz
 xyx[xyx]xyx
 aaa[kek]eke
 zazbz[bzb]cdb"""
-addresses = [l for l in data.split('\n')]
-aba = re.compile(r'(?=([a-zA-Z])((?!\1)[a-zA-Z])\1)')
+addresses = [l for l in data.split("\n")]
+aba = re.compile(r"(?=([a-zA-Z])((?!\1)[a-zA-Z])\1)")
 
 ssl_count = 0
 for addr in addresses:
     hypernet_parts = hypernet.findall(addr)
-    #print(hypernet_parts)
-    reg_parts = ''.join((re.sub('|'.join(hypernet_parts), '', addr)))
-    #print(reg_parts)
+    # print(hypernet_parts)
+    reg_parts = "".join((re.sub("|".join(hypernet_parts), "", addr)))
+    # print(reg_parts)
     found = False
     for aba_part in aba.findall(reg_parts):
-        #print(f"aba == {aba_part}")
+        # print(f"aba == {aba_part}")
         for ht_sec in hypernet_parts:
             if (aba_part[1] + aba_part[0] + aba_part[1]) in ht_sec:
                 found = True
@@ -2046,7 +2046,7 @@ for addr in addresses:
         if found:
             break
     if found:
-        #print('--FOUND!')
+        # print('--FOUND!')
         ssl_count += 1
 
 print(ssl_count)

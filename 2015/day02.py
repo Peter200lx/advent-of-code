@@ -1002,7 +1002,7 @@ DATA = """29x13x26
 14x3x5
 10x9x8"""
 
-INPUT_DATA = [sorted(int(x) for x in sub.split('x')) for sub in DATA.split()]
+INPUT_DATA = [sorted(int(x) for x in sub.split("x")) for sub in DATA.split()]
 
 
 def calc_needed_paper(dimen: List[int]) -> int:
@@ -1010,7 +1010,7 @@ def calc_needed_paper(dimen: List[int]) -> int:
     assert len(dimen) > 2
     additional = dimen[0] * dimen[1]
     sides = itertools.combinations(dimen, 2)
-    area = 2 * sum(x*y for x, y in sides)
+    area = 2 * sum(x * y for x, y in sides)
     return area + additional
 
 
@@ -1024,7 +1024,7 @@ def calc_needed_ribbon(dimen: List[int]) -> int:
     return length + bow
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     print(calc_needed_paper([2, 3, 4]))
     print(sum(calc_needed_paper(l) for l in INPUT_DATA))
     print(sum(calc_needed_ribbon(l) for l in INPUT_DATA))
