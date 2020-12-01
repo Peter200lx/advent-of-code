@@ -1,16 +1,20 @@
 from itertools import permutations
+from math import prod
+from pathlib import Path
+
+FILE_DIR = Path(__file__).parent
+
+
+def find_matching_sum(input_list, sum_to, n):
+    for perm in permutations(input_list, n):
+        if sum(perm) == sum_to:
+            return perm
 
 
 if __name__ == "__main__":
-    with open("day01.input", "r") as in_file:
-        DATA = in_file.read().strip("\n")
+    DATA = (FILE_DIR / "day01.input").read_text().strip()
+    INPUT_INTS = [int(i) for i in DATA.split("\n")]
+    MATCH_NUM = 2020
 
-    int_list = [int(i) for i in DATA.split("\n")]
-    for x, y in permutations(int_list, 2):
-        if x + y == 2020:
-            print(x, y, x * y)
-            break
-    for x, y, z in permutations(int_list, 3):
-        if x + y + z == 2020:
-            print(x, y, z, z * x * y)
-            break
+    print(prod(find_matching_sum(INPUT_INTS, MATCH_NUM, 2)))
+    print(prod(find_matching_sum(INPUT_INTS, MATCH_NUM, 3)))
