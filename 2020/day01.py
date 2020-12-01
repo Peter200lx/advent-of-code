@@ -1,4 +1,4 @@
-from itertools import permutations
+from itertools import combinations
 from math import prod
 from pathlib import Path
 
@@ -6,9 +6,9 @@ FILE_DIR = Path(__file__).parent
 
 
 def find_matching_sum(input_list, sum_to, n):
-    for perm in permutations(input_list, n):
-        if sum(perm) == sum_to:
-            return perm
+    for comb in combinations(input_list, n):
+        if sum(comb) == sum_to:
+            return comb
 
 
 if __name__ == "__main__":
