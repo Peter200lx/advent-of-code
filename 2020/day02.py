@@ -14,10 +14,7 @@ def parse_line(line):
 
 
 def validate_password(minnum, maxnum, char, password):
-    c = Counter(password)
-    if minnum <= c[char] <= maxnum:
-        return True
-    return False
+    return minnum <= Counter(password)[char] <= maxnum
 
 
 def real_validate_password(first, second, char, password):
