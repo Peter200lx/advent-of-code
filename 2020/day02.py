@@ -1,4 +1,3 @@
-from collections import Counter
 from pathlib import Path
 import re
 
@@ -14,12 +13,11 @@ def parse_line(line):
 
 
 def validate_password(minnum, maxnum, char, password):
-    return minnum <= Counter(password)[char] <= maxnum
+    return minnum <= password.count(char) <= maxnum
 
 
 def real_validate_password(first, second, char, password):
-    a, b = (password[pos - 1] == char for pos in (first, second))
-    return a != b
+    return (password[first - 1] == char) != (password[second - 1] == char)
 
 
 if __name__ == "__main__":
