@@ -5,57 +5,55 @@ FILE_DIR = Path(__file__).parent
 
 
 FIELDS = {"byr", "iyr", "eyr", "hgt", "hcl", "ecl", "pid", "cid"}
-
 REQUIRED_FIELDS = FIELDS - {"cid"}
+
+EYE_COLORS = {"amb", "blu", "brn", "gry", "grn", "hzl", "hcl", "oth"}
 
 
 def read_passports(lines):
-    rets = []
+    passports = []
     passport = {}
     count = 0
     for line in lines:
         if ":" in line:
-            line_info = {chunk.split(":")[0]: chunk.split(":")[1] for chunk in line.split()}
+            line_info = {k: v for k, v in (chunk.split(":") for chunk in line.split())}
             passport.update(line_info)
         else:
             if passport:
-                if all(field in passport for field in REQUIRED_FIELDS):
+                if REQUIRED_FIELDS <= passport.keys():
                     count += 1
-                rets.append(passport)
+                passports.append(passport)
                 passport = {}
     if passport:
-        if all(field in passport for field in REQUIRED_FIELDS):
+        if REQUIRED_FIELDS <= passport.keys():
             count += 1
-        rets.append(passport)
+        passports.append(passport)
     print(count)
-    return rets
+    return passports
 
 
 def valid_passport(passport):
-    if any(field not in passport for field in REQUIRED_FIELDS):
+    if not REQUIRED_FIELDS <= passport.keys():
         return False
     try:
-        byr = int(passport["byr"])
-        if not 1920 <= byr <= 2002:
+        if not 1920 <= int(passport["byr"]) <= 2002:
             return False
-        iyr = int(passport["iyr"])
-        if not 2010 <= iyr <= 2020:
+        if not 2010 <= int(passport["iyr"]) <= 2020:
             return False
-        eyr = int(passport["eyr"])
-        if not 2020 <= eyr <= 2030:
+        if not 2020 <= int(passport["eyr"]) <= 2030:
             return False
-        hgt, type = int(passport["hgt"][:-2]), passport["hgt"][-2:]
-        if type == "cm":
-            if not 150 <= hgt <= 193:
+        hgt = passport["hgt"]
+        if hgt.endswith("cm"):
+            if not 150 <= int(hgt[:-2]) <= 193:
                 return False
-        elif type == "in":
-            if not 59 <= hgt <= 76:
+        elif hgt.endswith("in"):
+            if not 59 <= int(hgt[:-2]) <= 76:
                 return False
         else:
             return False
         if not re.match(r"#[0-9a-f]{6}", passport["hcl"]):
             return False
-        if passport["ecl"] not in ("amb", "blu", "brn", "gry", "grn", "hzl", "hcl", "oth"):
+        if passport["ecl"] not in EYE_COLORS:
             return False
         if len(passport["pid"]) != 9:
             return False
