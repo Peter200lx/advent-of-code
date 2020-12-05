@@ -10,25 +10,9 @@ SEATS = 8
 
 def calculate_seat(line):
     row_dir, seat_dir = line[:7], line[7:]
-    min_row = 0
-    max_row = ROWS - 1
-    for c in row_dir:
-        m = ceil((min_row + max_row) / 2)
-        if c == "F":
-            max_row = m - 1
-        elif c == "B":
-            min_row = m
-    row = min_row
-    min_seat = 0
-    max_seat = SEATS - 1
-    for c in seat_dir:
-        m = ceil((min_seat + max_seat) / 2)
-        if c == "L":
-            max_seat = m - 1
-        elif c == "R":
-            min_seat = m
-    seat = min_seat
-    return row, seat
+    row_binary = row_dir.replace("F", "0").replace("B", "1")
+    seat_binary = seat_dir.replace("L", "0").replace("R", "1")
+    return int(row_binary, 2), int(seat_binary, 2)
 
 
 def find_missing(seat_set):
