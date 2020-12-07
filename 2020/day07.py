@@ -51,9 +51,9 @@ def uniq_parents(current_bag: Bag, visited_bags: Optional[Set[Tuple[str, str]]] 
 
 
 def count_children(current_bag: Bag) -> int:
-    count = 1
+    count = 0
     for num, child in current_bag.children:
-        count += num * count_children(child)
+        count += num * (1 + count_children(child))
     return count
 
 
@@ -61,4 +61,4 @@ if __name__ == "__main__":
     DATA = (FILE_DIR / "day07.input").read_text().strip()
     ALL_BAGS = parse_lines(DATA)
     print(uniq_parents(ALL_BAGS[SPECIAL_BAG]))
-    print(count_children(ALL_BAGS[SPECIAL_BAG]) - 1)  # -1 to not include starting bag
+    print(count_children(ALL_BAGS[SPECIAL_BAG]))
