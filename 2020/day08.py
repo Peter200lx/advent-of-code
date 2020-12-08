@@ -38,22 +38,26 @@ class Processor:
         return ip + new_ip if new_ip is not None else ip + 1
 
 
+def part_2(instructions):
+    for i in range(len(instructions)):
+        if instructions[i][0] == "nop":
+            continue
+        my_inst = instructions.copy()
+        if instructions[i][0] == "jmp":
+            my_inst[i] = ("nop", instructions[i][1])
+        elif instructions[i][0] == "nop":
+            my_inst[i] = ("jmp", instructions[i][1])
+        proc = Processor(my_inst)
+        if proc.run():
+            print(i, instructions[i])
+            print(proc.acc)
+            break
+
+
 if __name__ == "__main__":
     DATA = (FILE_DIR / "day08.input").read_text().strip()
     INST = [(op, int(val)) for inst in DATA.split("\n") for op, val in [inst.split()]]
     part_1 = Processor(INST)
     part_1.run()
     print(part_1.acc)
-    for i in range(len(INST)):
-        if INST[i][0] == "nop":
-            continue
-        my_inst = INST.copy()
-        if INST[i][0] == "jmp":
-            my_inst[i] = ("nop", INST[i][1])
-        elif INST[i][0] == "nop":
-            my_inst[i] = ("jmp", INST[i][1])
-        part_2 = Processor(my_inst)
-        if part_2.run():
-            print(i, INST[i])
-            print(part_2.acc)
-            break
+    part_2(INST)
