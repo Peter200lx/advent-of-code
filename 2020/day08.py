@@ -5,21 +5,18 @@ FILE_DIR = Path(__file__).parent
 
 
 class Processor:
-    def __init__(
-        self,
-        program: List[Tuple[str, int]],
-    ):
+    def __init__(self, program: List[Tuple[str, int]]):
         self.program = program
         self.acc = 0
         self.mapping = {m[3:]: getattr(self, m) for m in dir(self) if m.startswith("op_")}
 
-    def op_acc(self, a: int) -> None:
-        self.acc += a
+    def op_acc(self, value: int) -> None:
+        self.acc += value
 
-    def op_jmp(self, a: int) -> int:
-        return a
+    def op_jmp(self, value: int) -> int:
+        return value
 
-    def op_nop(self, a: int) -> None:
+    def op_nop(self, _value) -> None:
         pass
 
     def run(self):
@@ -33,12 +30,12 @@ class Processor:
                 return True
         return False
 
-    def func_by_instruction_pointer(self, ip, op: str, a: int) -> int:
-        new_ip = self.mapping[op](a)
-        return ip + new_ip if new_ip is not None else ip + 1
+    def func_by_instruction_pointer(self, ip, op: str, value: int) -> int:
+        new_ip = self.mapping[op](value)
+        return ip + (1 if new_ip is None else new_ip)
 
 
-def part_2(instructions):
+def part_2(instructions: List[Tuple[str, int]]):
     for i in range(len(instructions)):
         if instructions[i][0] == "acc":
             continue
