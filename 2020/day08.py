@@ -40,7 +40,7 @@ class Processor:
 
 def part_2(instructions):
     for i in range(len(instructions)):
-        if instructions[i][0] == "nop":
+        if instructions[i][0] == "acc":
             continue
         my_inst = instructions.copy()
         if instructions[i][0] == "jmp":
