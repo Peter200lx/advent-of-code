@@ -10,12 +10,10 @@ def invalid_number(to_check):
     for i, n in enumerate(to_check):
         if i < PREAMBLE_LEN:
             continue
-        valid = False
         for comb in combinations(to_check[i - PREAMBLE_LEN : i], 2):
             if sum(comb) == n:
-                valid = True
                 break
-        if not valid:
+        else:
             return n
 
 
