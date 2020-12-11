@@ -31,41 +31,39 @@ class Map(NamedTuple):
                 locations[Coord(x, y)] = c
         return Map(width, height, locations)
 
-    def next_state(self, loc: Coord):
-        cur_state = self.locations[loc]
-        if cur_state == ".":
+    def next_state(self, loc: Coord, part2=False):
+        c_at_loc = self.locations[loc]
+        if c_at_loc == ".":
             return "."
-        adj_occupied = sum(self.locations.get(loc + d, ".") == "#" for d in ADJACENT)
-        if cur_state == "L" and adj_occupied == 0:
-            return "#"
-        elif cur_state == "#" and adj_occupied >= 4:
-            return "L"
-        return cur_state
-
-    def trace_line_occupied_p2(self, loc: Coord, direction: Coord):
-        next_loc = loc + direction
-        while (0 <= next_loc.x < self.width) and (0 <= next_loc.y < self.height):
-            if self.locations[next_loc] == ".":
-                next_loc += direction
+        count = 0
+        for direction in ADJACENT:
+            next_loc = loc + direction
+            c_at_next_loc = self.locations.get(next_loc, ".")
+            if c_at_next_loc == "#":
+                count += 1
+                if (c_at_loc == "L" and count > 0) or (c_at_loc == "#" and ((count >= 5) if part2 else (count >= 4))):
+                    return "L"
                 continue
-            return self.locations[next_loc] == "#"
-        return False
+            elif not part2 or c_at_next_loc == "L":
+                continue
+            while (0 <= next_loc.x < self.width) and (0 <= next_loc.y < self.height):
+                next_loc += direction
+                c_at_next_loc = self.locations.get(next_loc, ".")
+                if c_at_next_loc == ".":
+                    continue
+                elif c_at_next_loc == "#":
+                    count += 1
+                    if (c_at_loc == "L" and count > 0) or (
+                        c_at_loc == "#" and ((count >= 5) if part2 else (count >= 4))
+                    ):
+                        return "L"
+                break
+        return "#" if (c_at_loc == "L" and count == 0) else c_at_loc
 
-    def next_state_p2(self, loc: Coord):
-        cur_state = self.locations[loc]
-        if cur_state == ".":
-            return "."
-        adj_occupied = sum(self.trace_line_occupied_p2(loc, d) for d in ADJACENT)
-        if cur_state == "L" and adj_occupied == 0:
-            return "#"
-        elif cur_state == "#" and adj_occupied >= 5:
-            return "L"
-        return cur_state
-
-    def next_board(self, func):
+    def next_board(self, part2=False):
         new_map = {}
         for loc in self.locations:
-            new_map[loc] = func(loc)
+            new_map[loc] = self.next_state(loc, part2)
         return Map(self.width, self.height, new_map)
 
     def fill_seats(self):
@@ -87,10 +85,10 @@ class Map(NamedTuple):
 
 def find_stable(cur_map: Map, p2=False):
     cur_map = cur_map.fill_seats()
-    next_map = cur_map.next_board(cur_map.next_state_p2 if p2 else cur_map.next_state)
+    next_map = cur_map.next_board(p2)
     while next_map != cur_map:
         cur_map = next_map
-        next_map = cur_map.next_board(cur_map.next_state_p2 if p2 else cur_map.next_state)
+        next_map = cur_map.next_board(p2)
     print(next_map.num_occupied())
 
 
