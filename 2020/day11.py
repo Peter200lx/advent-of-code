@@ -18,47 +18,45 @@ ADJACENT = [Coord(x, y) for x in range(-1, 2) for y in range(-1, 2) if (x, y) !=
 class Map(NamedTuple):
     width: int
     height: int
-    locations: Dict[Coord, str]
+    locations: Dict[Coord, bool]
 
     @staticmethod
     def read_lines(input_str):
         lines = input_str.split("\n")
         height = len(lines)
         width = len(lines[0])
-        locations: Dict[Coord, str] = {}
+        locations: Dict[Coord, bool] = {}
         for y, line in enumerate(lines):
             for x, c in enumerate(line):
-                locations[Coord(x, y)] = c
+                if c == "L":
+                    locations[Coord(x, y)] = False  # All seats unoccupied
         return Map(width, height, locations)
 
     def next_state(self, loc: Coord, part2=False):
-        c_at_loc = self.locations[loc]
-        if c_at_loc == ".":
-            return "."
+        loc_occupied = self.locations[loc]
         count = 0
         for direction in ADJACENT:
             next_loc = loc + direction
-            c_at_next_loc = self.locations.get(next_loc, ".")
-            if c_at_next_loc == "#":
+            next_loc_occupied = self.locations.get(next_loc, None)
+            if next_loc_occupied:
                 count += 1
-                if (c_at_loc == "L" and count > 0) or (c_at_loc == "#" and ((count >= 5) if part2 else (count >= 4))):
-                    return "L"
+                if (not loc_occupied and count > 0) or (loc_occupied and ((count >= 5) if part2 else (count >= 4))):
+                    return False
                 continue
-            elif not part2 or c_at_next_loc == "L":
+            elif not part2 or next_loc_occupied is False:
                 continue
             while (0 <= next_loc.x < self.width) and (0 <= next_loc.y < self.height):
                 next_loc += direction
-                c_at_next_loc = self.locations.get(next_loc, ".")
-                if c_at_next_loc == ".":
+                if next_loc not in self.locations:
                     continue
-                elif c_at_next_loc == "#":
+                elif self.locations[next_loc]:
                     count += 1
-                    if (c_at_loc == "L" and count > 0) or (
-                        c_at_loc == "#" and ((count >= 5) if part2 else (count >= 4))
+                    if (not loc_occupied and count > 0) or (
+                        loc_occupied and ((count >= 5) if part2 else (count >= 4))
                     ):
-                        return "L"
+                        return False
                 break
-        return "#" if (c_at_loc == "L" and count == 0) else c_at_loc
+        return True if (not loc_occupied and count == 0) else loc_occupied
 
     def next_board(self, part2=False):
         new_map = {}
@@ -67,20 +65,20 @@ class Map(NamedTuple):
         return Map(self.width, self.height, new_map)
 
     def fill_seats(self):
-        new_map = {}
-        for loc, c in self.locations.items():
-            if c == "L":
-                new_map[loc] = "#"
-            else:
-                new_map[loc] = c
+        new_map = {loc: True for loc in self.locations}
         return Map(self.width, self.height, new_map)
 
     def num_occupied(self):
-        return sum(v == "#" for v in self.locations.values())
+        return sum(self.locations.values())
 
     def print_map(self):
+        def char(loc: Coord):
+            if loc not in self.locations:
+                return "."
+            return "#" if self.locations[loc] else "L"
+
         for y in range(self.height):
-            print("".join(self.locations[Coord(x, y)] for x in range(self.width)))
+            print("".join(char(Coord(x, y)) for x in range(self.width)))
 
 
 def find_stable(cur_map: Map, p2=False):
