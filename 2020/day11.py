@@ -40,7 +40,7 @@ class Map(NamedTuple):
             next_loc_occupied = self.locations.get(next_loc, None)
             if next_loc_occupied:
                 count += 1
-                if (not loc_occupied and count > 0) or (loc_occupied and ((count >= 5) if part2 else (count >= 4))):
+                if (not loc_occupied and count > 0) or (loc_occupied and count >= (5 if part2 else 4)):
                     return False
                 continue
             elif not part2 or next_loc_occupied is False:
@@ -51,17 +51,13 @@ class Map(NamedTuple):
                     continue
                 elif self.locations[next_loc]:
                     count += 1
-                    if (not loc_occupied and count > 0) or (
-                        loc_occupied and ((count >= 5) if part2 else (count >= 4))
-                    ):
+                    if (not loc_occupied and count > 0) or (loc_occupied and (count >= (5 if part2 else 4))):
                         return False
                 break
         return True if (not loc_occupied and count == 0) else loc_occupied
 
     def next_board(self, part2=False):
-        new_map = {}
-        for loc in self.locations:
-            new_map[loc] = self.next_state(loc, part2)
+        new_map = {loc: self.next_state(loc, part2) for loc in self.locations}
         return Map(self.width, self.height, new_map)
 
     def fill_seats(self):
@@ -85,8 +81,7 @@ def find_stable(cur_map: Map, p2=False):
     cur_map = cur_map.fill_seats()
     next_map = cur_map.next_board(p2)
     while next_map != cur_map:
-        cur_map = next_map
-        next_map = cur_map.next_board(p2)
+        cur_map, next_map = next_map, next_map.next_board(p2)
     print(next_map.num_occupied())
 
 
