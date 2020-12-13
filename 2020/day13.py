@@ -22,10 +22,10 @@ class BusInfo(NamedTuple):
 def part_1(buses: List[BusInfo], earliest_time) -> int:
     min_next = VERY_LARGE_NUMBER, BusInfo(-1, -1)
     for bus in buses:
-        min_i = next(i for i in range(VERY_LARGE_NUMBER) if i * bus.id > earliest_time)
-        min_next = min(min_next, (min_i, bus))
-    count, bus = min_next
-    return (bus.id * count - earliest_time) * bus.id
+        bus_min = next(i * bus.id for i in range(VERY_LARGE_NUMBER) if i * bus.id > earliest_time)
+        min_next = min(min_next, (bus_min, bus))
+    time, bus = min_next
+    return (time - earliest_time) * bus.id
 
 
 def find_timestamp(buses: List[BusInfo]) -> int:
