@@ -31,7 +31,8 @@ def part_1(buses: List[BusInfo], earliest_time) -> int:
 def find_timestamp(buses: List[BusInfo]) -> int:
     timestamp = 0
     step = buses[0].id
-    for bus in buses:
+    assert buses[0].offset == 0
+    for bus in buses[1:]:
         while not bus.valid_ts(timestamp):
             timestamp += step
         step = (step * bus.id) // math.gcd(step, bus.id)
