@@ -1,6 +1,7 @@
 import re
-from collections import defaultdict
+from functools import reduce
 from itertools import combinations
+from operator import ior
 from pathlib import Path
 
 FILE_DIR = Path(__file__).parent
@@ -10,46 +11,40 @@ RE_NUMS = re.compile(r"-?\d+")
 
 
 class Computer:
-    final_mask = int("1" * MASK_LEN, 2)
-
     def __init__(self):
-        self.mask_and = 0
-        self.mask_or = 0
+        self.mask_clear_bits = 0
+        self.mask_set_bits = 0
         self.mask_float = set()
-        self.memory = defaultdict(int)
+        self.memory = {}
 
     def read_line(self, line: str):
         if line.startswith("mask"):
             _whocares, mask_str = line.split(" = ")
-            self.mask_and = int("".join("0" if s == "0" else "1" for s in mask_str), 2)
-            self.mask_or = int("".join("1" if s == "1" else "0" for s in mask_str), 2)
+            self.mask_clear_bits = int("".join("0" if s == "0" else "1" for s in mask_str), 2)
+            self.mask_set_bits = int("".join("1" if s == "1" else "0" for s in mask_str), 2)
         else:
             addr, value = list(map(int, RE_NUMS.findall(line)))
-            value &= self.mask_and
-            value |= self.mask_or
+            value &= self.mask_clear_bits
+            value |= self.mask_set_bits
             self.memory[addr] = value
 
-    def generate_floating_masks(self, floating_bits, number):
-        number |= self.mask_or
-        clear_bits = 0
-        for n in ((1 << i) for i in floating_bits):
-            clear_bits |= n
+    def generate_floating_masks(self, number):
+        number |= self.mask_set_bits
+        clear_bits = reduce(ior, ((1 << i) for i in self.mask_float), 0)
         number &= ~clear_bits
-        for combination in (c for size in range(len(self.mask_float) + 1) for c in combinations(self.mask_float, size)):
-            set_bits = 0
-            for n in (1 << i for i in combination):
-                set_bits |= n
-            yield number | set_bits
+        for comb_size in range(len(self.mask_float) + 1):
+            for combination in combinations(self.mask_float, comb_size):
+                set_bits = reduce(ior, (1 << i for i in combination), 0)
+                yield number | set_bits
 
     def read_line_mass_write(self, line: str):
         if line.startswith("mask"):
             _whocares, mask_str = line.split(" = ")
-            self.mask_and = int("".join("0" if s == "0" else "1" for s in mask_str), 2)
-            self.mask_or = int("".join("1" if s == "1" else "0" for s in mask_str), 2)
+            self.mask_set_bits = int("".join("1" if s == "1" else "0" for s in mask_str), 2)
             self.mask_float = {i for i, s in enumerate(reversed(mask_str)) if s == "X"}
         else:
             addr, value = list(map(int, RE_NUMS.findall(line)))
-            for to_write_addr in self.generate_floating_masks(self.mask_float, addr):
+            for to_write_addr in self.generate_floating_masks(addr):
                 self.memory[to_write_addr] = value
 
     def sum_mem(self):
