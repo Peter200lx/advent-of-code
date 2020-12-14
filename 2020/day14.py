@@ -20,8 +20,8 @@ class Computer:
     def read_line(self, line: str):
         if line.startswith("mask"):
             _whocares, mask_str = line.split(" = ")
-            self.mask_clear_bits = int("".join("0" if s == "0" else "1" for s in mask_str), 2)
-            self.mask_set_bits = int("".join("1" if s == "1" else "0" for s in mask_str), 2)
+            self.mask_clear_bits = int(mask_str.replace("X", "1"), 2)
+            self.mask_set_bits = int(mask_str.replace("X", "0"), 2)
         else:
             addr, value = list(map(int, RE_NUMS.findall(line)))
             value &= self.mask_clear_bits
@@ -40,7 +40,7 @@ class Computer:
     def read_line_mass_write(self, line: str):
         if line.startswith("mask"):
             _whocares, mask_str = line.split(" = ")
-            self.mask_set_bits = int("".join("1" if s == "1" else "0" for s in mask_str), 2)
+            self.mask_set_bits = int(mask_str.replace("X", "0"), 2)
             self.mask_float = {i for i, s in enumerate(reversed(mask_str)) if s == "X"}
         else:
             addr, value = list(map(int, RE_NUMS.findall(line)))
