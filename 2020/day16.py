@@ -23,6 +23,9 @@ class Field(NamedTuple):
     def valid(self, num: int):
         return any(r.valid(num) for r in self.ranges)
 
+    def all_valid(self, all_nums: List[int]) -> bool:
+        return all(self.valid(n) for n in all_nums)
+
 
 def parse_input(lines) -> Tuple[List[Field], List[int], List[List[int]]]:
     fields, your, near = lines.split("\n\n")
@@ -46,12 +49,8 @@ def parse_input(lines) -> Tuple[List[Field], List[int], List[List[int]]]:
 
 
 def calculate_order(all_fields: List[Field], valid_nearby_lines: List[List[int]]) -> Dict[Field, int]:
-    possible_positions = [all_fields.copy() for _ in range(len(valid_nearby_lines[0]))]
-    for ticket_line in valid_nearby_lines:
-        for i, number in enumerate(ticket_line):
-            still_possible = [f for f in possible_positions[i] if f.valid(number)]
-            assert still_possible, "If nothing is possible we have already failed"
-            possible_positions[i] = still_possible
+    valid_index_nums = map(list, zip(*valid_nearby_lines))  # Transpose
+    possible_positions = [[f for f in all_fields if f.all_valid(index_nums)] for index_nums in valid_index_nums]
 
     possible_dict = defaultdict(set)
     for i, fields in enumerate(possible_positions):
