@@ -5,7 +5,6 @@ from typing import NamedTuple, Tuple, List, Dict
 
 FILE_DIR = Path(__file__).parent
 
-
 RE_NUMS = re.compile(r"-?\d+")
 
 
@@ -29,8 +28,6 @@ def parse_input(lines) -> Tuple[List[Field], List[int], List[List[int]]]:
     fields, your, near = lines.split("\n\n")
     populated_fields = []
     for line in fields.split("\n"):
-        if not line:
-            continue
         name, nums = line.split(": ")
         range_list = []
         for section in nums.split(" or "):
@@ -38,11 +35,8 @@ def parse_input(lines) -> Tuple[List[Field], List[int], List[List[int]]]:
             range_list.append(Range(int(n1), int(n2)))
         assert len(range_list) == 2, "Always only two ranges"
         populated_fields.append(Field(name, tuple(range_list)))
-    your_ticket = []
-    for line in your.split("\n"):
-        if "," not in line:
-            continue
-        your_ticket = list(map(int, RE_NUMS.findall(line)))
+    _, line = your.split("\n")
+    your_ticket = list(map(int, RE_NUMS.findall(line)))
     near_tickets = []
     for line in near.split("\n"):
         if "," not in line:
@@ -91,8 +85,10 @@ def run_logic(input_str: str):
     print(part_1)
     positions = calculate_order(list(fields), valid_tickets)
     part_2 = 1
-    for pos in (i for p, i in positions.items() if p.name.startswith("departure ")):
-        part_2 *= your_ticket[pos]
+    for field, index in positions.items():
+        if not field.name.startswith("departure "):
+            continue
+        part_2 *= your_ticket[index]
     print(part_2)
 
 
