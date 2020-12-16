@@ -75,10 +75,10 @@ def run_logic(input_str: str):
     valid_tickets = []
     for ticket_line in near_tickets:
         valid_line = True
-        for ticket in ticket_line:
-            if any(field.valid(ticket) for field in fields):
+        for num in ticket_line:
+            if any(field.valid(num) for field in fields):
                 continue
-            part_1 += ticket
+            part_1 += num
             valid_line = False
         if valid_line:
             valid_tickets.append(ticket_line)
