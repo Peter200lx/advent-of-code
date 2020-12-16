@@ -65,13 +65,12 @@ def calculate_order(all_fields: List[Field], valid_nearby_lines: List[List[int]]
             possible_dict[field].add(i)
 
     for field, possible in sorted(possible_dict.items(), key=lambda x: len(x[1])):
-        if len(possible) == 1:
-            to_remove_i = next(iter(possible))
-            for key in possible_dict:
-                if key == field:
-                    continue
-                if to_remove_i in possible_dict[key]:
-                    possible_dict[key].discard(to_remove_i)
+        assert len(possible) == 1, "We can't solve if we can't reduce"
+        to_remove_i = next(iter(possible))
+        for key in possible_dict:
+            if key == field:
+                continue
+            possible_dict[key].discard(to_remove_i)
 
     return {field: next(iter(locs)) for field, locs in possible_dict.items()}
 
