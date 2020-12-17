@@ -100,13 +100,23 @@ class Map:
     def count(self):
         return len(self.space)
 
-    def print_z_n(self, z: int = 0):
-        minx = min(l.x for l in self.space)
-        maxx = max(l.x for l in self.space)
-        miny = min(l.y for l in self.space)
-        maxy = max(l.y for l in self.space)
+    def print_2d_layer(self, z: int = 0, t: int = 0):
+        minx, maxx = min(loc.x for loc in self.space), max(loc.x for loc in self.space)
+        miny, maxy = min(loc.y for loc in self.space), max(loc.y for loc in self.space)
+
+        if isinstance(next(iter(self.space)), Coord4D):
+
+            def new_c(nx, ny):
+                return Coord4D(nx, ny, z, t)
+
+        else:
+            assert t == 0, "Can't manipulate time in 3D space"
+
+            def new_c(nx, ny):
+                return Coord(nx, ny, z)
+
         for y in range(miny, maxy + 1):
-            print("".join("#" if Coord(x, y, z) in self.space else "." for x in range(minx, maxx + 1)))
+            print("".join("#" if new_c(x, y) in self.space else "." for x in range(minx, maxx + 1)))
 
 
 if __name__ == "__main__":
