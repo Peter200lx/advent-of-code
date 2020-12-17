@@ -74,16 +74,14 @@ class Map:
 
     def next_state(self, loc: Coord, new_set: Set[Coord]):
         self.checked_locs.add(loc)
-        active_n = 0
-        for direction in self.neighbor_dirs:
-            neighbor = loc + direction
-            if neighbor in self.space:
-                active_n += 1
-
-            if loc in self.space and neighbor not in self.checked_locs:
-                self.next_state(neighbor, new_set)
+        neighbors = {loc + direction for direction in self.neighbor_dirs}
+        active_n = len(neighbors & self.space)
 
         if loc in self.space:
+            for neighbor in neighbors:
+                if neighbor not in self.checked_locs:
+                    self.next_state(neighbor, new_set)
+
             if active_n in (2, 3):
                 new_set.add(loc)
         else:
