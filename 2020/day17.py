@@ -61,7 +61,6 @@ class Map:
             self.neighbor_dirs = COORD4D_NEIGHBORS
         else:
             self.neighbor_dirs = COORD_NEIGHBORS
-        self.checked_locs = set()
 
     @staticmethod
     def load(lines: str, point_class: Type[Coord]):
@@ -72,27 +71,21 @@ class Map:
                     space.add(point_class.create_2d(x, y))
         return Map(space)
 
-    def next_state(self, loc: Coord, new_set: Set[Coord]):
-        self.checked_locs.add(loc)
+    def next_state(self, loc: Coord) -> bool:
         neighbors = {loc + direction for direction in self.neighbor_dirs}
         active_n = len(neighbors & self.space)
 
         if loc in self.space:
-            for neighbor in neighbors:
-                if neighbor not in self.checked_locs:
-                    self.next_state(neighbor, new_set)
-
             if active_n in (2, 3):
-                new_set.add(loc)
+                return True
         else:
             if active_n == 3:
-                new_set.add(loc)
+                return True
+        return False
 
     def run_cycle(self):
-        new_set = set()
-        for loc in self.space:
-            if loc not in self.checked_locs:
-                self.next_state(loc, new_set)
+        all_to_check = {loc + direction for loc in self.space for direction in self.neighbor_dirs}
+        new_set = {loc for loc in all_to_check if self.next_state(loc)}
         return Map(new_set)
 
     def count(self):
