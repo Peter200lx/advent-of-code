@@ -9,27 +9,29 @@ REPLACEMENT_RULES = """8: 42 | 42 8
 
 
 def update_rule_dict(rule_dict: Dict[str, List[List[str]]], replacement_rules: str) -> Dict[str, List[List[str]]]:
-    new_rules = rule_dict.copy()
-    for line in replacement_rules.split("\n"):
-        num, right = line.split(": ")
-        new_rules[num] = [section.split() for section in right.split("|")]
-    return new_rules
+    return {
+        **rule_dict,
+        **{
+            num: [section.split() for section in right.split("|")]
+            for line in replacement_rules.split("\n")
+            for num, right in [line.split(": ")]
+        },
+    }
 
 
 def read_input(lines: str) -> Tuple[Dict[str, List[List[str]]], List[str]]:
     rules_str, messages_str = lines.split("\n\n")
-    rule_dict: Dict[str, List[List[str]]] = {}
-    for line in rules_str.split("\n"):
-        num, right = line.split(": ")
-        rule_dict[num] = [section.split() for section in right.split("|")]
-    messages = messages_str.split("\n")
-    return rule_dict, messages
+    rule_dict: Dict[str, List[List[str]]] = {
+        num: [section.split() for section in right.split("|")]
+        for line in rules_str.split("\n")
+        for num, right in [line.split(": ")]
+    }
+    return rule_dict, messages_str.split("\n")
 
 
 def build_rule(rules_dict: Dict[str, List[List[str]]], current_rule: str, depth: int = 0) -> str:
-    rule = rules_dict[current_rule]
     sections = []
-    for section in rule:
+    for section in rules_dict[current_rule]:
         section_regex = ""
         for label in section:
             if '"' in label:
@@ -41,10 +43,7 @@ def build_rule(rules_dict: Dict[str, List[List[str]]], current_rule: str, depth:
                 else:
                     section_regex += build_rule(rules_dict, label, depth=depth)
         sections.append(section_regex)
-    if len(sections) > 1:
-        regex_str = f"{'|'.join(sections)}"
-    else:
-        regex_str = sections[0]
+    regex_str = f"{'|'.join(sections)}" if len(sections) > 1 else sections[0]
     return regex_str if len(regex_str) == 1 else f"({regex_str})"
 
 
