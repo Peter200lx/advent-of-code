@@ -1,65 +1,61 @@
-from collections import defaultdict
 from math import prod
 from pathlib import Path
-from typing import NamedTuple, Dict, List, Tuple
+from typing import Dict, List, Tuple, Set
 
+import numpy as np
 
 FILE_DIR = Path(__file__).parent
 
+CAM_PRINT = {
+    1: "#",
+    0: ".",
+}
 
-class Coord(NamedTuple):
-    x: int
-    y: int
+np.set_printoptions(linewidth=500, formatter={"int": lambda x: CAM_PRINT[x]})
 
 
 class Camera:
+    id: int
+    lit_pixels: np.ndarray
+    default_edges: List[Tuple[int, ...]]
+    edge_hashes: Set[Tuple[int, ...]]
+    edge_neighbors: Dict[Tuple[int, ...], "Camera"]
+
     def __init__(self, inputstr: str):
         camid, *lines = inputstr.split("\n")
         self.id = int(camid[5:-1])
-        lit_pixels = set()
+        lit_pixels = []
         for y, line in enumerate(lines):
-            lit_pixels |= {Coord(x, y) for x, c in enumerate(line) if c == "#"}
-        minx, maxx = min(c.x for c in lit_pixels), max(c.x for c in lit_pixels)
-        miny, maxy = min(c.y for c in lit_pixels), max(c.y for c in lit_pixels)
-        edge_hashes = set()
-        default_edges = []
-        default_edges.append(tuple(Coord(i, miny) in lit_pixels for i in range(minx, maxx + 1)))
-        edge_hashes.add(default_edges[-1])
-        edge_hashes.add(tuple(Coord(i, miny) in lit_pixels for i in range(maxx, minx - 1, -1)))
-        default_edges.append(tuple(Coord(i, maxy) in lit_pixels for i in range(minx, maxx + 1)))
-        edge_hashes.add(default_edges[-1])
-        edge_hashes.add(tuple(Coord(i, maxy) in lit_pixels for i in range(maxx, minx - 1, -1)))
-        default_edges.append(tuple(Coord(minx, i) in lit_pixels for i in range(miny, maxy + 1)))
-        edge_hashes.add(default_edges[-1])
-        edge_hashes.add(tuple(Coord(minx, i) in lit_pixels for i in range(maxy, miny - 1, -1)))
-        default_edges.append(tuple(Coord(maxx, i) in lit_pixels for i in range(miny, maxy + 1)))
-        edge_hashes.add(default_edges[-1])
-        edge_hashes.add(tuple(Coord(maxx, i) in lit_pixels for i in range(maxy, miny - 1, -1)))
-        self.lit_pixels = lit_pixels
-        self.default_edges = default_edges
-        self.edge_neighbors: Dict[Tuple[bool, ...], List[Camera]] = defaultdict(list)
-        self.edge_hashes = edge_hashes
-
-    def print(self):
-        print(f"Cam {self.id}:")
-        minx, maxx = min(c.x for c in self.lit_pixels), max(c.x for c in self.lit_pixels)
-        miny, maxy = min(c.y for c in self.lit_pixels), max(c.y for c in self.lit_pixels)
-        print(f"{minx}<=x<={maxx}, {miny}<=y<={maxy}")
-        for y in range(miny, maxy + 1):
-            print("".join("#" if Coord(x, y) in self.lit_pixels else "." for x in range(minx, maxx + 1)))
+            lit_pixels.append([int(c == "#") for c in line])
+        self.lit_pixels = np.array(lit_pixels, dtype=np.int8)
+        lenx, leny = self.lit_pixels.shape
+        self.default_edges = [
+            tuple(self.lit_pixels[0, :]),
+            tuple(self.lit_pixels[leny - 1, :]),
+            tuple(self.lit_pixels[:, 0]),
+            tuple(self.lit_pixels[:, lenx - 1]),
+        ]
+        self.edge_hashes = {e for e in self.default_edges}
+        self.edge_hashes.add(tuple(self.lit_pixels[0, ::-1]))
+        self.edge_hashes.add(tuple(self.lit_pixels[leny - 1, ::-1]))
+        self.edge_hashes.add(tuple(self.lit_pixels[::-1, 0]))
+        self.edge_hashes.add(tuple(self.lit_pixels[::-1, lenx - 1]))
+        self.edge_neighbors = {}
 
     def fill_out_neighbors(self, other_cameras: List["Camera"]):
         for cam in other_cameras:
             if cam.id == self.id:
                 continue
             for edge in self.default_edges:
+                neighbors = []
                 if edge in cam.edge_hashes:
-                    self.edge_neighbors[edge].append(cam)
-        for edge, neighbors in self.edge_neighbors.items():
-            assert len(neighbors) == 1, f"Only should have a single neighbor for every edge"
+                    neighbors.append(cam)
+                if neighbors:
+                    assert len(neighbors) == 1, f"Only should have a single neighbor for every edge"
+                    self.edge_neighbors[edge] = neighbors[0]
 
     def __repr__(self):
-        return f"Camera({self.id}, {[(edge, len(neighbors)) for edge, neighbors in self.edge_neighbors.items()]}"
+        return f"Camera({self.id}, {[(edge, n.id) for edge, n in self.edge_neighbors.items()]}"
 
 
 def find_hashes(cameras: List[Camera]):
@@ -68,6 +64,11 @@ def find_hashes(cameras: List[Camera]):
     corner_cams = [cam for cam in cameras if len(cam.edge_neighbors) == 2]
     assert len(corner_cams) == 4, "Should only be 4 corners"
     return prod(cam.id for cam in corner_cams)
+
+
+def build_grid(cameras: List[Camera]):
+    a_corner = next(cam for cam in cameras if len(cam.edge_neighbors) == 2)
+    # Assume I'm starting in the top left
 
 
 EXAMPLE_DATA = """Tile 2311:
