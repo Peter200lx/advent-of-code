@@ -38,26 +38,19 @@ class Camera:
     id: int
     full_pixels: np.ndarray
     last_row: int
-    default_edges: List[Tuple[bool, ...]]
     edge_hashes: Set[Tuple[bool, ...]]
     edge_neighbors: List["Camera"]
 
-    def __init__(self, inputstr: str):
-        camid, *lines = inputstr.split("\n")
+    def __init__(self, raw_input: str):
+        camid, *lines = raw_input.split("\n")
         self.id = int(camid[5:-1])
-        lit_pixels = []
-        for y, line in enumerate(lines):
-            lit_pixels.append([c == "#" for c in line])
+        lit_pixels = [[c == "#" for c in line] for y, line in enumerate(lines)]
         self.full_pixels = np.array(lit_pixels, dtype=np.bool)
         leny, lenx = self.full_pixels.shape
         last = lenx - 1
         assert lenx == leny, "We should only have squares"
         self.last_row = last
-        self.default_edges = [tuple(self.full_pixels[d(last)]) for d in DIRECTIONS.values()]
-        self.edge_hashes = {
-            *self.default_edges,
-            *{tuple(self.full_pixels[d(last, rev=True)]) for d in DIRECTIONS.values()},
-        }
+        self.edge_hashes = {tuple(self.full_pixels[d(last, rev=b)]) for d in DIRECTIONS.values() for b in (True, False)}
         self.edge_neighbors = []
 
     def edge_dir_hash(self, direction: str):
@@ -84,16 +77,7 @@ class Camera:
         return self.full_pixels[1 : self.last_row, 1 : self.last_row]
 
     def fill_out_neighbors(self, other_cameras: List["Camera"]):
-        for cam in other_cameras:
-            if cam.id == self.id:
-                continue
-            for edge in self.default_edges:
-                neighbors = []
-                if edge in cam.edge_hashes:
-                    neighbors.append(cam)
-                if neighbors:
-                    assert len(neighbors) == 1, f"Only should have a single neighbor for every edge"
-                    self.edge_neighbors.append(neighbors[0])
+        self.edge_neighbors = [cam for cam in other_cameras if cam.id != self.id and cam.edge_hashes & self.edge_hashes]
 
     def _rotate_90(self):
         self.full_pixels = np.rot90(self.full_pixels)
@@ -124,12 +108,10 @@ class Camera:
             next(rotate_iterator)
 
     def __repr__(self):
-        return f"Camera({self.id}, {[n.id for n in self.edge_neighbors]}"
+        return f"Camera({self.id}, {[n.id for n in self.edge_neighbors]})"
 
 
-def find_hashes(cameras: List[Camera]):
-    for cam in cameras:
-        cam.fill_out_neighbors(cameras)
+def multiply_corner_ids(cameras: List[Camera]) -> int:
     corner_cams = [cam for cam in cameras if len(cam.edge_neighbors) == 2]
     assert len(corner_cams) == 4, "Should only be 4 corners"
     return prod(cam.id for cam in corner_cams)
@@ -153,10 +135,7 @@ def build_grid(cameras: List[Camera]) -> np.ndarray:
             row = np.concatenate((row, next_cam.actual_pixels), axis=1)
             cur_cam = next_cam
         # print(tile_ids)
-        if full_grid is None:
-            full_grid = row
-        else:
-            full_grid = np.concatenate((full_grid, row), axis=0)
+        full_grid = np.concatenate((full_grid, row), axis=0) if full_grid is not None else row
         down_cam = row_start.down_cam
         if not down_cam:
             return full_grid
@@ -165,9 +144,7 @@ def build_grid(cameras: List[Camera]) -> np.ndarray:
 
 
 def build_monster(blob: str) -> np.ndarray:
-    lit_pixels = []
-    for y, line in enumerate(blob.strip("\n").split("\n")):
-        lit_pixels.append([c == "#" for c in line])
+    lit_pixels = [[c == "#" for c in line] for y, line in enumerate(blob.strip("\n").split("\n"))]
     return np.array(lit_pixels, dtype=np.bool)
 
 
@@ -184,13 +161,9 @@ def count_monsters_in_grid(grid: np.ndarray, monster: np.ndarray) -> int:
 
 def count_monsters_in_grid_any_rotation(grid: np.ndarray, monster: np.ndarray) -> int:
     def _rotations(old_grid: np.ndarray) -> np.ndarray:
-        for _ in range(4):
-            yield old_grid
-            old_grid = np.rot90(old_grid)
-        old_grid = np.flipud(old_grid)
-        for _ in range(4):
-            yield old_grid
-            old_grid = np.rot90(old_grid)
+        for i in range(4):
+            yield np.flipud(np.rot90(old_grid, k=i))
+            yield np.rot90(old_grid, k=i)
 
     for rotated_grid in _rotations(grid):
         mon_count = count_monsters_in_grid(rotated_grid, monster)
@@ -198,119 +171,11 @@ def count_monsters_in_grid_any_rotation(grid: np.ndarray, monster: np.ndarray) -
             return mon_count
 
 
-EXAMPLE_DATA = """Tile 2311:
-..##.#..#.
-##..#.....
-#...##..#.
-####.#...#
-##.##.###.
-##...#.###
-.#.#.#..##
-..#....#..
-###...#.#.
-..###..###
-
-Tile 1951:
-#.##...##.
-#.####...#
-.....#..##
-#...######
-.##.#....#
-.###.#####
-###.##.##.
-.###....#.
-..#.#..#.#
-#...##.#..
-
-Tile 1171:
-####...##.
-#..##.#..#
-##.#..#.#.
-.###.####.
-..###.####
-.##....##.
-.#...####.
-#.##.####.
-####..#...
-.....##...
-
-Tile 1427:
-###.##.#..
-.#..#.##..
-.#.##.#..#
-#.#.#.##.#
-....#...##
-...##..##.
-...#.#####
-.#.####.#.
-..#..###.#
-..##.#..#.
-
-Tile 1489:
-##.#.#....
-..##...#..
-.##..##...
-..#...#...
-#####...#.
-#..#.#.#.#
-...#.#.#..
-##.#...##.
-..##.##.##
-###.##.#..
-
-Tile 2473:
-#....####.
-#..#.##...
-#.##..#...
-######.#.#
-.#...#.#.#
-.#########
-.###.#..#.
-########.#
-##...##.#.
-..###.#.#.
-
-Tile 2971:
-..#.#....#
-#...###...
-#.#.###...
-##.##..#..
-.#####..##
-.#..####.#
-#..#.#..#.
-..####.###
-..#.#.###.
-...#.#.#.#
-
-Tile 2729:
-...#.#.#.#
-####.#....
-..#.#.....
-....#..#.#
-.##..##.#.
-.#.####...
-####.#.#..
-##.####...
-##..#.##..
-#.##...##.
-
-Tile 3079:
-#.#.#####.
-.#..######
-..#.......
-######....
-####.#..#.
-.#...#.##.
-#.#####.##
-..#.###...
-..#.......
-..#.###..."""
-
-
 if __name__ == "__main__":
     DATA = (FILE_DIR / "day20.input").read_text().strip()
     CAMERAS = [Camera(camera_chunk) for camera_chunk in DATA.split("\n\n")]
-    print(find_hashes(CAMERAS))
+    __run_fill = [cam.fill_out_neighbors(CAMERAS) for cam in CAMERAS]
+    print(multiply_corner_ids(CAMERAS))
     CAMERA_GRID = build_grid(CAMERAS)
     MONSTER = build_monster(MONSTER_STR)
     NUM_MONSTERS = count_monsters_in_grid_any_rotation(CAMERA_GRID, MONSTER)
