@@ -14,7 +14,7 @@ def play_game(p1: List[int], p2: List[int]):
         else:
             raise Exception
     victor_deck = p1 or p2
-    return sum(i * c for i, c in zip(range(1, len(victor_deck) + 1), reversed(victor_deck)))
+    return sum(i * c for i, c in enumerate(reversed(victor_deck), start=1))
 
 
 def play_recursive_game(p1: Tuple[int], p2: Tuple[int]):
@@ -46,4 +46,4 @@ if __name__ == "__main__":
     print(play_game(list(P1), list(P2)))
     recursive_result = play_recursive_game(tuple(P1), tuple(P2))
     recursive_winner = recursive_result[0] or recursive_result[1]
-    print(sum(i * c for i, c in zip(range(1, len(recursive_winner) + 1), reversed(recursive_winner))))
+    print(sum(i * c for i, c in enumerate(reversed(recursive_winner), start=1)))
