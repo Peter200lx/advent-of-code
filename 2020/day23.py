@@ -1,24 +1,24 @@
-from typing import Dict
+from typing import Dict, Optional, Tuple
 
 DATA = """284573961"""
 EXAMPLE_DATA = """389125467"""
 
 
 class Cup:
-    def __init__(self, value: int, cup_cache: Dict[int, "Cup"]):
-        self.next: "Cup" = None
-        self.previous: "Cup" = None
+    def __init__(self, value: int, max_val: int, cup_cache: Dict[int, "Cup"]):
+        self.next: Optional["Cup"] = None
+        self.previous: Optional["Cup"] = None
         self.value = value
-        self.max_val = 9
+        self.max_val = max_val
         self.cup_cache = cup_cache
 
     @staticmethod
-    def load_input(seq: str):
+    def load_input(seq: str) -> "Cup":
         cup_cache = {}
-        cur_cup = first_cup = Cup(int(seq[0]), cup_cache)
+        cur_cup = first_cup = Cup(int(seq[0]), 9, cup_cache)
         cup_cache[first_cup.value] = first_cup
         for c in seq[1:]:
-            new_cup = Cup(int(c), cup_cache)
+            new_cup = Cup(int(c), 9, cup_cache)
             cup_cache[new_cup.value] = new_cup
             new_cup.previous = cur_cup
             cur_cup.next = new_cup
@@ -28,22 +28,19 @@ class Cup:
         return first_cup
 
     @staticmethod
-    def load_input_p2(seq: str):
+    def load_input_p2(seq: str) -> "Cup":
         cup_cache = {}
-        cur_cup = first_cup = Cup(int(seq[0]), cup_cache)
+        cur_cup = first_cup = Cup(int(seq[0]), 1_000_000, cup_cache)
         cup_cache[first_cup.value] = first_cup
-        first_cup.max_val = 1_000_000
         for c in seq[1:]:
-            new_cup = Cup(int(c), cup_cache)
+            new_cup = Cup(int(c), 1_000_000, cup_cache)
             cup_cache[new_cup.value] = new_cup
-            new_cup.max_val = 1_000_000
             new_cup.previous = cur_cup
             cur_cup.next = new_cup
             cur_cup = new_cup
         for i in range(10, 1_000_000 + 1):
-            new_cup = Cup(i, cup_cache)
+            new_cup = Cup(i, 1_000_000, cup_cache)
             cup_cache[new_cup.value] = new_cup
-            new_cup.max_val = 1_000_000
             new_cup.previous = cur_cup
             cur_cup.next = new_cup
             cur_cup = new_cup
@@ -51,7 +48,7 @@ class Cup:
         cur_cup.next = first_cup
         return first_cup
 
-    def yank_3(self):
+    def yank_3(self) -> "Cup":
         held_cups = self.next
         last_cup = held_cups.next.next
         self.next = last_cup.next
@@ -60,19 +57,19 @@ class Cup:
         last_cup.next = None
         return held_cups
 
-    def place_3(self, held_cups):
+    def place_3(self, held_cups: "Cup"):
         last_cup = held_cups.next.next
         last_cup.next = self.next
         held_cups.previous = self
         self.next = held_cups
         last_cup.next.previous = last_cup
 
-    def find_num(self, num: int):
+    def find_num(self, num: int) -> "Cup":
         if num < 1:
             num = self.max_val
         return self.cup_cache[num]
 
-    def is_cup_in_next_3(self, cup: "Cup"):
+    def is_cup_in_next_3(self, cup: "Cup") -> bool:
         if cup is self:
             return True
         if cup is self.next:
@@ -81,7 +78,7 @@ class Cup:
             return True
         return False
 
-    def run_round(self):
+    def run_round(self) -> "Cup":
         held_cups = self.yank_3()
         dest_cup = self.find_num(self.value - 1)
         while held_cups.is_cup_in_next_3(dest_cup):
@@ -89,7 +86,7 @@ class Cup:
         dest_cup.place_3(held_cups)
         return self.next
 
-    def print_state(self):
+    def state_to_str(self) -> str:
         one_cup = self.find_num(1)
         ret_str = ""
         next_cup = one_cup.next
@@ -98,19 +95,19 @@ class Cup:
             next_cup = next_cup.next
         return ret_str
 
-    def get_p2_nums(self):
+    def get_p2_nums(self) -> Tuple[int, int]:
         one_cup = self.find_num(1)
         return one_cup.next.value, one_cup.next.next.value
 
 
-def part_1(input_str):
+def part_1(input_str: str):
     cur_cup = Cup.load_input(input_str)
     for _move in range(100):
         cur_cup = cur_cup.run_round()
-    print(cur_cup.print_state())
+    print(cur_cup.state_to_str())
 
 
-def part_2(input_str):
+def part_2(input_str: str):
     cur_cup = Cup.load_input_p2(input_str)
     for _move in range(10_000_000):
         cur_cup = cur_cup.run_round()
