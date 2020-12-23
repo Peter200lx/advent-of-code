@@ -3,6 +3,10 @@ from typing import Dict, Optional, Tuple
 DATA = """284573961"""
 EXAMPLE_DATA = """389125467"""
 
+P1_RUNS = 100
+P2_TOTAL_CUPS = 1_000_000
+P2_RUNS = 10_000_000
+
 
 class Cup:
     def __init__(self, value: int, max_val: int, cup_cache: Dict[int, "Cup"]):
@@ -11,6 +15,9 @@ class Cup:
         self.value = value
         self.max_val = max_val
         self.cup_cache = cup_cache
+
+    def __repr__(self):
+        return f"Cup({self.value}, p={self.previous and self.previous.value}, n={self.next and self.next.value})"
 
     @staticmethod
     def load_input(seq: str) -> "Cup":
@@ -30,16 +37,16 @@ class Cup:
     @staticmethod
     def load_input_p2(seq: str) -> "Cup":
         cup_cache = {}
-        cur_cup = first_cup = Cup(int(seq[0]), 1_000_000, cup_cache)
+        cur_cup = first_cup = Cup(int(seq[0]), P2_TOTAL_CUPS, cup_cache)
         cup_cache[first_cup.value] = first_cup
         for c in seq[1:]:
-            new_cup = Cup(int(c), 1_000_000, cup_cache)
+            new_cup = Cup(int(c), P2_TOTAL_CUPS, cup_cache)
             cup_cache[new_cup.value] = new_cup
             new_cup.previous = cur_cup
             cur_cup.next = new_cup
             cur_cup = new_cup
-        for i in range(10, 1_000_000 + 1):
-            new_cup = Cup(i, 1_000_000, cup_cache)
+        for i in range(10, P2_TOTAL_CUPS + 1):
+            new_cup = Cup(i, P2_TOTAL_CUPS, cup_cache)
             cup_cache[new_cup.value] = new_cup
             new_cup.previous = cur_cup
             cur_cup.next = new_cup
@@ -90,7 +97,7 @@ class Cup:
         one_cup = self.find_num(1)
         ret_str = ""
         next_cup = one_cup.next
-        while next_cup != one_cup:
+        while next_cup is not one_cup:
             ret_str += str(next_cup.value)
             next_cup = next_cup.next
         return ret_str
@@ -102,14 +109,14 @@ class Cup:
 
 def part_1(input_str: str):
     cur_cup = Cup.load_input(input_str)
-    for _move in range(100):
+    for _move in range(P1_RUNS):
         cur_cup = cur_cup.run_round()
     print(cur_cup.state_to_str())
 
 
 def part_2(input_str: str):
     cur_cup = Cup.load_input_p2(input_str)
-    for _move in range(10_000_000):
+    for _move in range(P2_RUNS):
         cur_cup = cur_cup.run_round()
     n2, n3 = cur_cup.get_p2_nums()
     print(n2 * n3)
