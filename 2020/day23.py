@@ -11,13 +11,12 @@ P2_RUNS = 10_000_000
 class Cup:
     def __init__(self, value: int, max_val: int, cup_cache: Dict[int, "Cup"]):
         self.next: Optional["Cup"] = None
-        self.previous: Optional["Cup"] = None
         self.value = value
         self.max_val = max_val
         self.cup_cache = cup_cache
 
     def __repr__(self):
-        return f"Cup({self.value}, p={self.previous and self.previous.value}, n={self.next and self.next.value})"
+        return f"Cup({self.value}, n={self.next and self.next.value})"
 
     @staticmethod
     def load_input(seq: str) -> "Cup":
@@ -27,10 +26,8 @@ class Cup:
         for c in seq[1:]:
             new_cup = Cup(int(c), 9, cup_cache)
             cup_cache[new_cup.value] = new_cup
-            new_cup.previous = cur_cup
             cur_cup.next = new_cup
             cur_cup = new_cup
-        first_cup.previous = cur_cup
         cur_cup.next = first_cup
         return first_cup
 
@@ -42,16 +39,13 @@ class Cup:
         for c in seq[1:]:
             new_cup = Cup(int(c), P2_TOTAL_CUPS, cup_cache)
             cup_cache[new_cup.value] = new_cup
-            new_cup.previous = cur_cup
             cur_cup.next = new_cup
             cur_cup = new_cup
         for i in range(10, P2_TOTAL_CUPS + 1):
             new_cup = Cup(i, P2_TOTAL_CUPS, cup_cache)
             cup_cache[new_cup.value] = new_cup
-            new_cup.previous = cur_cup
             cur_cup.next = new_cup
             cur_cup = new_cup
-        first_cup.previous = cur_cup
         cur_cup.next = first_cup
         return first_cup
 
@@ -59,17 +53,13 @@ class Cup:
         held_cups = self.next
         last_cup = held_cups.next.next
         self.next = last_cup.next
-        last_cup.next.previous = self
-        held_cups.previous = None
         last_cup.next = None
         return held_cups
 
     def place_3(self, held_cups: "Cup"):
         last_cup = held_cups.next.next
         last_cup.next = self.next
-        held_cups.previous = self
         self.next = held_cups
-        last_cup.next.previous = last_cup
 
     def find_num(self, num: int) -> "Cup":
         if num < 1:
