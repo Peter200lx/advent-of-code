@@ -1,7 +1,10 @@
+from collections import defaultdict
 from pathlib import Path
-from typing import Set, NamedTuple
+from typing import Set, NamedTuple, Dict, Tuple
 
 FILE_DIR = Path(__file__).parent
+
+_POINT_CACHE: Dict[Tuple[int, int], "HexCoord"] = {}
 
 
 class HexCoord(NamedTuple):
@@ -18,7 +21,11 @@ class HexCoord(NamedTuple):
     col: int
 
     def __add__(self, other):
-        return HexCoord(self.row + other.row, self.col + other.col)
+        key = self.row + other.row, self.col + other.col
+        new_point = _POINT_CACHE.get(key)
+        if new_point is None:
+            new_point = _POINT_CACHE.setdefault(key, HexCoord(*key))
+        return new_point
 
 
 MOVES = {
@@ -56,14 +63,20 @@ def generate_start(all_lines: str) -> Set[HexCoord]:
     return all_points
 
 
-def calc_point(floor: Set[HexCoord], position: HexCoord) -> bool:
-    is_black = position in floor
-    adjacent_count = sum((position + d(position.row)) in floor for d in MOVES.values())
+def sum_neighbors(floor: Set[HexCoord]) -> Dict[HexCoord, int]:
+    new_neighbors = defaultdict(int)
+    for position in floor:
+        for neighbor in (position + d(position.row) for d in MOVES.values()):
+            new_neighbors[neighbor] += 1
+    return new_neighbors
+
+
+def point_state(is_black: bool, neighbors: int) -> bool:
     if is_black:
-        if adjacent_count == 0 or adjacent_count > 2:
+        if neighbors == 0 or neighbors > 2:
             return False
         return True
-    elif not is_black and adjacent_count == 2:
+    elif not is_black and neighbors == 2:
         return True
     return False
 
@@ -71,8 +84,10 @@ def calc_point(floor: Set[HexCoord], position: HexCoord) -> bool:
 def run_life_again(start: Set[HexCoord]) -> int:
     current_map = start
     for _ in range(100):
-        possible_spaces = {p + d(p.row) for d in MOVES.values() for p in current_map}
-        current_map = {p for p in possible_spaces if calc_point(current_map, p)}
+        neighbor_counts = sum_neighbors(current_map)
+        current_map = {
+            p for p in current_map | neighbor_counts.keys() if point_state(p in current_map, neighbor_counts[p])
+        }
     return len(current_map)
 
 
