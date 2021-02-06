@@ -1,4 +1,4 @@
-from typing import Tuple, FrozenSet, List
+from typing import Tuple, FrozenSet
 
 DATA = """.^^^.^.^^^^^..^^^..^..^..^^..^.^.^.^^.^^....^.^...^.^^.^^.^^..^^..^.^..^^^.^^...^...^^....^^.^^^^^^^"""
 PART1_LENGTH = 40
@@ -27,15 +27,19 @@ def next_row(prev_row: FrozenSet[int], width: int) -> FrozenSet[int]:
     return frozenset(x for x in range(width) if is_trap(prev_row, x))
 
 
-def build_full_room(current_traps: List[FrozenSet[int]], width: int, length: int) -> List[FrozenSet[int]]:
-    for _ in range(len(current_traps), length):
-        current_traps.append(next_row(current_traps[-1], width))
-    return current_traps
+def count_next_traps(last_row_traps: FrozenSet[int], width: int, length: int) -> Tuple[int, FrozenSet[int]]:
+    safe_count = 0
+    for _ in range(length):
+        next_row_traps = next_row(last_row_traps, width)
+        safe_count += width - len(next_row_traps)
+        last_row_traps = next_row_traps
+    return safe_count, last_row_traps
 
 
 if __name__ == "__main__":
     ROOM_WIDTH, ROOM_TRAPS = load_traps(DATA)
-    PART1_TRAPS = build_full_room([ROOM_TRAPS], ROOM_WIDTH, PART1_LENGTH)
-    print(sum(ROOM_WIDTH - len(traps) for traps in PART1_TRAPS))
-    PART2_TRAPS = build_full_room(list(PART1_TRAPS), ROOM_WIDTH, PART2_LENGTH)
-    print(sum(ROOM_WIDTH - len(traps) for traps in PART2_TRAPS))
+    STARTING_SAFE = ROOM_WIDTH - len(ROOM_TRAPS)
+    PART1_SAFE, PART1_TRAPS = count_next_traps(ROOM_TRAPS, ROOM_WIDTH, PART1_LENGTH - 1)
+    print(STARTING_SAFE + PART1_SAFE)
+    PART2_SAFE, PART2_TRAPS = count_next_traps(PART1_TRAPS, ROOM_WIDTH, PART2_LENGTH - PART1_LENGTH)
+    print(STARTING_SAFE + PART1_SAFE + PART2_SAFE)
