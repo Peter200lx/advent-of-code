@@ -38,8 +38,34 @@ def run_fixed_game(num_elves: int):
     return all_elves[0]
 
 
+def find_largest_power(n: int, base: int) -> int:
+    for i in range(99999):
+        if base ** i > n:
+            return base ** (i - 1)
+
+
+def guess_number(n: int) -> int:
+    largest_power = find_largest_power(n, 3)
+    guess = n - largest_power
+    if guess == 0:
+        return n
+    elif guess > largest_power:
+        return largest_power + (guess - largest_power) * 2
+    return guess
+
+
+def find_pattern(size: int = 300):
+    for i in range(1, size):
+        ans = run_fixed_game(i)
+        guess = guess_number(i)
+        print(f"{i:3} == {ans:3} guess {guess:3}")
+
+
 if __name__ == "__main__":
-    ELF_RING = ElfNode.build_circle(int(DATA))
+    NUMBER_OF_ELVES = int(DATA)
+    ELF_RING = ElfNode.build_circle(NUMBER_OF_ELVES)
     WINNING_ELF = ELF_RING.run_game()
     print(WINNING_ELF.id)
-    print(run_fixed_game(int(DATA)))
+    # print(run_fixed_game(NUMBER_OF_ELVES))
+    print(guess_number(NUMBER_OF_ELVES))
+    # find_pattern()
