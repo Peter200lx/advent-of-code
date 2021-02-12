@@ -3,7 +3,7 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Set, Tuple, Dict
 
-FILE_DIR = Path(__file__).parent
+INPUT_FILE = Path(__file__).with_suffix(".input")
 
 
 def parse_input(input_text: str) -> Tuple[Dict[str, Set[str]], str]:
@@ -40,7 +40,7 @@ def build_mol(rules: Dict[str, Set[str]], start_molecule: str):
 
 
 if __name__ == "__main__":
-    DATA = (FILE_DIR / "day19.input").read_text().strip()
+    DATA = INPUT_FILE.read_text().strip()
     RULES, START_MOL = parse_input(DATA)
     print(len(possible_next(RULES, START_MOL)))
     print(build_mol(RULES, START_MOL))

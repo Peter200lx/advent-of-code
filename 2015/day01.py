@@ -1,6 +1,6 @@
 from pathlib import Path
 
-FILE_DIR = Path(__file__).parent
+INPUT_FILE = Path(__file__).with_suffix(".input")
 
 
 def count_match(input: str, start=0) -> int:
@@ -18,5 +18,5 @@ def count_match(input: str, start=0) -> int:
 
 
 if __name__ == "__main__":
-    DATA = (FILE_DIR / "day01.input").read_text().strip()
+    DATA = INPUT_FILE.read_text().strip()
     print(count_match(DATA))

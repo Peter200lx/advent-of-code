@@ -2,7 +2,7 @@ import re
 from pathlib import Path
 from typing import Dict
 
-FILE_DIR = Path(__file__).parent
+INPUT_FILE = Path(__file__).with_suffix(".input")
 
 RE_NUMS = re.compile(r"-?\d+")
 
@@ -47,7 +47,7 @@ def part_2(aunts: Dict[int, Dict[str, int]]) -> int:
 
 
 if __name__ == "__main__":
-    DATA = (FILE_DIR / "day16.input").read_text().strip()
+    DATA = INPUT_FILE.read_text().strip()
     AUNTS = parse_input(DATA)
     print([aunt for aunt, prop in AUNTS.items() if all(prop[k] == MFCSAM[k] for k in prop)][0])
     print(part_2(AUNTS))

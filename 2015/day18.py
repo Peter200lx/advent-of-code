@@ -2,7 +2,7 @@ from collections import defaultdict
 from pathlib import Path
 from typing import NamedTuple, Set
 
-FILE_DIR = Path(__file__).parent
+INPUT_FILE = Path(__file__).with_suffix(".input")
 
 
 class Point(NamedTuple):
@@ -52,7 +52,7 @@ def run_loops(start: Set[Point], num_iterations: int = 100, part_2: bool = False
 
 
 if __name__ == "__main__":
-    DATA = (FILE_DIR / "day18.input").read_text().strip()
+    DATA = INPUT_FILE.read_text().strip()
     POINTS = parse_input(DATA)
     print(len(run_loops(POINTS)))
     print(len(run_loops(POINTS, part_2=True)))

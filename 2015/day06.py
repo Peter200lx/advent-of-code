@@ -1,10 +1,10 @@
 from pathlib import Path
-
-import numpy as np
 import re
 from typing import Tuple, List
 
-FILE_DIR = Path(__file__).parent
+import numpy as np
+
+INPUT_FILE = Path(__file__).with_suffix(".input")
 
 TURN_RE = re.compile(r"turn (on|off) (\d+),(\d+) through (\d+),(\d+)")
 TOGGLE_RE = re.compile(r"toggle (\d+),(\d+) through (\d+),(\d+)")
@@ -50,7 +50,7 @@ def process_instructions_p2(grid, cmds: List[str]):
 
 
 if __name__ == "__main__":
-    DATA = (FILE_DIR / "day06.input").read_text().strip()
+    DATA = INPUT_FILE.read_text().strip()
     grid = np.zeros((1000, 1000), dtype=np.bool)
     process_instructions_p1(grid, DATA.split("\n"))
     print(np.count_nonzero(grid))
