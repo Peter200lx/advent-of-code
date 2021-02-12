@@ -98,7 +98,9 @@ Step R must be finished before step H can begin.
 Step W must be finished before step M can begin.
 Step U must be finished before step N can begin.
 Step Q must be finished before step H can begin.
-Step Y must be finished before step A can begin.""".split('\n')
+Step Y must be finished before step A can begin.""".split(
+    "\n"
+)
 
 EXAMPLE_DATA = """Step C must be finished before step A can begin.
 Step C must be finished before step F can begin.
@@ -106,7 +108,9 @@ Step A must be finished before step B can begin.
 Step A must be finished before step D can begin.
 Step B must be finished before step E can begin.
 Step D must be finished before step E can begin.
-Step F must be finished before step E can begin.""".split('\n')
+Step F must be finished before step E can begin.""".split(
+    "\n"
+)
 
 BASE_WAIT_TIME = 60
 MAX_WORKERS = 5
@@ -192,7 +196,7 @@ def part_2(start_list):
     return ret_str, tick
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     starting = build_graph(DATA)
     # print(starting)
     print(part_1(starting))

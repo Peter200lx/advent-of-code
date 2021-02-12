@@ -78,7 +78,7 @@ def part_2(list_o_bots: List[NanoBot]) -> int:
     return max([calc_distance(b.loc) - b.range for b in bots_sharing_points])
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     with open("day23.input", "r") as in_file:
         DATA = in_file.read()
     swarm = parse_input(DATA)

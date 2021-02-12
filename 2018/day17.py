@@ -38,9 +38,7 @@ FIELD_PRINT = {
 }
 
 
-np.set_printoptions(
-    linewidth=500, threshold=np.nan, formatter={"int": lambda x: FIELD_PRINT[x]}
-)
+np.set_printoptions(linewidth=500, threshold=np.nan, formatter={"int": lambda x: FIELD_PRINT[x]})
 
 
 def parse_input(data_blob):
@@ -80,7 +78,7 @@ class Field:
             self.array[water_loc] = FieldTypes.WATER_FALLING.value
 
     def print(self):
-        print(self.array[:, soil_range.x_min - 1:])
+        print(self.array[:, soil_range.x_min - 1 :])
 
     def loc_type(self, loc):
         return FieldTypes(self.array[loc])
@@ -117,7 +115,7 @@ class Field:
         right_clay = self.fill_dir(loc, range(loc.x + 1, self.range.x_max + 1))
         left_clay = self.fill_dir(loc, range(loc.x - 1, self.range.x_min - 1, -1))
         if left_clay and right_clay:
-            self.array[loc.y, left_clay + 1:right_clay] = FieldTypes.WATER_STANDING.value
+            self.array[loc.y, left_clay + 1 : right_clay] = FieldTypes.WATER_STANDING.value
             self.falling_water.remove(loc)
         return False
 
@@ -151,7 +149,7 @@ def run_simulation(field):
     print((field.array == FieldTypes.WATER_STANDING.value).sum())
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     with open("day17.input", "r") as in_file:
         DATA = in_file.read()
 

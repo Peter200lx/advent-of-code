@@ -40,7 +40,9 @@ muli 5 14 5
 mulr 5 4 5
 addr 2 5 2
 seti 0 2 0
-seti 0 6 4""".split("\n")
+seti 0 6 4""".split(
+    "\n"
+)
 
 
 Cmd = namedtuple("CMD", ["op", "a", "b", "c"])
@@ -89,11 +91,9 @@ def part_1(proc):
 
 
 def part_2(proc):
-
     def factors(n):
         # https://stackoverflow.com/a/6800214/1038644
-        return set(reduce(list.__add__,
-                          ([i, n // i] for i in range(1, int(n ** 0.5) + 1) if n % i == 0)))
+        return set(reduce(list.__add__, ([i, n // i] for i in range(1, int(n ** 0.5) + 1) if n % i == 0)))
 
     proc.registers = [0] * 6
     proc.registers[0] = 1
@@ -105,7 +105,7 @@ def part_2(proc):
             return sum(factors(big_num))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     processor = Day19Processor(*parse_input(DATA))
     print(part_1(processor))
     print(part_2(processor))

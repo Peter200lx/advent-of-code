@@ -49,17 +49,19 @@ DATA = """262, 196
 134, 227
 96, 197
 312, 174
-133, 237""".split('\n')
+133, 237""".split(
+    "\n"
+)
 
 SIZE = 400
 TOTAL_DISTANCE = 10000
 
-Location = namedtuple('loc', ['y', 'x'])
+Location = namedtuple("loc", ["y", "x"])
 
 
 def parse_inst(inst):
     for i, loc in enumerate(inst):
-        y, x = loc.split(',')
+        y, x = loc.split(",")
         inst[i] = Location(int(y), int(x))
 
 
@@ -80,7 +82,7 @@ def gen_field(coords):
             # are the same distance to two different coord. Also possibly
             # not relevant as usually only happens on edges we ignore
             locations[loc] = (smallest[0], p2_sum)
-            if i == 0 or j == 0 or i == SIZE-1 or j == SIZE-1:
+            if i == 0 or j == 0 or i == SIZE - 1 or j == SIZE - 1:
                 ignored.add(smallest[0])
     return locations, ignored
 
@@ -101,7 +103,7 @@ def safe_area(locations):
     return count
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     parse_inst(DATA)
     field, bad_coords = gen_field(DATA)
     print(largest_area(field, bad_coords))

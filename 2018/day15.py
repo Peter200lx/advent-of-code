@@ -35,7 +35,9 @@ DATA = """
 ##.##############E....##########
 ##.##############..#############
 ##....##########################
-################################""".lstrip().split("\n")
+################################""".lstrip().split(
+    "\n"
+)
 
 EXAMPLE_DATA = """
 #######
@@ -44,7 +46,9 @@ EXAMPLE_DATA = """
 #.#.#G#
 #..G#E#
 #.....#
-#######""".lstrip().split("\n")
+#######""".lstrip().split(
+    "\n"
+)
 
 EXAMPLE_DATA2 = """
 #######
@@ -53,7 +57,9 @@ EXAMPLE_DATA2 = """
 #G.##.#
 #...#E#
 #...E.#
-#######""".lstrip().split("\n")
+#######""".lstrip().split(
+    "\n"
+)
 
 EXAMPLE_DATA3 = """
 #######
@@ -62,7 +68,9 @@ EXAMPLE_DATA3 = """
 #E.##E#
 #G..#.#
 #..E#.#
-#######""".lstrip().split("\n")
+#######""".lstrip().split(
+    "\n"
+)
 
 EXAMPLE_DATA4 = """
 #######
@@ -71,7 +79,9 @@ EXAMPLE_DATA4 = """
 #G.#.G#
 #G..#.#
 #...E.#
-#######""".lstrip().split("\n")
+#######""".lstrip().split(
+    "\n"
+)
 
 EXAMPLE_DATA5 = """
 #######
@@ -80,7 +90,9 @@ EXAMPLE_DATA5 = """
 #.###.#
 #E#G#G#
 #...#G#
-#######""".lstrip().split("\n")
+#######""".lstrip().split(
+    "\n"
+)
 
 EXAMPLE_DATA6 = """
 #########
@@ -91,9 +103,11 @@ EXAMPLE_DATA6 = """
 #...#...#
 #.G...G.#
 #.....G.#
-#########""".lstrip().split("\n")
+#########""".lstrip().split(
+    "\n"
+)
 
-np.set_printoptions(linewidth=120, threshold=np.nan, formatter={'int': lambda x: f"{x:2}" if x >= -1 else "██"})
+np.set_printoptions(linewidth=120, threshold=np.nan, formatter={"int": lambda x: f"{x:2}" if x >= -1 else "██"})
 Coord = namedtuple("Coord", ["y", "x"])
 
 
@@ -213,7 +227,12 @@ def simulate_water(board, check_locs, cost=0):
         next_locs = set()
         for loc in check_locs:
             board[loc] = cost
-            possible_locs = {(loc.y - 1, loc.x), (loc.y, loc.x - 1), (loc.y, loc.x + 1), (loc.y + 1, loc.x)}
+            possible_locs = {
+                (loc.y - 1, loc.x),
+                (loc.y, loc.x - 1),
+                (loc.y, loc.x + 1),
+                (loc.y + 1, loc.x),
+            }
             next_locs |= {Coord(*l) for l in possible_locs if board[l] == -1}
         check_locs = next_locs
         cost += 1
@@ -232,8 +251,10 @@ def parse_board(board_str_list):
 
 def print_board(board, npcs):
     for y, line in enumerate(board):
-        line = [(" " if board[y, x] >= -1 else "█") if (y, x) not in npcs else npcs[(y, x)].species
-                for x in range(len(line))]
+        line = [
+            (" " if board[y, x] >= -1 else "█") if (y, x) not in npcs else npcs[(y, x)].species
+            for x in range(len(line))
+        ]
         line_creatures = ", ".join(npcs[l].map_str() for l in sorted(l for l in npcs if l.y == y))
         if line_creatures:
             line += "   " + line_creatures
@@ -296,7 +317,7 @@ def tests():
     assert run_game(cave, creatures) == 39514
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # tests()
     cave, creatures = parse_board(DATA)
     print(cave)

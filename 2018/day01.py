@@ -16,10 +16,10 @@ def calc_v2(start, list_o_cal):
             found_set.add(cur)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     with open("day01.input", "r") as in_file:
         DATA = in_file.read().strip("\n")
 
-    int_list = [int(i) for i in DATA.split('\n')]
+    int_list = [int(i) for i in DATA.split("\n")]
     print(calc(START, int_list))
     print(calc_v2(START, int_list))

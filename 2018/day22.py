@@ -158,7 +158,7 @@ def part_2(field: np.ndarray, target: Coord) -> int:
     return tool_heatmaps[TORCH][target]
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     data_depth, data_target = parse_input(DATA)
     grounds = build_soil(data_depth, data_target, 21)
     if tuple(int(i) for i in np.__version__.split(".") if i.isdigit()) >= (1, 15):
@@ -166,5 +166,5 @@ if __name__ == '__main__':
             print(grounds)
     else:
         print(grounds)
-    print(grounds[:data_target.y + 1, :data_target.x + 1].sum())
+    print(grounds[: data_target.y + 1, : data_target.x + 1].sum())
     print(part_2(grounds, data_target))

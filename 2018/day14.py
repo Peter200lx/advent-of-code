@@ -15,7 +15,7 @@ def combined_solution(seed_list, input_str, final=10):
         for recipe in new_recipes:
             cur_list.append(recipe)
 
-            if not part_2_found and compare_list == cur_list[-len(compare_list):]:
+            if not part_2_found and compare_list == cur_list[-len(compare_list) :]:
                 print(f"Part 2: {len(cur_list) - len(compare_list)}")
                 part_2_found = True
 
@@ -28,5 +28,5 @@ def combined_solution(seed_list, input_str, final=10):
             part_1_found = True
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     combined_solution(SEED, DATA)

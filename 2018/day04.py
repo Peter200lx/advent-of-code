@@ -40,7 +40,7 @@ def part_2(guards):
     return worst_guard[1] * worst_guard[2]
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     with open("day04.input", "r") as in_file:
         DATA = in_file.read().strip("\n")
 

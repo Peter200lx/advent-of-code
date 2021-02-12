@@ -15,14 +15,13 @@ def parse_input(instructions: str) -> List[Coord]:
 
 
 def calc_distance(loc1: Coord, loc2: Coord) -> int:
-    return (abs(loc1.x - loc2.x) + abs(loc1.y - loc2.y)
-            + abs(loc1.z - loc2.z) + abs(loc1.t - loc2.t))
+    return abs(loc1.x - loc2.x) + abs(loc1.y - loc2.y) + abs(loc1.z - loc2.z) + abs(loc1.t - loc2.t)
 
 
 def part_1(list_o_stars: List[Coord]) -> List[Set[Coord]]:
     stars_within_range = defaultdict(set)
     for i, star1 in enumerate(list_o_stars):
-        for star2 in list_o_stars[i + 1:]:
+        for star2 in list_o_stars[i + 1 :]:
             if calc_distance(star1, star2) <= 3:
                 stars_within_range[star1].add(star2)
 
@@ -52,7 +51,7 @@ def part_1(list_o_stars: List[Coord]) -> List[Set[Coord]]:
     return constellations
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     with open("day25.input", "r") as in_file:
         DATA = in_file.read()
     print(len(part_1(parse_input(DATA))))

@@ -145,14 +145,13 @@ def step_field(field, carts, part_2=False):
 def print_field(field, carts=None):
     if carts:
         for y, row in enumerate(field):
-            print("".join(carts[(i, y)].dir.value if (i, y) in carts else c
-                          for i, c in enumerate(row)))
+            print("".join(carts[(i, y)].dir.value if (i, y) in carts else c for i, c in enumerate(row)))
     else:
         for row in field:
             print("".join(row))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     with open("day13.input", "r") as in_file:
         DATA = in_file.read()
 

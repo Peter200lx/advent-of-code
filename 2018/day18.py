@@ -79,9 +79,7 @@ MAP_TYPE = {
 
 REV_MAP_TYPE = {v: k for k, v in MAP_TYPE.items()}
 
-np.set_printoptions(
-    linewidth=120, threshold=np.nan, formatter={"int": lambda x: REV_MAP_TYPE[x]}
-)
+np.set_printoptions(linewidth=120, threshold=np.nan, formatter={"int": lambda x: REV_MAP_TYPE[x]})
 
 Coord = namedtuple("Coord", ["y", "x"])
 
@@ -96,6 +94,7 @@ def parse_input(input_str: str) -> np.ndarray:
 
     def from_input(y, x):
         return MAP_TYPE[lines[y][x]]
+
     from_input_vector = np.vectorize(from_input)
     return np.fromfunction(from_input_vector, (y_range, x_range), dtype=np.uint8)
 
@@ -105,8 +104,10 @@ def geo_tick(array: np.ndarray) -> None:
     for y, x in np.ndindex(reference_array.shape):
         loc = Coord(y, x)
         loc_type = reference_array[loc]
-        surrounding = reference_array[max(loc.y - 1, 0):min(loc.y + 2, array.shape[1]),
-                                      max(loc.x - 1, 0):min(loc.x + 2, array.shape[0])]
+        surrounding = reference_array[
+            max(loc.y - 1, 0) : min(loc.y + 2, array.shape[1]),
+            max(loc.x - 1, 0) : min(loc.x + 2, array.shape[0]),
+        ]
         if loc_type == OPEN:
             if (surrounding == WOOD).sum() >= 3:
                 array[loc] = WOOD
@@ -114,8 +115,7 @@ def geo_tick(array: np.ndarray) -> None:
             if (surrounding == YARD).sum() >= 3:
                 array[loc] = YARD
         elif loc_type == YARD:
-            if not ((surrounding == WOOD).sum() >= 1
-                    and (surrounding == YARD).sum() >= 2):
+            if not ((surrounding == WOOD).sum() >= 1 and (surrounding == YARD).sum() >= 2):
                 array[loc] = OPEN
 
 
@@ -153,7 +153,7 @@ def part_2(sequence: List[Seq], n: int) -> int:
     return sequence[(n - sequence[0].index - 1) % len(sequence)].value
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     lumber_field = parse_input(DATA)
     print(part_1(lumber_field.copy()))
 

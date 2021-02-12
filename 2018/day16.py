@@ -3,7 +3,7 @@ from collections import namedtuple
 from typing import Callable, Dict, List, Optional, Tuple
 
 TestChange = namedtuple("TChange", ["reg_before", "op_test", "reg_after"])
-RE_NUMS = re.compile(r'-?\d+')
+RE_NUMS = re.compile(r"-?\d+")
 
 
 class Processor:
@@ -139,11 +139,13 @@ def parse_input(data_str: str) -> Tuple[List[TestChange], List[List[int]]]:
     test_str_list = test_strs.split("\n\n")
     for test_str in test_str_list:
         begin_str, op_str, after_str = test_str.strip().split("\n")
-        test_inputs.append(TestChange(
-            list(map(int, RE_NUMS.findall(begin_str))),
-            list(map(int, RE_NUMS.findall(op_str))),
-            list(map(int, RE_NUMS.findall(after_str))),
-        ))
+        test_inputs.append(
+            TestChange(
+                list(map(int, RE_NUMS.findall(begin_str))),
+                list(map(int, RE_NUMS.findall(op_str))),
+                list(map(int, RE_NUMS.findall(after_str))),
+            )
+        )
     for code_str in code_strs.strip().split("\n"):
         op = list(map(int, RE_NUMS.findall(code_str)))
         assert len(op) == 4
@@ -169,7 +171,7 @@ def part_2(tests, code):
     return processor.registers
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     with open("day16.input", "r") as in_file:
         DATA = in_file.read()
 

@@ -22,10 +22,10 @@ def part_2(boxes):
                     continue
                 mismatch_loc.append(i)
             if len(mismatch_loc) == 1:
-                return string[:mismatch_loc[0]] + string[mismatch_loc[0] + 1:]
+                return string[: mismatch_loc[0]] + string[mismatch_loc[0] + 1 :]
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     with open("day02.input", "r") as in_file:
         DATA = in_file.read().strip("\n")
 

@@ -36,10 +36,10 @@ position=<14,  7> velocity=<-2,  0>
 position=<-3,  6> velocity=< 2, -1>"""
 
 
-np.set_printoptions(linewidth=130, formatter={'bool': lambda x: '#' if x else ' '})
+np.set_printoptions(linewidth=130, formatter={"bool": lambda x: "#" if x else " "})
 
-Coord = namedtuple('Coord', ['y', 'x'])
-Vector = namedtuple('Vect', ['pos', 'vel'])
+Coord = namedtuple("Coord", ["y", "x"])
+Vector = namedtuple("Vect", ["pos", "vel"])
 
 LINE_PARSE = re.compile(r"position=<\s*(-?\d+),\s*(-?\d+)> velocity=<\s*(-?\d+),\s*(-?\d+)>")
 
@@ -114,7 +114,7 @@ def print_message(field, bounds):
     print(array)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     with open("day10.input", "r") as in_file:
         DATA = in_file.read().strip("\n")
 

@@ -1,4 +1,3 @@
-
 DATA = """491 players; last marble is worth 71058 points"""
 EXAMPLE_DATA = """10 players; last marble is worth 1618 points"""  # high score is 8317
 
@@ -36,6 +35,6 @@ def winning_score(num_players, last_marble):
     return max(players)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     print(winning_score(491, 71058))
     print(winning_score(491, 71058 * 100))

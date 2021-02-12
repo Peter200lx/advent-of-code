@@ -1,4 +1,3 @@
-
 DATA = """initial state: ##.#.####..#####..#.....##....#.#######..#.#...........#......##...##.#...####..##.#..##.....#..####
 
 #..#. => #
@@ -32,7 +31,9 @@ DATA = """initial state: ##.#.####..#####..#.....##....#.#######..#.#...........
 ..... => .
 ####. => #
 #..## => .
-.##.. => #""".split('\n')
+.##.. => #""".split(
+    "\n"
+)
 
 EXAMPLE_DATA = """initial state: #..#.#..##......###...###
 
@@ -49,7 +50,9 @@ EXAMPLE_DATA = """initial state: #..#.#..##......###...###
 ##.## => #
 ###.. => #
 ###.# => #
-####. => #""".split('\n')
+####. => #""".split(
+    "\n"
+)
 
 
 PART_2_ITER = 50000000000
@@ -87,7 +90,7 @@ def straight_line(x_vals, y_vals):
     return slope, intercept
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     plants, instructions = parse_input(DATA)
     # print("".join(["#" if i in plants else " " for i in FULL_RANGE]))
     x_iters = []

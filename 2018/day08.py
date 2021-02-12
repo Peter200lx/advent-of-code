@@ -1,4 +1,3 @@
-
 EXAMPLE_DATA = """2 3 0 3 10 11 12 1 1 0 1 99 2 1 1 2"""
 
 
@@ -12,7 +11,7 @@ class Node:
             child = Node(list_o_data, index)
             self.children.append(child)
             index = child.remaining_index
-        self.meta = list_o_data[index:index + self.num_meta]
+        self.meta = list_o_data[index : index + self.num_meta]
         self.remaining_index = index + self.num_meta
 
     def sum(self):
@@ -33,7 +32,7 @@ class Node:
         return ret_sum
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     with open("day08.input", "r") as in_file:
         DATA = in_file.read().strip("\n")
 

@@ -32,7 +32,17 @@ BAD = "Bad"
 
 
 class FighterGroup:
-    def __init__(self, team, num_units, unit_hp, immunities, weaknesses, attack_damage, attack_type, initiative):
+    def __init__(
+        self,
+        team,
+        num_units,
+        unit_hp,
+        immunities,
+        weaknesses,
+        attack_damage,
+        attack_type,
+        initiative,
+    ):
         self.team = team
         self.num_units = num_units
         self.unit_hp = unit_hp
@@ -48,8 +58,14 @@ class FighterGroup:
             if self.team == boostuple[0]:
                 boost = boostuple[1]
         return FighterGroup(
-            self.team, self.num_units, self.unit_hp, self.immunities, self.weaknesses,
-            self.attack_damage + boost, self.attack_type, self.initiative
+            self.team,
+            self.num_units,
+            self.unit_hp,
+            self.immunities,
+            self.weaknesses,
+            self.attack_damage + boost,
+            self.attack_type,
+            self.initiative,
         )
 
     @property
@@ -71,8 +87,7 @@ class FighterGroup:
             if best_target is None:
                 best_target = group
                 continue
-            elif (self.attack_type in group.weaknesses
-                  and self.attack_type not in best_target.weaknesses):
+            elif self.attack_type in group.weaknesses and self.attack_type not in best_target.weaknesses:
                 best_target = group
                 continue
 
@@ -92,8 +107,10 @@ class FighterGroup:
         return units_killed > 0
 
     def __repr__(self):
-        return f"Group({self.team}, u{self.num_units}, hp{self.unit_hp}, i{self.immunities}," \
+        return (
+            f"Group({self.team}, u{self.num_units}, hp{self.unit_hp}, i{self.immunities},"
             f" w{self.weaknesses}, d{self.attack_damage}, {self.attack_type}, i{self.initiative})"
+        )
 
 
 def parse_input(initial_state):
@@ -106,7 +123,7 @@ def parse_input(initial_state):
             weaknesses = []
             immunities = []
             try:
-                attributes = group[group.index("(") + 1:group.index(")")]
+                attributes = group[group.index("(") + 1 : group.index(")")]
                 for att in (s.strip() for s in attributes.split(";")):
                     if att.startswith("weak"):
                         att = att.lstrip("weak to ")
@@ -119,9 +136,18 @@ def parse_input(initial_state):
                     att_list.extend([s.strip() for s in att.split(",")])
             except ValueError:
                 pass
-            armies.append(FighterGroup(
-                army_team, num_units, unit_hp, immunities, weaknesses, attack_damage, attack_type, initiative
-            ))
+            armies.append(
+                FighterGroup(
+                    army_team,
+                    num_units,
+                    unit_hp,
+                    immunities,
+                    weaknesses,
+                    attack_damage,
+                    attack_type,
+                    initiative,
+                )
+            )
         army_team = BAD
     return armies
 
@@ -185,7 +211,7 @@ def part_2(armies):
     return sum((a.num_units for a in test_armies))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     deer_system = parse_input(DATA)
     print(part_1(deer_system))
     print(part_2(deer_system))

@@ -64,6 +64,7 @@ class Room:
     def __repr__(self):
         def p_room(name):
             return f"{name}:" + ("|" if getattr(self, "dir_" + name) else "#")
+
         return f"Room({self.loc} " + ", ".join(p_room(s) for s in ["N", "S", "E", "W"]) + ")"
 
 
@@ -100,7 +101,7 @@ def distance_cost2(start_room: Room):
     return seen_rooms
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     starting_room = parse_input(DATA)
     paths_to_rooms = distance_cost2(starting_room)
     print(max([len(s) for s in paths_to_rooms.values()]))
