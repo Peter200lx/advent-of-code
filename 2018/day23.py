@@ -1,6 +1,9 @@
 import re
 from collections import defaultdict, namedtuple
 from typing import List
+from pathlib import Path
+
+FILE_DIR = Path(__file__).parent
 
 RE_NUMS = re.compile(r"-?\d+")
 Coord = namedtuple("Coord", ["x", "y", "z"])
@@ -79,8 +82,7 @@ def part_2(list_o_bots: List[NanoBot]) -> int:
 
 
 if __name__ == "__main__":
-    with open("day23.input", "r") as in_file:
-        DATA = in_file.read()
+    DATA = (FILE_DIR / "day23.input").read_text().strip()
     swarm = parse_input(DATA)
     # print(swarm)
     print(part_1(swarm))

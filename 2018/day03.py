@@ -1,7 +1,10 @@
 import re
 from collections import namedtuple
+from pathlib import Path
 
 import numpy as np
+
+FILE_DIR = Path(__file__).parent
 
 EXAMPLE_DATA = """#1 @ 1,3: 4x4
 #2 @ 3,1: 4x4
@@ -36,8 +39,7 @@ def overlaps(base, instruction):
 
 
 if __name__ == "__main__":
-    with open("day03.input", "r") as in_file:
-        DATA = in_file.read().strip("\n")
+    DATA = (FILE_DIR / "day03.input").read_text().strip()
 
     list_o_squares = DATA.split("\n")
     world = np.zeros((SIZE, SIZE), dtype=np.int64)

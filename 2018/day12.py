@@ -31,9 +31,7 @@ DATA = """initial state: ##.#.####..#####..#.....##....#.#######..#.#...........
 ..... => .
 ####. => #
 #..## => .
-.##.. => #""".split(
-    "\n"
-)
+.##.. => #"""
 
 EXAMPLE_DATA = """initial state: #..#.#..##......###...###
 
@@ -50,9 +48,7 @@ EXAMPLE_DATA = """initial state: #..#.#..##......###...###
 ##.## => #
 ###.. => #
 ###.# => #
-####. => #""".split(
-    "\n"
-)
+####. => #"""
 
 
 PART_2_ITER = 50000000000
@@ -91,7 +87,8 @@ def straight_line(x_vals, y_vals):
 
 
 if __name__ == "__main__":
-    plants, instructions = parse_input(DATA)
+    MAPPING_LINES = DATA.split("\n")
+    plants, instructions = parse_input(MAPPING_LINES)
     # print("".join(["#" if i in plants else " " for i in FULL_RANGE]))
     x_iters = []
     y_sums = []

@@ -1,3 +1,4 @@
+import sys
 from collections import namedtuple
 from copy import copy
 
@@ -35,9 +36,7 @@ DATA = """
 ##.##############E....##########
 ##.##############..#############
 ##....##########################
-################################""".lstrip().split(
-    "\n"
-)
+################################""".lstrip()
 
 EXAMPLE_DATA = """
 #######
@@ -46,9 +45,7 @@ EXAMPLE_DATA = """
 #.#.#G#
 #..G#E#
 #.....#
-#######""".lstrip().split(
-    "\n"
-)
+#######""".lstrip()
 
 EXAMPLE_DATA2 = """
 #######
@@ -57,9 +54,7 @@ EXAMPLE_DATA2 = """
 #G.##.#
 #...#E#
 #...E.#
-#######""".lstrip().split(
-    "\n"
-)
+#######""".lstrip()
 
 EXAMPLE_DATA3 = """
 #######
@@ -68,9 +63,7 @@ EXAMPLE_DATA3 = """
 #E.##E#
 #G..#.#
 #..E#.#
-#######""".lstrip().split(
-    "\n"
-)
+#######""".lstrip()
 
 EXAMPLE_DATA4 = """
 #######
@@ -79,9 +72,7 @@ EXAMPLE_DATA4 = """
 #G.#.G#
 #G..#.#
 #...E.#
-#######""".lstrip().split(
-    "\n"
-)
+#######""".lstrip()
 
 EXAMPLE_DATA5 = """
 #######
@@ -90,9 +81,7 @@ EXAMPLE_DATA5 = """
 #.###.#
 #E#G#G#
 #...#G#
-#######""".lstrip().split(
-    "\n"
-)
+#######""".lstrip()
 
 EXAMPLE_DATA6 = """
 #########
@@ -103,11 +92,9 @@ EXAMPLE_DATA6 = """
 #...#...#
 #.G...G.#
 #.....G.#
-#########""".lstrip().split(
-    "\n"
-)
+#########""".lstrip()
 
-np.set_printoptions(linewidth=120, threshold=np.nan, formatter={"int": lambda x: f"{x:2}" if x >= -1 else "██"})
+np.set_printoptions(linewidth=120, threshold=sys.maxsize, formatter={"int": lambda x: f"{x:2}" if x >= -1 else "██"})
 Coord = namedtuple("Coord", ["y", "x"])
 
 
@@ -303,23 +290,23 @@ def run_part_2(board, npcs):
 
 
 def tests():
-    cave, creatures = parse_board(EXAMPLE_DATA)
+    cave, creatures = parse_board(EXAMPLE_DATA.split("\n"))
     assert run_game(cave, creatures) == 27730
-    cave, creatures = parse_board(EXAMPLE_DATA4)
+    cave, creatures = parse_board(EXAMPLE_DATA4.split("\n"))
     assert run_game(cave, creatures) == 27755
-    cave, creatures = parse_board(EXAMPLE_DATA5)
+    cave, creatures = parse_board(EXAMPLE_DATA5.split("\n"))
     assert run_game(cave, creatures) == 28944
-    cave, creatures = parse_board(EXAMPLE_DATA6)
+    cave, creatures = parse_board(EXAMPLE_DATA6.split("\n"))
     assert run_game(cave, creatures) == 18740
-    cave, creatures = parse_board(EXAMPLE_DATA2)
+    cave, creatures = parse_board(EXAMPLE_DATA2.split("\n"))
     assert run_game(cave, creatures) == 36334
-    cave, creatures = parse_board(EXAMPLE_DATA3)
+    cave, creatures = parse_board(EXAMPLE_DATA3.split("\n"))
     assert run_game(cave, creatures) == 39514
 
 
 if __name__ == "__main__":
     # tests()
-    cave, creatures = parse_board(DATA)
+    cave, creatures = parse_board(DATA.split("\n"))
     print(cave)
     print(creatures.values())
     print(run_game(cave, copy(creatures)))  # 183300

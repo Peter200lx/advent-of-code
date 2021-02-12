@@ -1,4 +1,7 @@
 from collections import Counter
+from pathlib import Path
+
+FILE_DIR = Path(__file__).parent
 
 
 def part_1(boxes):
@@ -26,8 +29,7 @@ def part_2(boxes):
 
 
 if __name__ == "__main__":
-    with open("day02.input", "r") as in_file:
-        DATA = in_file.read().strip("\n")
+    DATA = (FILE_DIR / "day02.input").read_text().strip()
 
     list_o_boxes = DATA.split("\n")
     print(part_1(list_o_boxes))

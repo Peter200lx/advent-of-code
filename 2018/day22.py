@@ -1,10 +1,11 @@
+import sys
 from collections import namedtuple
 from heapq import heappop, heappush
 from typing import Dict, List, Set, Tuple
 
 import numpy as np
 
-np.set_printoptions(linewidth=300, threshold=np.nan)
+np.set_printoptions(linewidth=300, threshold=sys.maxsize)
 
 DATA = """depth: 11739
 target: 11,718"""

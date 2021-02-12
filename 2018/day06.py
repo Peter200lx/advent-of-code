@@ -49,9 +49,7 @@ DATA = """262, 196
 134, 227
 96, 197
 312, 174
-133, 237""".split(
-    "\n"
-)
+133, 237"""
 
 SIZE = 400
 TOTAL_DISTANCE = 10000
@@ -104,7 +102,8 @@ def safe_area(locations):
 
 
 if __name__ == "__main__":
-    parse_inst(DATA)
-    field, bad_coords = gen_field(DATA)
+    INST = DATA.split("\n")
+    parse_inst(INST)
+    field, bad_coords = gen_field(INST)
     print(largest_area(field, bad_coords))
     print(safe_area(field))

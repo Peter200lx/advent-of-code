@@ -1,3 +1,4 @@
+import sys
 from collections import defaultdict, namedtuple
 from typing import List
 
@@ -79,7 +80,7 @@ MAP_TYPE = {
 
 REV_MAP_TYPE = {v: k for k, v in MAP_TYPE.items()}
 
-np.set_printoptions(linewidth=120, threshold=np.nan, formatter={"int": lambda x: REV_MAP_TYPE[x]})
+np.set_printoptions(linewidth=120, threshold=sys.maxsize, formatter={"int": lambda x: REV_MAP_TYPE[x]})
 
 Coord = namedtuple("Coord", ["y", "x"])
 

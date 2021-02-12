@@ -1,7 +1,10 @@
 import re
 from collections import namedtuple
+from pathlib import Path
 
 import numpy as np
+
+FILE_DIR = Path(__file__).parent
 
 EXAMPLE_DATA = """position=< 9,  1> velocity=< 0,  2>
 position=< 7,  0> velocity=<-1,  0>
@@ -107,7 +110,7 @@ def find_message(instructions):
 
 
 def print_message(field, bounds):
-    array = np.zeros((bounds.x, bounds.y), dtype=np.bool)
+    array = np.zeros((bounds.x, bounds.y), dtype=bool)
     for loc in field:
         loc = bounds.translate(loc.pos)
         array[loc.x, loc.y] = True
@@ -115,8 +118,7 @@ def print_message(field, bounds):
 
 
 if __name__ == "__main__":
-    with open("day10.input", "r") as in_file:
-        DATA = in_file.read().strip("\n")
+    DATA = (FILE_DIR / "day10.input").read_text().strip()
 
     message, m_bounds = find_message(DATA.split("\n"))
     print_message(message, m_bounds)

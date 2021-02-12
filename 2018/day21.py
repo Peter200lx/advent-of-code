@@ -31,9 +31,7 @@ setr 2 8 3
 seti 7 9 4
 eqrr 5 0 2
 addr 2 4 4
-seti 5 5 4""".split(
-    "\n"
-)
+seti 5 5 4"""
 
 
 def part_1(instructions):
@@ -69,5 +67,5 @@ def part_2_direct():
 
 
 if __name__ == "__main__":
-    print(part_1(DATA))
+    print(part_1(DATA.split("\n")))
     print(part_2_direct())

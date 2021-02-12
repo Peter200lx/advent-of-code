@@ -40,9 +40,7 @@ muli 5 14 5
 mulr 5 4 5
 addr 2 5 2
 seti 0 2 0
-seti 0 6 4""".split(
-    "\n"
-)
+seti 0 6 4"""
 
 
 Cmd = namedtuple("CMD", ["op", "a", "b", "c"])
@@ -106,6 +104,6 @@ def part_2(proc):
 
 
 if __name__ == "__main__":
-    processor = Day19Processor(*parse_input(DATA))
+    processor = Day19Processor(*parse_input(DATA.split("\n")))
     print(part_1(processor))
     print(part_2(processor))

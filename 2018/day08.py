@@ -1,3 +1,7 @@
+from pathlib import Path
+
+FILE_DIR = Path(__file__).parent
+
 EXAMPLE_DATA = """2 3 0 3 10 11 12 1 1 0 1 99 2 1 1 2"""
 
 
@@ -33,8 +37,7 @@ class Node:
 
 
 if __name__ == "__main__":
-    with open("day08.input", "r") as in_file:
-        DATA = in_file.read().strip("\n")
+    DATA = (FILE_DIR / "day08.input").read_text().strip()
 
     int_input = [int(s) for s in DATA.split()]
 

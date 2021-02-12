@@ -1,8 +1,12 @@
 import re
+import sys
 from collections import namedtuple
 from enum import Enum
+from pathlib import Path
 
 import numpy as np
+
+FILE_DIR = Path(__file__).parent
 
 EXAMPLE_DATA = """x=495, y=2..7
 y=7, x=495..501
@@ -38,7 +42,7 @@ FIELD_PRINT = {
 }
 
 
-np.set_printoptions(linewidth=500, threshold=np.nan, formatter={"int": lambda x: FIELD_PRINT[x]})
+np.set_printoptions(linewidth=500, threshold=sys.maxsize, formatter={"int": lambda x: FIELD_PRINT[x]})
 
 
 def parse_input(data_blob):
@@ -150,8 +154,7 @@ def run_simulation(field):
 
 
 if __name__ == "__main__":
-    with open("day17.input", "r") as in_file:
-        DATA = in_file.read()
+    DATA = (FILE_DIR / "day17.input").read_text().strip()
 
     scan_output, soil_range = parse_input(DATA)
     soil = Field(scan_output, soil_range, SOURCES)
