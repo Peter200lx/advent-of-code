@@ -1,9 +1,9 @@
 from pathlib import Path
 
-FILEDIR = Path(__file__).parent
+FILE_DIR = Path(__file__).parent
 
 if __name__ == "__main__":
-    DATA = (FILEDIR / "day01.input").read_text().strip()
+    DATA = (FILE_DIR / "day01.input").read_text().strip()
     INSTRUCTIONS = [(i.strip()[0], int(i.strip()[1:])) for i in DATA.split(",")]
 
     count = {"ns": 0, "ew": 0}

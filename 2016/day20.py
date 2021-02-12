@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import List, Tuple
 
-FILEDIR = Path(__file__).parent
+FILE_DIR = Path(__file__).parent
 
 MAX_32BIT = 4294967295
 
@@ -32,6 +32,6 @@ def allowed_ips(blocked: List[Tuple[int, int]]) -> int:
 
 
 if __name__ == "__main__":
-    DATA = (FILEDIR / "day20.input").read_text().strip()
+    DATA = (FILE_DIR / "day20.input").read_text().strip()
     RANGES = parse_input(DATA)
     print(allowed_ips(RANGES))

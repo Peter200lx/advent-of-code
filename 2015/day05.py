@@ -1,6 +1,6 @@
 from pathlib import Path
 
-FILEDIR = Path(__file__).parent
+FILE_DIR = Path(__file__).parent
 
 VOWELS = "aeiou"
 
@@ -44,7 +44,7 @@ def is_good_str_p2(input: str) -> bool:
 
 
 if __name__ == "__main__":
-    DATA = (FILEDIR / "day05.input").read_text().strip()
+    DATA = (FILE_DIR / "day05.input").read_text().strip()
     INPUT_DATA = [s for s in DATA.split()]
     print((len([s for s in INPUT_DATA if is_good_str_p1(s)])))
     print((len([s for s in INPUT_DATA if is_good_str_p2(s)])))

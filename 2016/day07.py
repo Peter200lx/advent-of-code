@@ -1,7 +1,7 @@
 import re
 from pathlib import Path
 
-FILEDIR = Path(__file__).parent
+FILE_DIR = Path(__file__).parent
 
 example_data = """abba[mnop]qrst
 abcd[bddb]xyyx
@@ -10,7 +10,7 @@ ioxxoj[asdfgh]zxcvbn"""
 
 
 if __name__ == "__main__":
-    DATA = (FILEDIR / "day07.input").read_text().strip()
+    DATA = (FILE_DIR / "day07.input").read_text().strip()
     addresses = [l for l in DATA.split("\n")]
 
     hypernet = re.compile(r"\[([a-zA-Z]*)\]")
