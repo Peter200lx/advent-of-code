@@ -3,7 +3,7 @@ from collections import defaultdict, namedtuple
 from typing import List
 from pathlib import Path
 
-FILE_DIR = Path(__file__).parent
+INPUT_FILE = Path(__file__).with_suffix(".input")
 
 RE_NUMS = re.compile(r"-?\d+")
 Coord = namedtuple("Coord", ["x", "y", "z"])
@@ -82,7 +82,7 @@ def part_2(list_o_bots: List[NanoBot]) -> int:
 
 
 if __name__ == "__main__":
-    DATA = (FILE_DIR / "day23.input").read_text().strip()
+    DATA = INPUT_FILE.read_text().strip()
     swarm = parse_input(DATA)
     # print(swarm)
     print(part_1(swarm))

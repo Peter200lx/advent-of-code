@@ -2,7 +2,7 @@ from collections import namedtuple
 from typing import Dict, List, Tuple
 from pathlib import Path
 
-FILE_DIR = Path(__file__).parent
+INPUT_FILE = Path(__file__).with_suffix(".input")
 
 EXAMPLE_DATA = """^ESSWWN(E|NNENN(EESS(WNSE|)SSS|WWWSSSSE(SW|NNNE)))$"""  # 23
 
@@ -103,7 +103,7 @@ def distance_cost2(start_room: Room):
 
 
 if __name__ == "__main__":
-    DATA = (FILE_DIR / "day20.input").read_text().strip()
+    DATA = INPUT_FILE.read_text().strip()
     starting_room = parse_input(DATA)
     paths_to_rooms = distance_cost2(starting_room)
     print(max([len(s) for s in paths_to_rooms.values()]))

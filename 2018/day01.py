@@ -1,6 +1,6 @@
 from pathlib import Path
 
-FILE_DIR = Path(__file__).parent
+INPUT_FILE = Path(__file__).with_suffix(".input")
 
 START = 0
 
@@ -21,7 +21,7 @@ def calc_v2(start, list_o_cal):
 
 
 if __name__ == "__main__":
-    DATA = (FILE_DIR / "day01.input").read_text().strip()
+    DATA = INPUT_FILE.read_text().strip()
 
     int_list = [int(i) for i in DATA.split("\n")]
     print(calc(START, int_list))

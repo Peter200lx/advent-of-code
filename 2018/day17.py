@@ -6,7 +6,7 @@ from pathlib import Path
 
 import numpy as np
 
-FILE_DIR = Path(__file__).parent
+INPUT_FILE = Path(__file__).with_suffix(".input")
 
 EXAMPLE_DATA = """x=495, y=2..7
 y=7, x=495..501
@@ -154,7 +154,7 @@ def run_simulation(field):
 
 
 if __name__ == "__main__":
-    DATA = (FILE_DIR / "day17.input").read_text().strip()
+    DATA = INPUT_FILE.read_text().strip()
 
     scan_output, soil_range = parse_input(DATA)
     soil = Field(scan_output, soil_range, SOURCES)

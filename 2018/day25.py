@@ -3,7 +3,7 @@ from collections import defaultdict, namedtuple
 from typing import List, Set
 from pathlib import Path
 
-FILE_DIR = Path(__file__).parent
+INPUT_FILE = Path(__file__).with_suffix(".input")
 
 RE_NUMS = re.compile(r"-?\d+")
 
@@ -55,5 +55,5 @@ def part_1(list_o_stars: List[Coord]) -> List[Set[Coord]]:
 
 
 if __name__ == "__main__":
-    DATA = (FILE_DIR / "day25.input").read_text().strip()
+    DATA = INPUT_FILE.read_text().strip()
     print(len(part_1(parse_input(DATA))))

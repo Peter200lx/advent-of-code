@@ -1,6 +1,6 @@
 from pathlib import Path
 
-FILE_DIR = Path(__file__).parent
+INPUT_FILE = Path(__file__).with_suffix(".input")
 
 EXAMPLE_DATA = """Step C must be finished before step A can begin.
 Step C must be finished before step F can begin.
@@ -95,7 +95,7 @@ def part_2(start_list):
 
 
 if __name__ == "__main__":
-    DATA = (FILE_DIR / "day07.input").read_text().strip()
+    DATA = INPUT_FILE.read_text().strip()
     starting = build_graph(DATA.split("\n"))
     # print(starting)
     print(part_1(starting))

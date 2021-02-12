@@ -3,7 +3,7 @@ from collections import namedtuple
 from typing import Callable, Dict, List, Optional, Tuple
 from pathlib import Path
 
-FILE_DIR = Path(__file__).parent
+INPUT_FILE = Path(__file__).with_suffix(".input")
 
 TestChange = namedtuple("TChange", ["reg_before", "op_test", "reg_after"])
 RE_NUMS = re.compile(r"-?\d+")
@@ -175,7 +175,7 @@ def part_2(tests, code):
 
 
 if __name__ == "__main__":
-    DATA = (FILE_DIR / "day16.input").read_text().strip()
+    DATA = INPUT_FILE.read_text().strip()
 
     watch_tests, watch_code = parse_input(DATA)
     print(part_1(watch_tests))

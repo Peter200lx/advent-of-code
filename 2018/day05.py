@@ -1,7 +1,7 @@
 import string
 from pathlib import Path
 
-FILE_DIR = Path(__file__).parent
+INPUT_FILE = Path(__file__).with_suffix(".input")
 
 
 def react(polymer):
@@ -27,7 +27,7 @@ def part_2(polymer, max_len):
 
 
 if __name__ == "__main__":
-    DATA = (FILE_DIR / "day05.input").read_text().strip()
+    DATA = INPUT_FILE.read_text().strip()
     p1_len = len(react(DATA))
     print(p1_len)
     print(part_2(DATA, p1_len))

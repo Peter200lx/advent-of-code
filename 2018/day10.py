@@ -4,7 +4,7 @@ from pathlib import Path
 
 import numpy as np
 
-FILE_DIR = Path(__file__).parent
+INPUT_FILE = Path(__file__).with_suffix(".input")
 
 EXAMPLE_DATA = """position=< 9,  1> velocity=< 0,  2>
 position=< 7,  0> velocity=<-1,  0>
@@ -118,7 +118,7 @@ def print_message(field, bounds):
 
 
 if __name__ == "__main__":
-    DATA = (FILE_DIR / "day10.input").read_text().strip()
+    DATA = INPUT_FILE.read_text().strip()
 
     message, m_bounds = find_message(DATA.split("\n"))
     print_message(message, m_bounds)

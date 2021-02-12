@@ -2,7 +2,7 @@ from collections import namedtuple
 from enum import Enum
 from pathlib import Path
 
-FILE_DIR = Path(__file__).parent
+INPUT_FILE = Path(__file__).with_suffix(".input")
 
 EXAMPLE_DATA = r"""
 /->-\        
@@ -155,7 +155,7 @@ def print_field(field, carts=None):
 
 
 if __name__ == "__main__":
-    DATA = (FILE_DIR / "day13.input").read_text()
+    DATA = INPUT_FILE.read_text()
 
     racetrack, vehicles = parse_input(DATA.strip("\n").split("\n"))
     # print_field(racetrack)

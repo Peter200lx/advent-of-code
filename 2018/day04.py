@@ -2,7 +2,7 @@ import re
 from collections import Counter, defaultdict
 from pathlib import Path
 
-FILE_DIR = Path(__file__).parent
+INPUT_FILE = Path(__file__).with_suffix(".input")
 
 re_log = re.compile(r".*\[([0-9-]+) (\d+):(\d+)[^0-9]*(Guard|falls|wakes).*")
 re_gnum = re.compile(r".*#(\d+).*")
@@ -44,7 +44,7 @@ def part_2(guards):
 
 
 if __name__ == "__main__":
-    DATA = (FILE_DIR / "day04.input").read_text().strip()
+    DATA = INPUT_FILE.read_text().strip()
 
     guard_dict = build_asleep_dict(sorted(DATA.split("\n")))
     print(part_1(guard_dict))
