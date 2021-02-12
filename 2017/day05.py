@@ -1,5 +1,3 @@
-
-
 example_data = """0
 3
 0
@@ -1007,7 +1005,7 @@ data = """0
 -756
 -79"""
 
-instructions = [int(i) for i in data.split('\n')]
+instructions = [int(i) for i in data.split("\n")]
 max_location = len(instructions)
 
 current_location = 0
@@ -1020,7 +1018,7 @@ while 0 <= current_location < max_location:
 
 print(count)
 
-instructions = [int(i) for i in data.split('\n')]
+instructions = [int(i) for i in data.split("\n")]
 current_location = 0
 count = 0
 while 0 <= current_location < max_location:

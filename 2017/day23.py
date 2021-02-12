@@ -47,9 +47,9 @@ class Deadlock(Exception):
 class Program(object):
     def __init__(self, myid: int, rcv_socket: Queue, send_socket: Queue, inst_list: List[str], debug: bool = True):
         self.registers = defaultdict(int)
-        self.registers['p'] = myid
+        self.registers["p"] = myid
         if not debug:
-            self.registers['a'] = 1
+            self.registers["a"] = 1
         self.rcv_socket = rcv_socket
         self.send_socket = send_socket
         self.inst_list = inst_list
@@ -115,7 +115,7 @@ class Program(object):
             inst = self.inst_list[self.prog_counter].split()
             # print(inst)
             try:
-                result = getattr(self, 'i_' + inst[0])(*inst[1:])
+                result = getattr(self, "i_" + inst[0])(*inst[1:])
             except Deadlock as e:
                 print(e)
                 return
@@ -149,13 +149,13 @@ def part_two() -> int:
     return h_count
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     patch_asm = False
     if patch_asm:
         from datetime import datetime
 
         print(datetime.now())
-    instructions = [s for s in DATA.split('\n')]
+    instructions = [s for s in DATA.split("\n")]
     prog = Program(0, None, None, instructions)
     prog.run_insts()
     print(prog.mul_count)
@@ -164,11 +164,11 @@ if __name__ == '__main__':
     print(part_two())
     if patch_asm:
         print(datetime.now())
-        instructions[10] = "set g b"   # This is replacing `set e 2` inmost loop
+        instructions[10] = "set g b"  # This is replacing `set e 2` inmost loop
         instructions[11] = "mod g d"
-        instructions[12] = "jnz g 8"   # if b % d != 0: goto 'sub d -1'
+        instructions[12] = "jnz g 8"  # if b % d != 0: goto 'sub d -1'
         instructions[13] = "jnz 1 12"  # else: goto 'sub h -1'
         prog = Program(0, None, None, instructions, debug=False)
         prog.run_insts()
-        print(prog.registers['h'])
+        print(prog.registers["h"])
         print(datetime.now())

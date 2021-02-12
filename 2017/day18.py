@@ -74,7 +74,7 @@ class Deadlock(Exception):
 class Program(object):
     def __init__(self, myid: int, rcv_socket: Queue, send_socket: Queue, inst_list: List[str]):
         self.registers = defaultdict(int)
-        self.registers['p'] = myid
+        self.registers["p"] = myid
         self.rcv_socket = rcv_socket
         self.send_socket = send_socket
         self.inst_list = inst_list
@@ -129,7 +129,7 @@ class Program(object):
             inst = self.inst_list[self.prog_counter].split()
             # print(inst)
             try:
-                result = getattr(self, 'i_' + inst[0])(*inst[1:])
+                result = getattr(self, "i_" + inst[0])(*inst[1:])
             except Deadlock as e:
                 print(e)
                 return
@@ -162,6 +162,6 @@ def part_two(instructions: List[str]) -> str:
     return f"Part two done, Program 1 sent {prog1.send_count} times"
 
 
-if __name__ == '__main__':
-    print(part_one([s for s in DATA.split('\n')]))
-    print(part_two([s for s in DATA.split('\n')]))
+if __name__ == "__main__":
+    print(part_one([s for s in DATA.split("\n")]))
+    print(part_two([s for s in DATA.split("\n")]))

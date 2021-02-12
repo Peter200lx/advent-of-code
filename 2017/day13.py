@@ -48,7 +48,6 @@ EXAMPLE_DATA = """0: 3
 
 
 class FirewallLayer(object):
-
     def __init__(self, index, depth):
         self.index = index
         self.depth = depth
@@ -69,8 +68,8 @@ class FirewallLayer(object):
 
 def build_firewall(recorded: str):
     ret_list = []
-    for line in recorded.split('\n'):
-        info = line.split(': ')
+    for line in recorded.split("\n"):
+        info = line.split(": ")
         ret_list.append(FirewallLayer(index=int(info[0]), depth=int(info[1])))
     return ret_list
 
@@ -102,7 +101,7 @@ def find_clean_run(firewall):
     return i - 1
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     firewall = build_firewall(DATA)
     print(firewall)
     print(run_through_firewall(firewall))

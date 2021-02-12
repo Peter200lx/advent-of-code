@@ -52,12 +52,12 @@ SURROUNDING = [(x, y) for x in range(-1, 2) for y in range(-1, 2) if not (x == 0
 
 
 def sum_surrounding(grid, location):
-    #print(grid[location[0]-1:location[0]+2, location[1]-1:location[1]+2])
+    # print(grid[location[0]-1:location[0]+2, location[1]-1:location[1]+2])
     sumval = 0
     for diff in SURROUNDING:
         this_location = tuple(map(operator.add, location, diff))
         sumval += grid[this_location]
-    #print(sumval)
+    # print(sumval)
     return sumval
 
 

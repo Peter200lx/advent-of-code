@@ -95,18 +95,18 @@ class StateLogic(NamedTuple):
 
 def parse_input(raw_str: str) -> Tuple[int, str, Dict[str, StateLogic]]:
     control_dict = {}
-    instructions = raw_str.split('\n')
-    start_state = instructions[0].split()[-1].rstrip('.')
+    instructions = raw_str.split("\n")
+    start_state = instructions[0].split()[-1].rstrip(".")
     num_steps = int(instructions[1].split()[-2])
     cur_line = 2
     while cur_line < len(instructions):
         if instructions[cur_line].startswith("In state"):
-            cur_state = instructions[cur_line].split()[-1].rstrip(':')
+            cur_state = instructions[cur_line].split()[-1].rstrip(":")
             state_instructions = []
             for j in range(2):
-                value = int(instructions[cur_line + 4 * j + 2].split()[-1].rstrip('.'))
-                move = -1 if instructions[cur_line + 4 * j + 3].split()[-1] == 'left.' else 1
-                next_state = instructions[cur_line + 4 * j + 4].split()[-1].rstrip('.')
+                value = int(instructions[cur_line + 4 * j + 2].split()[-1].rstrip("."))
+                move = -1 if instructions[cur_line + 4 * j + 3].split()[-1] == "left." else 1
+                next_state = instructions[cur_line + 4 * j + 4].split()[-1].rstrip(".")
                 state_instructions.append(StateLogic(value, move, next_state))
             assert cur_state not in control_dict
             control_dict[cur_state] = state_instructions
@@ -115,15 +115,16 @@ def parse_input(raw_str: str) -> Tuple[int, str, Dict[str, StateLogic]]:
     return num_steps, start_state, control_dict
 
 
-def step_machine(control_dict: Dict[str, StateLogic], tape: Dict[int, int], cur_state: str, cur_loc: int
-                 ) -> Tuple[int, str]:
+def step_machine(
+    control_dict: Dict[str, StateLogic], tape: Dict[int, int], cur_state: str, cur_loc: int
+) -> Tuple[int, str]:
     current_value = tape[cur_loc]
     inst = control_dict[cur_state][current_value]
     tape[cur_loc] = inst.write
     return cur_loc + inst.move, inst.next_state
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     run_time, state, cont_dict = parse_input(DATA)
     tape_dict = defaultdict(int)
     location = 0

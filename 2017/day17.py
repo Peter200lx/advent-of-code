@@ -27,8 +27,8 @@ def track_1st_loc(num_steps: int, num_reps: int) -> int:
     return loc_1st_val
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     location, run_list = build_list(DATA, NUMBER_REPS_P1)
-    print(run_list[location-3:location+4])
+    print(run_list[location - 3 : location + 4])
 
     print(track_1st_loc(DATA, NUMBER_REPS_P2))

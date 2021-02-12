@@ -1003,7 +1003,7 @@ mlp inc -871 if fdv >= -1108
 ih inc -945 if b < -576
 mx dec -934 if w == 4068"""
 
-instructions = [[s for s in i.split()] for i in DATA.split('\n')]
+instructions = [[s for s in i.split()] for i in DATA.split("\n")]
 
 registers = {}
 max_value = 0
@@ -1013,10 +1013,10 @@ for inst in instructions:
         registers[inst[0]] = 0
     if inst[4] not in registers:
         registers[inst[4]] = 0
-    assert inst[5] in ('<', '>', '==', '<=', '>=', '!=')
+    assert inst[5] in ("<", ">", "==", "<=", ">=", "!=")
     if eval(f"{registers[inst[4]]} {inst[5]} {int(inst[6])}"):
-        assert inst[1] in ('inc', 'dec')
-        registers[inst[0]] += int(inst[2]) * (1 if 'inc' == inst[1] else -1)
+        assert inst[1] in ("inc", "dec")
+        registers[inst[0]] += int(inst[2]) * (1 if "inc" == inst[1] else -1)
         max_value = max(max_value, registers[inst[0]])
 
 print(max(registers.values()))

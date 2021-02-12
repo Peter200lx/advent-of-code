@@ -1,4 +1,3 @@
-
 example_data = """0 2   7   0"""
 data = """4	10	4	1	8	4	9	14	5	1	14	15	0	15	3	5"""
 
@@ -25,4 +24,3 @@ while tuple(banks) not in seen:
 
 print(count)
 print(count - seen[tuple(banks)])
-

@@ -513,7 +513,7 @@ ydjhhf yeltadb lwi cjdcb ovaox xrdm vkxub
 zax xza admbc lvpzfeh auxn rwasj
 kebx eild nrskdr meja jxczomh gcne"""
 
-phrases = [[word for word in line.split()] for line in data.split('\n')]
+phrases = [[word for word in line.split()] for line in data.split("\n")]
 valid = 0
 for phrase in phrases:
     counter = Counter(phrase)
@@ -542,7 +542,7 @@ print(valid)
 
 valid = 0
 for phrase in phrases:
-    counter = Counter((''.join(sorted(w)) for w in phrase))
+    counter = Counter(("".join(sorted(w)) for w in phrase))
     if counter.most_common(1)[0][1] == 1:
         valid += 1
 

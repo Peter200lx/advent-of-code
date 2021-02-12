@@ -1010,8 +1010,8 @@ p=< 3,0,0>, v=<-1,0,0>, a=< 0,0,0>"""
 
 def load_data(particle_str: str) -> List[Tuple[Tuple[int, int, int]]]:
     part_list = []
-    for line in particle_str.split('\n'):
-        part = tuple(tuple(int(i) for i in c[3:-1].split(',')) for c in line.split(', '))
+    for line in particle_str.split("\n"):
+        part = tuple(tuple(int(i) for i in c[3:-1].split(",")) for c in line.split(", "))
         part_list.append(part)
     return part_list
 
@@ -1051,7 +1051,7 @@ def step_simulation(part_list: List[Tuple[Tuple[int, int, int]]]):
         part_list[i] = new_pos, new_vel, part[2]
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     particles = load_data(DATA)
     lowest_acc_part_index = find_lowest_acc(particles)
     print(lowest_acc_part_index)

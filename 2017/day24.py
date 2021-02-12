@@ -69,8 +69,8 @@ EXAMPLE_DATA = """0/2
 
 def load_pieces(input_str: str) -> Set[Tuple[int, int]]:
     ret_list = set()
-    for line in input_str.split('\n'):
-        ret_list.add(tuple(int(i) for i in line.split('/')))
+    for line in input_str.split("\n"):
+        ret_list.add(tuple(int(i) for i in line.split("/")))
     # ret_list.sort(key=sum, reverse=True)
     return ret_list
 
@@ -79,8 +79,9 @@ def calc_strength(bridge_list: List[Tuple[int, int]]) -> int:
     return sum(sum(p) for p in bridge_list)
 
 
-def gen_matching(prev_con: int, remaining: Set[Tuple[int, int]],
-                 cached_mapping: Dict[int, List[Tuple[int, int]]] = defaultdict(list)):
+def gen_matching(
+    prev_con: int, remaining: Set[Tuple[int, int]], cached_mapping: Dict[int, List[Tuple[int, int]]] = defaultdict(list)
+):
     if not cached_mapping:  # remaining must contain all possible items first run otherwise cache will be bad
         for part in remaining:
             cached_mapping[part[0]].append(part)
@@ -92,8 +93,13 @@ def gen_matching(prev_con: int, remaining: Set[Tuple[int, int]],
             yield part
 
 
-def build_bridges(prev_piece: int, so_far: List[Tuple[int, int]], remaining: Set[Tuple[int, int]],
-                  part1: List[List[Tuple[int, int]]], part2: List[List[Tuple[int, int]]]):
+def build_bridges(
+    prev_piece: int,
+    so_far: List[Tuple[int, int]],
+    remaining: Set[Tuple[int, int]],
+    part1: List[List[Tuple[int, int]]],
+    part2: List[List[Tuple[int, int]]],
+):
     leaf = True
     for possible_next in gen_matching(prev_piece, remaining):
         leaf = False
@@ -117,7 +123,7 @@ def build_bridges(prev_piece: int, so_far: List[Tuple[int, int]], remaining: Set
                 part2[:] = [so_far]
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     piece_list = load_pieces(DATA)
     print(piece_list)
     completed_bridges_p1 = [[]]
@@ -127,5 +133,3 @@ if __name__ == '__main__':
     print(calc_strength(completed_bridges_p1[0]))
     print(completed_bridges_p2)
     print(calc_strength(completed_bridges_p2[0]))
-
-

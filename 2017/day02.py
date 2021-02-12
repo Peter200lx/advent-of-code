@@ -1,4 +1,3 @@
-
 data = """798	1976	1866	1862	559	1797	1129	747	85	1108	104	2000	248	131	87	95
 201	419	336	65	208	57	74	433	68	360	390	412	355	209	330	135
 967	84	492	1425	1502	1324	1268	1113	1259	81	310	1360	773	69	68	290
@@ -17,7 +16,7 @@ data = """798	1976	1866	1862	559	1797	1129	747	85	1108	104	2000	248	131	87	95
 2155	225	2856	3061	105	204	1269	171	2505	2852	977	1377	181	1856	2952	2262"""
 
 min_max_sum = 0
-for row in data.split('\n'):
+for row in data.split("\n"):
     lmin = 99999
     lmax = 0
     for num in row.split():
@@ -29,14 +28,14 @@ for row in data.split('\n'):
 print(min_max_sum)
 
 even_sum = 0
-for row in data.split('\n'):
+for row in data.split("\n"):
     num_list = [int(n) for n in row.split()]
     num_list.sort(reverse=True)
     div = None
     for i in range(len(num_list)):
-        for num in num_list[i+1:]:
+        for num in num_list[i + 1 :]:
             if num_list[i] % num == 0:
-                #print(f"bignum {num_list[i]}, smallnum {num}, diff = {num_list[i] / num}")
+                # print(f"bignum {num_list[i]}, smallnum {num}, diff = {num_list[i] / num}")
                 div = num_list[i] / num
                 break
         if div is not None:

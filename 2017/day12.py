@@ -2008,12 +2008,12 @@ EXAMPLE_DATA = """0 <-> 2
 5 <-> 6
 6 <-> 4, 5"""
 
-pipe_regex = re.compile(r'(\d*) <-> ([0-9, ]*)')
+pipe_regex = re.compile(r"(\d*) <-> ([0-9, ]*)")
 
 pipe_set_list = []
-for line in DATA.split('\n'):
+for line in DATA.split("\n"):
     current, targets = pipe_regex.findall(line)[0]
-    pipes = {int(s.strip()) for s in targets.split(',')}
+    pipes = {int(s.strip()) for s in targets.split(",")}
     # print(f"pipe {current} should connect to {pipes}")
     pipes.add(int(current))
     found = None

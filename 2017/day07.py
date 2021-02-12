@@ -1621,7 +1621,7 @@ kklix (25) -> jzoue, yokqfgn
 usevgds (44) -> aydmhhv, kkftjia
 tqlentr (214) -> gfxnuuk, thmlk"""
 
-instructions = [i for i in data.split('\n')]
+instructions = [i for i in data.split("\n")]
 
 
 class Tower(object):
@@ -1658,10 +1658,10 @@ class Tower(object):
 
 def initialize_towers(commands: List[str]) -> Dict[str, Tower]:
     struct = {}
-    line_regex = re.compile(r'([a-z]+) \((\d+)\)(?: -> ([a-z]+(?:, [a-z]+)*))?')
+    line_regex = re.compile(r"([a-z]+) \((\d+)\)(?: -> ([a-z]+(?:, [a-z]+)*))?")
     for command in commands:
         name, weight, children = line_regex.findall(command)[0]
-        struct[name] = Tower(name, int(weight), [i.strip() for i in children.split(',') if i.strip()])
+        struct[name] = Tower(name, int(weight), [i.strip() for i in children.split(",") if i.strip()])
     return struct
 
 
@@ -1679,8 +1679,3 @@ for item in structure:
     if structure[item].parent is None:
         print(f"Name of head: {item}  <--- 1")
         print(f"Total weight of structure {structure[item].child_weights()}")
-
-
-
-
-

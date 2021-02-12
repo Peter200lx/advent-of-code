@@ -26,8 +26,8 @@ def proc_inst(knots_l: List[int], inst: int, cur_loc: int, skip_size: int) -> Tu
         full_sub_list = knots_l[first] + knots_l[second]
         # print(f"1st range {first} 2nd range {second} == {full_sub_list}")
         full_sub_list.reverse()
-        knots_l[first] = full_sub_list[:first.stop - first.start]
-        knots_l[second] = full_sub_list[first.stop - first.start:]
+        knots_l[first] = full_sub_list[: first.stop - first.start]
+        knots_l[second] = full_sub_list[first.stop - first.start :]
     # print(knots_l)
     return ((cur_loc + inst + skip_size) % list_size), (skip_size + 1)
 
@@ -41,7 +41,7 @@ def part_one(knots_l: List[int], instructions: List[int]) -> List[int]:
 
 
 def run_part_one():
-    input_p1 = [int(i) for i in DATA.split(',')]
+    input_p1 = [int(i) for i in DATA.split(",")]
     knot_list = [i for i in range(256)]
 
     part_one(knot_list, input_p1)
@@ -64,7 +64,7 @@ def get_hash_str(knots_l: List[int]) -> str:
     square_root = int(square_root)
     ret_str = ""
     for i in range(square_root):
-        sub_list = knots_l[i * square_root:(i + 1) * square_root]
+        sub_list = knots_l[i * square_root : (i + 1) * square_root]
         ret_str += f"{reduce(operator.xor, sub_list):02x}"
     return ret_str
 
@@ -82,6 +82,6 @@ def run_part_two():
     print(get_hash_str(knot_list))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     run_part_one()
     run_part_two()

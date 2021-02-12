@@ -116,7 +116,7 @@ START_PATTERN = """.#./..#/###"""
 
 
 def pattern_to_array(pattern: str) -> np.ndarray:
-    return np.array([[1 if c == '#' else 0 for c in line] for line in pattern.strip().split('/')])
+    return np.array([[1 if c == "#" else 0 for c in line] for line in pattern.strip().split("/")])
 
 
 def generate_possible_orientations(original_pattern: np.ndarray) -> bytes:
@@ -133,8 +133,8 @@ def generate_possible_orientations(original_pattern: np.ndarray) -> bytes:
 
 def read_rules(full_data: str) -> Dict[bytes, np.ndarray]:
     result = {}
-    for line in full_data.split('\n'):
-        key, value = [pattern_to_array(str_arr) for str_arr in line.split(' => ')]
+    for line in full_data.split("\n"):
+        key, value = [pattern_to_array(str_arr) for str_arr in line.split(" => ")]
         for orientation in generate_possible_orientations(key):
             if orientation not in result:
                 result[orientation] = value
@@ -157,8 +157,10 @@ def create_new_array_from_rules(combined_arr: np.ndarray, rule_dict: Dict[bytes,
         raise Exception(f"Unknown grid size {combined_arr.size}")
     chunks_per_row = combined_arr.shape[0] // chunk_size
     # Following logic from https://stackoverflow.com/a/16715845/1038644
-    total_blocks = (combined_arr[j * chunk_size:(j + 1) * chunk_size, k * chunk_size:(k + 1) * chunk_size] for j, k in
-                    np.ndindex(chunks_per_row, chunks_per_row))
+    total_blocks = (
+        combined_arr[j * chunk_size : (j + 1) * chunk_size, k * chunk_size : (k + 1) * chunk_size]
+        for j, k in np.ndindex(chunks_per_row, chunks_per_row)
+    )
     current_row = None
     new_array = None
     items_in_row = 0
@@ -176,7 +178,7 @@ def create_new_array_from_rules(combined_arr: np.ndarray, rule_dict: Dict[bytes,
     return new_array
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     start = pattern_to_array(START_PATTERN)
     # print(start)
     rules = read_rules(DATA)

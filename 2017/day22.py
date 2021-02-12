@@ -29,32 +29,48 @@ DATA = """#.#.#.##.#.##.###.#.###.#
 EXAMPLE_DATA = """..#
 #..
 ..."""
-FACE_DICT = {'N': (1, 0),
-             'S': (-1, 0),
-             'E': (0, 1),
-             'W': (0, -1)}
-MOVE_DICT = {'L': {FACE_DICT['N']: FACE_DICT['W'],
-                   FACE_DICT['S']: FACE_DICT['E'],
-                   FACE_DICT['E']: FACE_DICT['N'],
-                   FACE_DICT['W']: FACE_DICT['S']},
-             'R': {FACE_DICT['N']: FACE_DICT['E'],
-                   FACE_DICT['S']: FACE_DICT['W'],
-                   FACE_DICT['E']: FACE_DICT['S'],
-                   FACE_DICT['W']: FACE_DICT['N']},
-             'REV': {FACE_DICT['N']: FACE_DICT['S'],
-                     FACE_DICT['S']: FACE_DICT['N'],
-                     FACE_DICT['E']: FACE_DICT['W'],
-                     FACE_DICT['W']: FACE_DICT['E']}}
-P1_DICT = {'c': 'i',
-           'i': 'c'}
-P2_DICT = {'c': 'w',
-           'w': 'i',
-           'i': 'f',
-           'f': 'c'}
-NEW_DIR = {'c': lambda x: MOVE_DICT['L'][x],
-           'w': lambda x: x,
-           'i': lambda x: MOVE_DICT['R'][x],
-           'f': lambda x: MOVE_DICT['REV'][x]}
+FACE_DICT = {
+    "N": (1, 0),
+    "S": (-1, 0),
+    "E": (0, 1),
+    "W": (0, -1),
+}
+MOVE_DICT = {
+    "L": {
+        FACE_DICT["N"]: FACE_DICT["W"],
+        FACE_DICT["S"]: FACE_DICT["E"],
+        FACE_DICT["E"]: FACE_DICT["N"],
+        FACE_DICT["W"]: FACE_DICT["S"],
+    },
+    "R": {
+        FACE_DICT["N"]: FACE_DICT["E"],
+        FACE_DICT["S"]: FACE_DICT["W"],
+        FACE_DICT["E"]: FACE_DICT["S"],
+        FACE_DICT["W"]: FACE_DICT["N"],
+    },
+    "REV": {
+        FACE_DICT["N"]: FACE_DICT["S"],
+        FACE_DICT["S"]: FACE_DICT["N"],
+        FACE_DICT["E"]: FACE_DICT["W"],
+        FACE_DICT["W"]: FACE_DICT["E"],
+    },
+}
+P1_DICT = {
+    "c": "i",
+    "i": "c",
+}
+P2_DICT = {
+    "c": "w",
+    "w": "i",
+    "i": "f",
+    "f": "c",
+}
+NEW_DIR = {
+    "c": lambda x: MOVE_DICT["L"][x],
+    "w": lambda x: x,
+    "i": lambda x: MOVE_DICT["R"][x],
+    "f": lambda x: MOVE_DICT["REV"][x],
+}
 
 
 class Vector(NamedTuple):
@@ -64,13 +80,13 @@ class Vector(NamedTuple):
 
 def initialize_grid(input_str: str) -> List[List[str]]:
     ret_grid = []
-    for line in input_str.split('\n'):
-        ret_grid.append(['i' if i == '#' else 'c' for i in line])
+    for line in input_str.split("\n"):
+        ret_grid.append(["i" if i == "#" else "c" for i in line])
     return ret_grid
 
 
 def make_dict_grid(in_grid: List[List[str]]) -> Dict[Tuple[int, int], str]:
-    ret_dict = defaultdict(lambda: 'c')
+    ret_dict = defaultdict(lambda: "c")
     center_y = len(in_grid) // 2
     for i, row in enumerate(in_grid):
         center_x = len(row) // 2
@@ -89,13 +105,13 @@ def new_vect(new_dir: Tuple[int, int], old_loc: Tuple[int, int]) -> Vector:
 def run_burst(grid: Dict[Tuple[int, int], str], start: Vector, evolve_dict: Dict[str, str]) -> Tuple[bool, Vector]:
     new_dir = NEW_DIR[grid[start.loc]](start.dir)
     grid[start.loc] = evolve_dict[grid[start.loc]]
-    return grid[start.loc] == 'i', new_vect(new_dir, start.loc)
+    return grid[start.loc] == "i", new_vect(new_dir, start.loc)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     seed_grid = initialize_grid(DATA)
     board_dict = make_dict_grid(seed_grid)
-    current_vec = Vector(FACE_DICT['N'], (0, 0))
+    current_vec = Vector(FACE_DICT["N"], (0, 0))
     count = 0
     for num_bursts in range(10000):
         new_inf, current_vec = run_burst(board_dict, current_vec, P1_DICT)
@@ -103,7 +119,7 @@ if __name__ == '__main__':
             count += 1
     print(count)
     board_dict = make_dict_grid(seed_grid)
-    current_vec = Vector(FACE_DICT['N'], (0, 0))
+    current_vec = Vector(FACE_DICT["N"], (0, 0))
     count = 0
     for num_bursts in range(10000000):
         new_inf, current_vec = run_burst(board_dict, current_vec, P2_DICT)
