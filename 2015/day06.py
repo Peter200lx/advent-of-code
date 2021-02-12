@@ -51,7 +51,7 @@ def process_instructions_p2(grid, cmds: List[str]):
 
 if __name__ == "__main__":
     DATA = INPUT_FILE.read_text().strip()
-    grid = np.zeros((1000, 1000), dtype=np.bool)
+    grid = np.zeros((1000, 1000), dtype=bool)
     process_instructions_p1(grid, DATA.split("\n"))
     print(np.count_nonzero(grid))
     grid = np.zeros((1000, 1000), dtype=np.uint64)
