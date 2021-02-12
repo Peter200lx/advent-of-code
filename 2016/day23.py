@@ -46,7 +46,7 @@ class Processor(day12.Processor):
                 self.pc += 1
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     DATA = (FILE_DIR / "day23.input").read_text().strip()
     proc = Processor([7, 0, 0, 0])
     proc.run_program(day12.parse_data(DATA))

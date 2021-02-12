@@ -32,6 +32,6 @@ def find_signal(program: List[List[Union[str, int]]]):
             return i
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     DATA = (FILE_DIR / "day25.input").read_text().strip()
     print(find_signal(day12.parse_data(DATA)))
