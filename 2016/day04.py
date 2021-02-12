@@ -2,7 +2,7 @@ import re
 from collections import Counter
 from pathlib import Path
 
-FILE_DIR = Path(__file__).parent
+INPUT_FILE = Path(__file__).with_suffix(".input")
 
 example_data = """aaaaa-bbb-z-y-x-123[abxyz]
 a-b-c-d-e-f-g-h-987[abcde]
@@ -24,7 +24,7 @@ def c_cipher(char, num):
 
 
 if __name__ == "__main__":
-    DATA = (FILE_DIR / "day04.input").read_text().strip()
+    DATA = INPUT_FILE.read_text().strip()
 
     val_list = []
 

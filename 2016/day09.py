@@ -1,7 +1,7 @@
 import re
 from pathlib import Path
 
-FILE_DIR = Path(__file__).parent
+INPUT_FILE = Path(__file__).with_suffix(".input")
 
 example_data = """ADVENT contains no markers and decompresses to itself with no changes, resulting in a decompressed length of 6.
 A(1x5)BC repeats only the B a total of 5 times, becoming ABBBBBC for a decompressed length of 7.
@@ -63,7 +63,7 @@ def len_adv_compression(raw_str):
 
 
 if __name__ == "__main__":
-    DATA = (FILE_DIR / "day09.input").read_text().strip()
+    DATA = INPUT_FILE.read_text().strip()
     # run_example(example_data)
     print(len(process_compression(DATA)))
     print(len_adv_compression(DATA))

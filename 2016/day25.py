@@ -3,7 +3,7 @@ from typing import List, Union
 
 import day12
 
-FILE_DIR = Path(__file__).parent
+INPUT_FILE = Path(__file__).with_suffix(".input")
 
 
 def fast_simulate(a: int, b: int, c: int) -> bool:
@@ -33,5 +33,5 @@ def find_signal(program: List[List[Union[str, int]]]):
 
 
 if __name__ == "__main__":
-    DATA = (FILE_DIR / "day25.input").read_text().strip()
+    DATA = INPUT_FILE.read_text().strip()
     print(find_signal(day12.parse_data(DATA)))

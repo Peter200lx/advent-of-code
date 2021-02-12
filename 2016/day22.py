@@ -4,7 +4,7 @@ from itertools import permutations
 from pathlib import Path
 from typing import List, Dict, Tuple, Iterable, Optional
 
-FILE_DIR = Path(__file__).parent
+INPUT_FILE = Path(__file__).with_suffix(".input")
 
 PARSE_RE = re.compile(r".dev.grid.node-x(?P<x>\d+)-y(?P<y>\d+)\s+(?P<size>\d+)T\s+(?P<used>\d+)T\s+(?P<avail>\d+)T.*")
 
@@ -114,7 +114,7 @@ def solve_grid(machines: Dict[Point, Machine]):
 
 
 if __name__ == "__main__":
-    DATA = (FILE_DIR / "day22.input").read_text().strip()
+    DATA = INPUT_FILE.read_text().strip()
     MACHINES = parse_input(DATA)
     print(viable_pairs(MACHINES))
     print(solve_grid(MACHINES))

@@ -2,7 +2,7 @@ import heapq
 from pathlib import Path
 from typing import Tuple, Iterable, Set, List, Dict, Optional
 
-FILE_DIR = Path(__file__).parent
+INPUT_FILE = Path(__file__).with_suffix(".input")
 
 Point = Tuple[int, int]
 
@@ -58,7 +58,7 @@ def find_fewest(paths: Set[Point], poi: Dict[int, Point], p2: bool = False) -> i
 
 
 if __name__ == "__main__":
-    DATA = (FILE_DIR / "day24.input").read_text().strip()
+    DATA = INPUT_FILE.read_text().strip()
     MAP, POI = parse_map(DATA)
     print(find_fewest(MAP, POI))
     print(find_fewest(MAP, POI, p2=True))

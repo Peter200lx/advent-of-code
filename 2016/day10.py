@@ -6,7 +6,7 @@ from functools import reduce
 
 from operator import mul
 
-FILE_DIR = Path(__file__).parent
+INPUT_FILE = Path(__file__).with_suffix(".input")
 
 example_data = """value 5 goes to bot 2
 bot 2 gives low to bot 1 and high to bot 0
@@ -108,7 +108,7 @@ def run_sim():
 
 
 if __name__ == "__main__":
-    DATA = (FILE_DIR / "day10.input").read_text().strip()
+    DATA = INPUT_FILE.read_text().strip()
     INSTRUCTIONS = [line for line in DATA.split("\n")]
 
     setup_state(INSTRUCTIONS)

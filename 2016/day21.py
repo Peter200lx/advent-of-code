@@ -2,7 +2,7 @@ from pathlib import Path
 from pprint import pprint
 from typing import List, Dict, Union
 
-FILE_DIR = Path(__file__).parent
+INPUT_FILE = Path(__file__).with_suffix(".input")
 
 SCRAMBLE_START = "abcdefgh"
 ALREADY_SCRAMBLED = "fbgdceah"
@@ -98,6 +98,6 @@ def reverse_scramble(instructions: str, end: str = ALREADY_SCRAMBLED) -> str:
 
 
 if __name__ == "__main__":
-    DATA = (FILE_DIR / "day21.input").read_text().strip()
+    DATA = INPUT_FILE.read_text().strip()
     print(interpret_moves(DATA))
     print(reverse_scramble(DATA))

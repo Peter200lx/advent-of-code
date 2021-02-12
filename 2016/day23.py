@@ -2,7 +2,7 @@ from pathlib import Path
 
 import day12
 
-FILE_DIR = Path(__file__).parent
+INPUT_FILE = Path(__file__).with_suffix(".input")
 
 
 class Processor(day12.Processor):
@@ -47,7 +47,7 @@ class Processor(day12.Processor):
 
 
 if __name__ == "__main__":
-    DATA = (FILE_DIR / "day23.input").read_text().strip()
+    DATA = INPUT_FILE.read_text().strip()
     proc = Processor([7, 0, 0, 0])
     proc.run_program(day12.parse_data(DATA))
     print(proc.registers[0])

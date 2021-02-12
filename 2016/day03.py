@@ -1,10 +1,10 @@
 from pathlib import Path
 
-FILE_DIR = Path(__file__).parent
+INPUT_FILE = Path(__file__).with_suffix(".input")
 
 
 if __name__ == "__main__":
-    DATA = (FILE_DIR / "day03.input").read_text().strip()
+    DATA = INPUT_FILE.read_text().strip()
 
     list_o_tri = [[int(x) for x in line.split()] for line in DATA.split("\n")]
 
