@@ -1,68 +1,9 @@
 from collections import defaultdict
 from typing import Tuple, Dict, NamedTuple, List
+from pathlib import Path
 
-DATA = """Begin in state A.
-Perform a diagnostic checksum after 12586542 steps.
+INPUT_FILE = Path(__file__).with_suffix(".input")
 
-In state A:
-  If the current value is 0:
-    - Write the value 1.
-    - Move one slot to the right.
-    - Continue with state B.
-  If the current value is 1:
-    - Write the value 0.
-    - Move one slot to the left.
-    - Continue with state B.
-
-In state B:
-  If the current value is 0:
-    - Write the value 0.
-    - Move one slot to the right.
-    - Continue with state C.
-  If the current value is 1:
-    - Write the value 1.
-    - Move one slot to the left.
-    - Continue with state B.
-
-In state C:
-  If the current value is 0:
-    - Write the value 1.
-    - Move one slot to the right.
-    - Continue with state D.
-  If the current value is 1:
-    - Write the value 0.
-    - Move one slot to the left.
-    - Continue with state A.
-
-In state D:
-  If the current value is 0:
-    - Write the value 1.
-    - Move one slot to the left.
-    - Continue with state E.
-  If the current value is 1:
-    - Write the value 1.
-    - Move one slot to the left.
-    - Continue with state F.
-
-In state E:
-  If the current value is 0:
-    - Write the value 1.
-    - Move one slot to the left.
-    - Continue with state A.
-  If the current value is 1:
-    - Write the value 0.
-    - Move one slot to the left.
-    - Continue with state D.
-
-In state F:
-  If the current value is 0:
-    - Write the value 1.
-    - Move one slot to the right.
-    - Continue with state A.
-  If the current value is 1:
-    - Write the value 1.
-    - Move one slot to the left.
-    - Continue with state E."""
 EXAMPLE_DATA = """Begin in state A.
 Perform a diagnostic checksum after 6 steps.
 
@@ -125,6 +66,7 @@ def step_machine(
 
 
 if __name__ == "__main__":
+    DATA = INPUT_FILE.read_text().strip()
     run_time, state, cont_dict = parse_input(DATA)
     tape_dict = defaultdict(int)
     location = 0
