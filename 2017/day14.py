@@ -16,7 +16,7 @@ def build_array(seed: str) -> List[List[int]]:
         knot_list = [i for i in range(256)]
         part_two(knot_list, row_seed)
         row_str = "".join([f"{int(c, 16):04b}" for c in get_hash_str(knot_list)])
-        int_list = [1 if c is "1" else 0 for c in row_str]
+        int_list = [1 if c == "1" else 0 for c in row_str]
         rows.append(int_list)
     return rows
 
