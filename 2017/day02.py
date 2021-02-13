@@ -1,4 +1,4 @@
-data = """798	1976	1866	1862	559	1797	1129	747	85	1108	104	2000	248	131	87	95
+DATA = """798	1976	1866	1862	559	1797	1129	747	85	1108	104	2000	248	131	87	95
 201	419	336	65	208	57	74	433	68	360	390	412	355	209	330	135
 967	84	492	1425	1502	1324	1268	1113	1259	81	310	1360	773	69	68	290
 169	264	107	298	38	149	56	126	276	45	305	403	89	179	394	172
@@ -15,32 +15,41 @@ data = """798	1976	1866	1862	559	1797	1129	747	85	1108	104	2000	248	131	87	95
 3591	1843	3448	1775	3564	2632	1002	3065	77	3579	78	99	1668	98	2963	3553
 2155	225	2856	3061	105	204	1269	171	2505	2852	977	1377	181	1856	2952	2262"""
 
-min_max_sum = 0
-for row in data.split("\n"):
-    lmin = 99999
-    lmax = 0
-    for num in row.split():
-        val = int(num)
-        lmin = min(lmin, val)
-        lmax = max(lmax, val)
-    min_max_sum += lmax - lmin
 
-print(min_max_sum)
+def part_1(data: str) -> int:
+    min_max_sum = 0
+    for row in data.split("\n"):
+        lmin = 99999
+        lmax = 0
+        for num in row.split():
+            val = int(num)
+            lmin = min(lmin, val)
+            lmax = max(lmax, val)
+        min_max_sum += lmax - lmin
 
-even_sum = 0
-for row in data.split("\n"):
-    num_list = [int(n) for n in row.split()]
-    num_list.sort(reverse=True)
-    div = None
-    for i in range(len(num_list)):
-        for num in num_list[i + 1 :]:
-            if num_list[i] % num == 0:
-                # print(f"bignum {num_list[i]}, smallnum {num}, diff = {num_list[i] / num}")
-                div = num_list[i] / num
+    return min_max_sum
+
+
+def part_2(data: str) -> int:
+    even_sum = 0
+    for row in data.split("\n"):
+        num_list = [int(n) for n in row.split()]
+        num_list.sort(reverse=True)
+        div = None
+        for i in range(len(num_list)):
+            for num in num_list[i + 1 :]:
+                if num_list[i] % num == 0:
+                    # print(f"bignum {num_list[i]}, smallnum {num}, diff = {num_list[i] / num}")
+                    div = num_list[i] // num
+                    break
+            if div is not None:
                 break
-        if div is not None:
-            break
-    assert div is not None
-    even_sum += div
+        assert div is not None
+        even_sum += div
 
-print(even_sum)
+    return even_sum
+
+
+if __name__ == "__main__":
+    print(part_1(DATA))
+    print(part_2(DATA))

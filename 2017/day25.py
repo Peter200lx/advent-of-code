@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import Tuple, Dict, NamedTuple
+from typing import Tuple, Dict, NamedTuple, List
 
 DATA = """Begin in state A.
 Perform a diagnostic checksum after 12586542 steps.
@@ -93,7 +93,7 @@ class StateLogic(NamedTuple):
     next_state: str
 
 
-def parse_input(raw_str: str) -> Tuple[int, str, Dict[str, StateLogic]]:
+def parse_input(raw_str: str) -> Tuple[int, str, Dict[str, List[StateLogic]]]:
     control_dict = {}
     instructions = raw_str.split("\n")
     start_state = instructions[0].split()[-1].rstrip(".")
@@ -116,7 +116,7 @@ def parse_input(raw_str: str) -> Tuple[int, str, Dict[str, StateLogic]]:
 
 
 def step_machine(
-    control_dict: Dict[str, StateLogic], tape: Dict[int, int], cur_state: str, cur_loc: int
+    control_dict: Dict[str, List[StateLogic]], tape: Dict[int, int], cur_state: str, cur_loc: int
 ) -> Tuple[int, str]:
     current_value = tape[cur_loc]
     inst = control_dict[cur_state][current_value]

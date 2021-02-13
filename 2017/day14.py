@@ -9,7 +9,7 @@ DATA = "ljoxqyyw"
 EXAMPLE_DATA = "flqrgnkx"
 
 
-def build_array(seed: str) -> List[str]:
+def build_array(seed: str) -> List[List[int]]:
     rows = []
     for i in range(128):
         row_seed = [ord(i) for i in (seed + "-" + str(i))] + SALT
@@ -21,19 +21,26 @@ def build_array(seed: str) -> List[str]:
     return rows
 
 
-if __name__ == "__main__":
-    disk = build_array(DATA)
-
+def part_1(disk: List[List[int]]) -> int:
     sum_bits = 0
     for row in disk:
         bin_sum = sum(row)
         print(f"sum {bin_sum} from {''.join(str(i) for i in row)}")
         sum_bits += bin_sum
 
-    print(sum_bits)
+    return sum_bits
 
+
+def part_2(disk: List[List[int]]) -> int:
     nparray = np.array(disk)
     print(nparray)
     labeled_array, count = label(nparray)
     print(labeled_array)
-    print(count)
+    return count
+
+
+if __name__ == "__main__":
+    DISK = build_array(DATA)
+
+    print(part_1(DISK))
+    print(part_2(DISK))

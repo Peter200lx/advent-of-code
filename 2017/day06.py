@@ -1,12 +1,10 @@
-example_data = """0 2   7   0"""
-data = """4	10	4	1	8	4	9	14	5	1	14	15	0	15	3	5"""
+from typing import List, Tuple
 
-banks = [int(i) for i in data.split()]
-
-seen = {}
+EXAMPLE_DATA = """0 2   7   0"""
+DATA = """4	10	4	1	8	4	9	14	5	1	14	15	0	15	3	5"""
 
 
-def distribute_from_index(buckets, index):
+def distribute_from_index(buckets: list[int], index: int):
     pool = buckets[index]
     buckets[index] = 0
     while pool:
@@ -16,11 +14,20 @@ def distribute_from_index(buckets, index):
         pool -= 1
 
 
-count = 0
-while tuple(banks) not in seen:
-    seen[tuple(banks)] = count
-    distribute_from_index(banks, banks.index(max(banks)))
-    count += 1
+def cycle_calc(starting_banks: List[int]) -> Tuple[int, int]:
+    banks = starting_banks.copy()
+    seen = {}
 
-print(count)
-print(count - seen[tuple(banks)])
+    count = 0
+    while tuple(banks) not in seen:
+        seen[tuple(banks)] = count
+        distribute_from_index(banks, banks.index(max(banks)))
+        count += 1
+
+    return count, count - seen[tuple(banks)]
+
+
+if __name__ == "__main__":
+    BANKS = [int(i) for i in DATA.split()]
+    for part in cycle_calc(BANKS):
+        print(part)

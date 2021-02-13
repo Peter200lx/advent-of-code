@@ -1,3 +1,5 @@
+from typing import List, Optional, Tuple, Union
+
 DATA = """0: 3
 1: 2
 2: 4
@@ -47,14 +49,14 @@ EXAMPLE_DATA = """0: 3
 6: 4"""
 
 
-class FirewallLayer(object):
-    def __init__(self, index, depth):
+class FirewallLayer:
+    def __init__(self, index: int, depth: int):
         self.index = index
         self.depth = depth
         if not self.depth:
             self.depth = None
 
-    def found(self, timestamp):
+    def found(self, timestamp: int) -> Optional[Tuple[int, int]]:
         if self.depth is None:
             return None
         elif ((timestamp + self.index) % ((self.depth - 1) * 2)) == 0:
@@ -62,11 +64,11 @@ class FirewallLayer(object):
         else:
             return None
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"FirewallLayer(index={self.index}, depth={self.depth})"
 
 
-def build_firewall(recorded: str):
+def build_firewall(recorded: str) -> List[FirewallLayer]:
     ret_list = []
     for line in recorded.split("\n"):
         info = line.split(": ")
@@ -74,7 +76,9 @@ def build_firewall(recorded: str):
     return ret_list
 
 
-def run_through_firewall(firewall, delay=0, fail_early=False):
+def run_through_firewall(
+    firewall: List[FirewallLayer], delay: int = 0, fail_early: bool = False
+) -> Union[int, bool, None]:
     found = []
     for wall in firewall:
         wall_found = wall.found(delay)
@@ -88,7 +92,7 @@ def run_through_firewall(firewall, delay=0, fail_early=False):
         return None
 
 
-def find_clean_run(firewall):
+def find_clean_run(firewall: List[FirewallLayer]) -> int:
     caught = True
     i = 0
     while caught is not None:

@@ -110,9 +110,10 @@ def run_test():
         # print("\n--------------------------\n")
 
 
-run_test()
+if __name__ == "__main__":
+    run_test()
 
-target_location = move_steps([s for s in DATA.split(",")])
-print(target_location)
-print(shortest_path(target_location))
-print(g_max_steps)
+    target_location = move_steps([s for s in DATA.split(",")])
+    print(target_location)
+    print(shortest_path(target_location))
+    print(g_max_steps)

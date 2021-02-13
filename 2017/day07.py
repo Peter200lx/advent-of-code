@@ -2,7 +2,7 @@ import re
 from collections import Counter
 from typing import List, Dict
 
-example_data = """pbga (66)
+EXAMPLE_DATA = """pbga (66)
 xhth (57)
 ebii (61)
 havc (66)
@@ -15,7 +15,7 @@ jptl (61)
 ugml (68) -> gyxo, ebii, jptl
 gyxo (61)
 cntj (57)"""
-data = """nzyiue (57)
+DATA = """nzyiue (57)
 pdmkag (39)
 bogbg (13)
 nubay (45)
@@ -1621,10 +1621,8 @@ kklix (25) -> jzoue, yokqfgn
 usevgds (44) -> aydmhhv, kkftjia
 tqlentr (214) -> gfxnuuk, thmlk"""
 
-instructions = [i for i in data.split("\n")]
 
-
-class Tower(object):
+class Tower:
     def __init__(self, name: str, weight: int, chld_str_list: List[str]):
         self.name = name
         self.weight = weight
@@ -1632,10 +1630,10 @@ class Tower(object):
         self.children = []
         self.parent = None
 
-    def add_child(self, tower):
+    def add_child(self, tower: "Tower"):
         self.children.append(tower)
 
-    def add_parent(self, tower):
+    def add_parent(self, tower: "Tower"):
         assert self.parent is None
         self.parent = tower
 
@@ -1673,9 +1671,12 @@ def link_towers(struct: Dict[str, Tower]):
                 struct[child].add_parent(struct[pos_parent])
 
 
-structure = initialize_towers(instructions)
-link_towers(structure)
-for item in structure:
-    if structure[item].parent is None:
-        print(f"Name of head: {item}  <--- 1")
-        print(f"Total weight of structure {structure[item].child_weights()}")
+if __name__ == "__main__":
+    INSTRUCTIONS = [line for line in DATA.split("\n")]
+
+    structure = initialize_towers(INSTRUCTIONS)
+    link_towers(structure)
+    for linked_tower in structure.values():
+        if linked_tower.parent is None:
+            print(f"Name of head: {linked_tower.name}  <--- 1")
+            print(f"Total weight of structure {linked_tower.child_weights()}")

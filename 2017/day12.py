@@ -1,4 +1,7 @@
 import re
+from typing import List, Set
+
+PIPE_REGEX = re.compile(r"(\d*) <-> ([0-9, ]*)")
 
 DATA = """0 <-> 780, 1330
 1 <-> 264, 595, 1439
@@ -2008,32 +2011,32 @@ EXAMPLE_DATA = """0 <-> 2
 5 <-> 6
 6 <-> 4, 5"""
 
-pipe_regex = re.compile(r"(\d*) <-> ([0-9, ]*)")
 
-pipe_set_list = []
-for line in DATA.split("\n"):
-    current, targets = pipe_regex.findall(line)[0]
-    pipes = {int(s.strip()) for s in targets.split(",")}
-    # print(f"pipe {current} should connect to {pipes}")
-    pipes.add(int(current))
-    found = None
-    for pipe_set in pipe_set_list:
-        if any(x in pipe_set for x in pipes):
-            if found is None:
-                pipe_set.update(pipes)
-                found = pipe_set
-            else:
-                found.update(pipe_set)
-                pipe_set_list.remove(pipe_set)
+def build_pipe_set_list(data: str) -> List[Set[int]]:
+    pipe_set_list = []
+    for line in data.split("\n"):
+        current, targets = PIPE_REGEX.findall(line)[0]
+        pipes = {int(s.strip()) for s in targets.split(",")}
+        # print(f"pipe {current} should connect to {pipes}")
+        pipes.add(int(current))
+        found = None
+        for pipe_set in pipe_set_list:
+            if any(x in pipe_set for x in pipes):
+                if found is None:
+                    pipe_set.update(pipes)
+                    found = pipe_set
+                else:
+                    found.update(pipe_set)
+                    pipe_set_list.remove(pipe_set)
 
-    if found is None:
-        pipe_set_list.append(pipes)
+        if found is None:
+            pipe_set_list.append(pipes)
+
+    return pipe_set_list
 
 
-print(pipe_set_list)
-for pset in pipe_set_list:
-    if 0 in pset:
-        set_with_0 = pset
-        break
-print(f"Number of programs in set with p0: {len(set_with_0)}")
-print(f"Total number of groups: {len(pipe_set_list)}")
+if __name__ == "__main__":
+    PIPE_SET_LIST = build_pipe_set_list(DATA)
+    SET_WITH_0 = next(pset for pset in PIPE_SET_LIST if 0 in pset)
+    print(f"Number of programs in set with p0: {len(SET_WITH_0)}")
+    print(f"Total number of groups: {len(PIPE_SET_LIST)}")

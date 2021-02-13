@@ -1008,7 +1008,7 @@ p=<-2,0,0>, v=< 1,0,0>, a=< 0,0,0>
 p=< 3,0,0>, v=<-1,0,0>, a=< 0,0,0>"""
 
 
-def load_data(particle_str: str) -> List[Tuple[Tuple[int, int, int]]]:
+def load_data(particle_str: str) -> List[Tuple[Tuple[int, int, int], ...]]:
     part_list = []
     for line in particle_str.split("\n"):
         part = tuple(tuple(int(i) for i in c[3:-1].split(",")) for c in line.split(", "))

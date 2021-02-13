@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Iterator
 
 import numpy as np
 
@@ -119,7 +119,7 @@ def pattern_to_array(pattern: str) -> np.ndarray:
     return np.array([[1 if c == "#" else 0 for c in line] for line in pattern.strip().split("/")])
 
 
-def generate_possible_orientations(original_pattern: np.ndarray) -> bytes:
+def generate_possible_orientations(original_pattern: np.ndarray) -> Iterator[bytes]:
     yield original_pattern.tobytes()
     yield np.flipud(original_pattern).tobytes()
     yield np.fliplr(original_pattern).tobytes()

@@ -1,10 +1,12 @@
-example_data = """0
+from typing import List
+
+EXAMPLE_DATA = """0
 3
 0
 1
 -3"""
 
-data = """0
+DATA = """0
 0
 1
 2
@@ -1005,29 +1007,35 @@ data = """0
 -756
 -79"""
 
-instructions = [int(i) for i in data.split("\n")]
-max_location = len(instructions)
 
-current_location = 0
-count = 0
-while 0 <= current_location < max_location:
-    movement = instructions[current_location]
-    instructions[current_location] += 1
-    current_location += movement
-    count += 1
-
-print(count)
-
-instructions = [int(i) for i in data.split("\n")]
-current_location = 0
-count = 0
-while 0 <= current_location < max_location:
-    movement = instructions[current_location]
-    if movement >= 3:
-        instructions[current_location] -= 1
-    else:
+def part_1(instructions: List[int]) -> int:
+    current_location = 0
+    count = 0
+    while 0 <= current_location < len(instructions):
+        movement = instructions[current_location]
         instructions[current_location] += 1
-    current_location += movement
-    count += 1
+        current_location += movement
+        count += 1
 
-print(count)
+    return count
+
+
+def part_2(instructions: List[int]) -> int:
+    current_location = 0
+    count = 0
+    while 0 <= current_location < len(instructions):
+        movement = instructions[current_location]
+        if movement >= 3:
+            instructions[current_location] -= 1
+        else:
+            instructions[current_location] += 1
+        current_location += movement
+        count += 1
+
+    return count
+
+
+if __name__ == "__main__":
+    INSTRUCTIONS = [int(i) for i in DATA.split("\n")]
+    print(part_1(INSTRUCTIONS.copy()))
+    print(part_2(INSTRUCTIONS.copy()))
