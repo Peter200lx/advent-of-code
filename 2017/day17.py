@@ -22,7 +22,7 @@ def track_1st_loc(num_steps: int, num_reps: int) -> int:
     loc_1st_val = 0
     for i in range(1, num_reps + 1):
         cur_loc = ((num_steps + cur_loc) % i) + 1
-        if cur_loc is 1:
+        if cur_loc == 1:
             loc_1st_val = i
     return loc_1st_val
 
