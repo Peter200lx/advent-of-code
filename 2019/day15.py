@@ -4,6 +4,8 @@ from typing import List, NamedTuple, Dict
 
 from processor import Processor
 
+INPUT_FILE = Path(__file__).with_suffix(".input")
+
 
 class Point(NamedTuple):
     y: int
@@ -108,7 +110,7 @@ def fill_oxygen(room: Dict[Point, TileID]) -> int:
 
 
 if __name__ == "__main__":
-    DATA = Path("day15.input").read_text().strip()
+    DATA = INPUT_FILE.read_text().strip()
     int_list = [int(i) for i in DATA.split(",")]
 
     locations = run_bot(int_list)

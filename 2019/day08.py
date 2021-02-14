@@ -1,5 +1,7 @@
 from pathlib import Path
 
+INPUT_FILE = Path(__file__).with_suffix(".input")
+
 
 def chunk_list(in_list, width, height):
     total_pixels = width * height
@@ -21,7 +23,7 @@ def render_layers(in_list, width, height):
 
 
 if __name__ == "__main__":
-    DATA = Path("day08.input").read_text().strip()
+    DATA = INPUT_FILE.read_text().strip()
     int_list = [int(c) for c in DATA]
     WIDTH = 25
     HEIGHT = 6

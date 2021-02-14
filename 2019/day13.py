@@ -4,6 +4,8 @@ from typing import List, Tuple, Union
 
 from processor import Processor
 
+INPUT_FILE = Path(__file__).with_suffix(".input")
+
 
 class TileID(Enum):
     EMPTY = 0
@@ -86,7 +88,7 @@ if __name__ == "__main__":
     MANUAL = False
     if MANUAL:
         from getkey import getkey, keys
-    DATA = Path("day13.input").read_text().strip()
+    DATA = INPUT_FILE.read_text().strip()
     int_list = [int(i) for i in DATA.split(",")]
 
     print(sum(sum(t == TileID.BLOCK for t in r) for r in play_bot(int_list)))

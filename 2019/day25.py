@@ -4,6 +4,8 @@ from typing import List
 
 from processor import Processor
 
+INPUT_FILE = Path(__file__).with_suffix(".input")
+
 
 def run_sequence(running_bot, input_cmds, debug):
     if debug:
@@ -113,7 +115,7 @@ def run_bot(program: List[int], debug: int = 0):
 
 
 if __name__ == "__main__":
-    DATA = Path("day25.input").read_text().strip()
+    DATA = INPUT_FILE.read_text().strip()
     int_list = [int(i) for i in DATA.split(",")]
 
     print(run_bot(int_list))

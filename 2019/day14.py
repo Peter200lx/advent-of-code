@@ -2,6 +2,8 @@ from math import ceil
 from pathlib import Path
 from typing import Dict, List
 
+INPUT_FILE = Path(__file__).with_suffix(".input")
+
 
 class Chemical:
     def __init__(self, my_name: str):
@@ -72,7 +74,7 @@ def binary_search(fuel: Chemical, just_under_base: int) -> int:
 
 
 if __name__ == "__main__":
-    DATA = Path("day14.input").read_text().strip()
+    DATA = INPUT_FILE.read_text().strip()
     reaction_list = DATA.split("\n")
 
     reactiondb = build_reactions(reaction_list)

@@ -3,6 +3,8 @@ from typing import List, NamedTuple, Dict
 
 from processor import Processor
 
+INPUT_FILE = Path(__file__).with_suffix(".input")
+
 
 class Point(NamedTuple):
     y: int
@@ -74,7 +76,7 @@ def part_2(program: List[int], scan: Dict[Point, int]) -> Point:
 
 
 if __name__ == "__main__":
-    DATA = Path("day19.input").read_text().strip()
+    DATA = INPUT_FILE.read_text().strip()
     int_list = [int(i) for i in DATA.split(",")]
 
     field = run_bot(int_list)

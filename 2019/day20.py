@@ -3,6 +3,8 @@ from collections import deque
 from pathlib import Path
 from typing import NamedTuple, List, Dict, Tuple
 
+INPUT_FILE = Path(__file__).with_suffix(".input")
+
 
 class Point(NamedTuple):
     y: int
@@ -125,7 +127,7 @@ def run_maze(maze: List[str], warps: Dict[str, Warp], part_1: bool = True) -> in
 
 
 if __name__ == "__main__":
-    DATA = Path("day20.input").read_text().strip("\n")
+    DATA = INPUT_FILE.read_text().strip("\n")
     lines = DATA.split("\n")
 
     all_warps = find_warps(lines)

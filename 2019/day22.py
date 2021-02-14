@@ -1,5 +1,7 @@
 from pathlib import Path
 
+INPUT_FILE = Path(__file__).with_suffix(".input")
+
 PART_1_CARDS = 10_007
 PART_2_CARDS = 119_315_717_514_047
 PART_2_SHUFFLE_REPEAT = 101_741_582_076_661
@@ -47,7 +49,7 @@ def part_2(inst_strs, num_cards, repetitions, target):
 
 
 if __name__ == "__main__":
-    DATA = Path("day22.input").read_text().strip("\n")
+    DATA = INPUT_FILE.read_text().strip("\n")
     lines = DATA.split("\n")
 
     print(part_1(lines).index(2019))

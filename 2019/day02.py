@@ -1,6 +1,8 @@
 from pathlib import Path
 from typing import Callable, Sequence as Seq, List, Tuple
 
+INPUT_FILE = Path(__file__).with_suffix(".input")
+
 
 class ProgramHalt(Exception):
     pass
@@ -69,7 +71,7 @@ def find_state(list_o_codes, desired_state):
 
 
 if __name__ == "__main__":
-    DATA = Path("day02.input").read_text().strip()
+    DATA = INPUT_FILE.read_text().strip()
     int_list = [int(i) for i in DATA.split(",")]
 
     print(Processor(int_list, ((1, 12), (2, 2))).run())

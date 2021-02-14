@@ -1,5 +1,7 @@
 from pathlib import Path
 
+INPUT_FILE = Path(__file__).with_suffix(".input")
+
 
 class Planet:
     def __init__(self, value):
@@ -44,7 +46,7 @@ def part_2(all_planets, first, second):
 
 
 if __name__ == "__main__":
-    DATA = Path("day06.input").read_text().strip()
+    DATA = INPUT_FILE.read_text().strip()
     str_list = [line.split(")") for line in DATA.split("\n")]
 
     planets_dict = build_graph(str_list)

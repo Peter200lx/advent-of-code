@@ -3,6 +3,8 @@ from typing import Iterator, List
 
 from processor import Processor, ProgramHalt
 
+INPUT_FILE = Path(__file__).with_suffix(".input")
+
 
 class D23Processor(Processor):
     def run_network_generator(self, nid: int, output_batch: int) -> Iterator[List[int]]:
@@ -62,7 +64,7 @@ def run_network(program, num_comps: int = 50, part_2=False) -> int:
 
 
 if __name__ == "__main__":
-    DATA = Path("day23.input").read_text().strip()
+    DATA = INPUT_FILE.read_text().strip()
     int_list = [int(i) for i in DATA.split(",")]
 
     print(run_network(int_list))

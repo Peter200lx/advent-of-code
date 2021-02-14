@@ -1,5 +1,7 @@
 from pathlib import Path
 
+INPUT_FILE = Path(__file__).with_suffix(".input")
+
 """ Version 1 of logic, got part 1 slowly
 BASE_PATTERN = (0, 1, 0, -1)
 BASE_LENGTH = len(BASE_PATTERN)
@@ -76,7 +78,7 @@ def magic_logic(signal):
 
 
 if __name__ == "__main__":
-    DATA = Path("day16.input").read_text().strip()
+    DATA = INPUT_FILE.read_text().strip()
     int_list = [int(c) for c in DATA]
 
     p1_list = int_list[:]

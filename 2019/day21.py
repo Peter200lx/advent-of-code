@@ -3,6 +3,8 @@ from typing import List
 
 from processor import Processor
 
+INPUT_FILE = Path(__file__).with_suffix(".input")
+
 
 def run_bot(program: List[int], bot_instructions: List[str], debug: int = 0):
     running_bot = Processor(program).run_on_input_generator()
@@ -33,7 +35,7 @@ def run_bot(program: List[int], bot_instructions: List[str], debug: int = 0):
 
 
 if __name__ == "__main__":
-    DATA = Path("day21.input").read_text().strip()
+    DATA = INPUT_FILE.read_text().strip()
     int_list = [int(i) for i in DATA.split(",")]
 
     p1 = [

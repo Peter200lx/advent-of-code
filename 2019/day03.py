@@ -1,6 +1,8 @@
 from pathlib import Path
 from typing import List, Dict, Tuple, NamedTuple
 
+INPUT_FILE = Path(__file__).with_suffix(".input")
+
 
 class Point(NamedTuple):
     y: int
@@ -39,7 +41,7 @@ def find_cross(two_wires: List[List[str]]) -> Tuple[int, int]:
 
 
 if __name__ == "__main__":
-    DATA = Path("day03.input").read_text().strip()
+    DATA = INPUT_FILE.read_text().strip()
     str_list = [line.split(",") for line in DATA.split("\n")]
 
     print(find_cross(str_list))

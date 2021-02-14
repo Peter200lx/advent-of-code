@@ -3,6 +3,8 @@ from collections import deque
 from pathlib import Path
 from typing import NamedTuple, Tuple, FrozenSet
 
+INPUT_FILE = Path(__file__).with_suffix(".input")
+
 
 class FoundKey(NamedTuple):
     name: str
@@ -108,7 +110,7 @@ def find_shortest_path(pathways, bots_pos, has_keys, cache, locs_to_keys):
 
 
 if __name__ == "__main__":
-    DATA = Path("day18.input").read_text().strip()
+    DATA = INPUT_FILE.read_text().strip()
     lines = DATA.split("\n")
 
     starting_point = find_start(lines)

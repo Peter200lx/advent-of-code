@@ -5,6 +5,8 @@ from typing import Sequence as Seq, Generator, List
 from day02 import ProgramHalt
 from day05 import D5Processor
 
+INPUT_FILE = Path(__file__).with_suffix(".input")
+
 
 class D7Processor(D5Processor):
     def run_on_output_generator(self, phase: int) -> Generator[int, int, None]:
@@ -42,7 +44,7 @@ def run_sequence(program: List[int], phase_nums: Seq[int]) -> int:
 
 
 if __name__ == "__main__":
-    DATA = Path("day07.input").read_text().strip()
+    DATA = INPUT_FILE.read_text().strip()
     int_list = [int(i) for i in DATA.split(",")]
 
     print(max((run_sequence(int_list, p), p) for p in permutations((0, 1, 2, 3, 4))))

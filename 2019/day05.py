@@ -4,6 +4,8 @@ from typing import Sequence as Seq, List, Tuple
 
 from day02 import Processor, ProgramHalt
 
+INPUT_FILE = Path(__file__).with_suffix(".input")
+
 
 class ParamTypes(Enum):
     OP = 0
@@ -103,7 +105,7 @@ class D5Processor(Processor):
 
 
 if __name__ == "__main__":
-    DATA = Path("day05.input").read_text().strip()
+    DATA = INPUT_FILE.read_text().strip()
     int_list = [int(i) for i in DATA.split(",")]
 
     print(D5Processor(int_list).run([1]))

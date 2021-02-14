@@ -4,6 +4,8 @@ from typing import List, Tuple
 
 from day05 import D5Processor, ParamTypes
 
+INPUT_FILE = Path(__file__).with_suffix(".input")
+
 
 class D9Processor(D5Processor):
     def __init__(self, program: List[int]):
@@ -52,7 +54,7 @@ class D9Processor(D5Processor):
 
 
 if __name__ == "__main__":
-    DATA = Path("day09.input").read_text().strip()
+    DATA = INPUT_FILE.read_text().strip()
     int_list = [int(i) for i in DATA.split(",")]
 
     print(D9Processor(int_list).run([1]))

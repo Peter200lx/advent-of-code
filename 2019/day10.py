@@ -2,6 +2,8 @@ import math
 from pathlib import Path
 from typing import NamedTuple, List, Tuple, Dict, Iterator
 
+INPUT_FILE = Path(__file__).with_suffix(".input")
+
 
 class Vector(NamedTuple):
     y: int
@@ -65,7 +67,7 @@ def build_in_view_set(
 
 
 if __name__ == "__main__":
-    DATA = Path("day10.input").read_text().strip()
+    DATA = INPUT_FILE.read_text().strip()
     int_field = [[1 if c == "#" else 0 for c in line] for line in DATA.split("\n")]
 
     num_in_view, best_location, in_view = build_in_view_set(int_field)

@@ -1,5 +1,7 @@
 from pathlib import Path
 
+INPUT_FILE = Path(__file__).with_suffix(".input")
+
 
 def fuel_calc(num):
     fuel = (num // 3) - 2
@@ -19,7 +21,7 @@ def calc(list_o_mass):
 
 
 if __name__ == "__main__":
-    DATA = Path("day01.input").read_text().strip()
+    DATA = INPUT_FILE.read_text().strip()
     int_list = [int(i) for i in DATA.split("\n")]
 
     print(calc(int_list))
