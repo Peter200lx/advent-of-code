@@ -40,11 +40,12 @@ def try_items(running_bot, items, debug):
     raise NotImplementedError("Didn't find a valid combination")
 
 
-def run_bot(program: List[int], debug: int = 0):
+def run_bot(program: List[int], debug: int = 0, auto: bool = False):
     running_bot = Processor(program).run_on_input_generator()
     output = next(running_bot)  # Move to first yield for .send(
 
-    print("".join(chr(i) for i in output))
+    if not auto:
+        print("".join(chr(i) for i in output))
 
     starting_sequence = [
         "west",
@@ -87,13 +88,15 @@ def run_bot(program: List[int], debug: int = 0):
     ]
     i = 0
     all_input = []
-    input_str = ""
+    input_str = "" if not auto else "\n".join(starting_sequence) + "\n"
     try:
         output = []  # Stop Pycharm complaining about reference before assignment
         while True:
-            if len(output) != 0:
+            if len(output) != 0 and not auto:
                 print("".join(chr(i) for i in output), end="")
             if i >= len(input_str):
+                if auto:
+                    return try_items(running_bot, items, debug)
                 i = 0
                 input_str = input("")
                 if "dump run" in input_str:
@@ -118,4 +121,4 @@ if __name__ == "__main__":
     DATA = INPUT_FILE.read_text().strip()
     int_list = [int(i) for i in DATA.split(",")]
 
-    print(run_bot(int_list))
+    print(run_bot(int_list, auto=True))
