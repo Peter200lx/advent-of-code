@@ -56,7 +56,7 @@ def len_adv_compression(raw_str):
             control = tag.groupdict()
             end_loc = cur_loc + int(control["nchar"])
             substr = raw_str[cur_loc:end_loc]
-            length += len_adv_compression(substr * int(control["rcount"]))
+            length += len_adv_compression(substr) * int(control["rcount"])
             cur_loc = end_loc
 
     return length
