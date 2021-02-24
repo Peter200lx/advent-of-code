@@ -1,6 +1,6 @@
 import sys
-from collections import namedtuple
 from copy import copy
+from typing import Dict, List, NamedTuple, Optional, Set, Tuple
 
 import numpy as np
 
@@ -95,7 +95,11 @@ EXAMPLE_DATA6 = """
 #########""".lstrip()
 
 np.set_printoptions(linewidth=120, threshold=sys.maxsize, formatter={"int": lambda x: f"{x:2}" if x >= -1 else "██"})
-Coord = namedtuple("Coord", ["y", "x"])
+
+
+class Coord(NamedTuple):
+    y: int
+    x: int
 
 
 class P2Exception(Exception):
@@ -103,34 +107,34 @@ class P2Exception(Exception):
 
 
 class Creature:
-    def __init__(self, species, location, attack=3, hp=200):
+    def __init__(self, species: str, location: Coord, attack: int = 3, hp: int = 200):
         self.species = species
         self.loc = location
         self.attack = attack
         self.hp = hp
 
-        self.all_creatures = None
+        self.all_creatures: Dict[Coord, "Creature"] = {}
 
-        self.part_2 = False
+        self.part_2: bool = False
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.species}({self.loc} {self.hp})"
 
-    def map_str(self):
+    def map_str(self) -> str:
         return f"{self.species}({self.hp})"
 
     @property
-    def friends(self):
+    def friends(self) -> Dict[Coord, "Creature"]:
         return {l: c for l, c in self.all_creatures.items() if c.species == self.species}
 
-    def friendly_hp(self):
+    def friendly_hp(self) -> int:
         return sum(c.hp for c in self.friends.values())
 
     @property
-    def foes(self):
+    def foes(self) -> Dict[Coord, "Creature"]:
         return {l: c for l, c in self.all_creatures.items() if c.species != self.species}
 
-    def adjacent_foe(self, board):
+    def adjacent_foe(self, board: np.ndarray) -> Optional["Creature"]:
         foe_locs = [(self.foes[l].hp, l) for l in adjacent_locs(board, self.loc) if l in self.foes]
         if foe_locs:
             foe_locs.sort()
@@ -138,7 +142,7 @@ class Creature:
             return self.foes[foe_loc]
         return None
 
-    def paths_to(self, board, loc):
+    def paths_to(self, board: np.ndarray, loc: Coord) -> np.ndarray:
         loc_board = board.copy()
         loc_board[loc_board == 0] = -1
         for c_loc in self.all_creatures:
@@ -147,7 +151,7 @@ class Creature:
         simulate_water(loc_board, {loc})
         return loc_board
 
-    def select_destination(self, board):
+    def select_destination(self, board: np.ndarray):
         possible_locs = []
         my_paths = self.paths_to(board, self.loc)
         for foe_loc in self.foes:
@@ -165,7 +169,7 @@ class Creature:
         _, target_loc = possible_locs[0]
         return target_loc
 
-    def move_towards(self, board, destination):
+    def move_towards(self, board: np.ndarray, destination):
         possible_moves = adjacent_locs(board, self.loc)
         dest_path = self.paths_to(board, destination)
         # print(dest_path)
@@ -178,7 +182,7 @@ class Creature:
         self.all_creatures[new_loc] = self
         self.loc = new_loc
 
-    def take_turn(self, board):
+    def take_turn(self, board: np.ndarray) -> bool:
         if not self.foes:
             return False
         adjacent_foe = self.adjacent_foe(board)
@@ -191,7 +195,7 @@ class Creature:
             adjacent_foe.attacked(board, self.attack)
         return True
 
-    def attacked(self, board, damage):
+    def attacked(self, board: np.ndarray, damage: int):
         self.hp -= damage
         if self.hp < 0:
             if self.part_2 and self.species == "E":
@@ -201,12 +205,12 @@ class Creature:
             del self.all_creatures[self.loc]
 
 
-def adjacent_locs(board, loc):
+def adjacent_locs(board: np.ndarray, loc: Coord) -> List[Coord]:
     possible_locs = [(loc.y - 1, loc.x), (loc.y, loc.x - 1), (loc.y, loc.x + 1), (loc.y + 1, loc.x)]
     return [Coord(l[0], l[1]) for l in possible_locs if board[l] >= -1]
 
 
-def simulate_water(board, check_locs, cost=0):
+def simulate_water(board: np.ndarray, check_locs: Set[Coord], cost: int = 0):
     for loc in check_locs:
         assert board[loc] == -1
     next_locs = check_locs
@@ -225,7 +229,7 @@ def simulate_water(board, check_locs, cost=0):
         cost += 1
 
 
-def parse_board(board_str_list):
+def parse_board(board_str_list: List[str]) -> Tuple[np.ndarray, Dict[Coord, Creature]]:
     npcs = {}
     for y, line in enumerate(board_str_list):
         for x, c in enumerate(line):
@@ -236,7 +240,7 @@ def parse_board(board_str_list):
     return np.array(board_str_list, dtype=np.int32), npcs
 
 
-def print_board(board, npcs):
+def print_board(board: np.ndarray, npcs: Dict[Coord, Creature]):
     for y, line in enumerate(board):
         line = [
             (" " if board[y, x] >= -1 else "█") if (y, x) not in npcs else npcs[(y, x)].species
@@ -248,7 +252,7 @@ def print_board(board, npcs):
         print("".join(line))
 
 
-def run_game(board, npcs):
+def run_game(board: np.ndarray, npcs: Dict[Coord, Creature]) -> int:
     for npc in npcs.values():
         npc.all_creatures = npcs
     count = 0
@@ -269,7 +273,7 @@ def run_game(board, npcs):
         count += 1
 
 
-def run_part_2(board, npcs):
+def run_part_2(board: np.ndarray, npcs: Dict[Coord, Creature]):
     elf_attack = 4
     while True:
         tweaked_npcs = copy(npcs)
