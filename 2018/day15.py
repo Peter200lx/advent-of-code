@@ -134,6 +134,9 @@ class Creature:
     def foes(self) -> Dict[Coord, "Creature"]:
         return {l: c for l, c in self.all_creatures.items() if c.species != self.species}
 
+    def possible_moves(self, board: np.ndarray) -> Set[Coord]:
+        return {loc for loc in adjacent_locs(board, self.loc) if loc not in self.all_creatures}
+
     def adjacent_foe(self, board: np.ndarray) -> Optional["Creature"]:
         foe_locs = [(self.foes[l].hp, l) for l in adjacent_locs(board, self.loc) if l in self.foes]
         if foe_locs:
@@ -142,42 +145,24 @@ class Creature:
             return self.foes[foe_loc]
         return None
 
-    def paths_to(self, board: np.ndarray, loc: Coord) -> np.ndarray:
+    def closest_point(self, board: np.ndarray, loc: Coord, potential: Set[Coord]) -> Optional[Coord]:
         loc_board = board.copy()
         loc_board[loc_board == 0] = -1
         for c_loc in self.all_creatures:
             if c_loc != self.loc:
                 loc_board[c_loc] = -2
-        simulate_water(loc_board, {loc})
-        return loc_board
+        return simulate_water(loc_board, loc, potential)
 
-    def select_destination(self, board: np.ndarray):
-        possible_locs = []
-        my_paths = self.paths_to(board, self.loc)
-        for foe_loc in self.foes:
-            foe_adjacent = adjacent_locs(board, foe_loc)
-            for loc in foe_adjacent:
-                if loc not in self.all_creatures:
-                    weight = my_paths[loc]
-                    if weight >= 0:
-                        possible_locs.append((weight, loc))
-
-        if not possible_locs:
-            return False
-
-        possible_locs.sort()
-        _, target_loc = possible_locs[0]
-        return target_loc
-
-    def move_towards(self, board: np.ndarray, destination):
-        possible_moves = adjacent_locs(board, self.loc)
-        dest_path = self.paths_to(board, destination)
-        # print(dest_path)
-        weighted_moves = [(dest_path[l], l) for l in possible_moves if l not in self.all_creatures]
-        if not weighted_moves:
-            # print_board(self.board, self.all_creatures)
+    def select_enemy_destination(self, board: np.ndarray) -> Optional[Coord]:
+        if not self.possible_moves(board):
             return
-        _, new_loc = sorted([t for t in weighted_moves if t[0] >= 0])[0]
+        foe_adjacent = {fal for fl in self.foes for fal in adjacent_locs(board, fl) if fal not in self.all_creatures}
+        if not foe_adjacent:
+            return
+        return self.closest_point(board, self.loc, foe_adjacent)
+
+    def move_towards(self, board: np.ndarray, destination: Coord):
+        new_loc = self.closest_point(board, destination, self.possible_moves(board))
         del self.all_creatures[self.loc]
         self.all_creatures[new_loc] = self
         self.loc = new_loc
@@ -186,8 +171,8 @@ class Creature:
         if not self.foes:
             return False
         adjacent_foe = self.adjacent_foe(board)
-        if not self.adjacent_foe(board):
-            destination = self.select_destination(board)
+        if not adjacent_foe:
+            destination = self.select_enemy_destination(board)
             if destination:
                 self.move_towards(board, destination)
             adjacent_foe = self.adjacent_foe(board)
@@ -210,23 +195,26 @@ def adjacent_locs(board: np.ndarray, loc: Coord) -> List[Coord]:
     return [Coord(l[0], l[1]) for l in possible_locs if board[l] >= -1]
 
 
-def simulate_water(board: np.ndarray, check_locs: Set[Coord], cost: int = 0):
-    for loc in check_locs:
-        assert board[loc] == -1
-    next_locs = check_locs
+def simulate_water(board: np.ndarray, start_loc: Coord, final_locs: Set[Coord]) -> Optional[Coord]:
+    next_locs = {start_loc}
+    cost = 0
     while next_locs:
+        for loc in sorted(next_locs):
+            if loc in final_locs:
+                return loc
+            board[loc] = cost
+        cost += 1
+        check_locs = next_locs
         next_locs = set()
         for loc in check_locs:
-            board[loc] = cost
-            possible_locs = {
+            possible_locs = (
                 (loc.y - 1, loc.x),
                 (loc.y, loc.x - 1),
                 (loc.y, loc.x + 1),
                 (loc.y + 1, loc.x),
-            }
+            )
             next_locs |= {Coord(*l) for l in possible_locs if board[l] == -1}
-        check_locs = next_locs
-        cost += 1
+    return None
 
 
 def parse_board(board_str_list: List[str]) -> Tuple[np.ndarray, Dict[Coord, Creature]]:
