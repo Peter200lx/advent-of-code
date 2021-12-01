@@ -5,13 +5,9 @@ FILE_DIR = Path(__file__).parent
 
 
 def count_inc(input_list: List[int]) -> int:
-    prev = input_list[0]
-    count = 0
-    for n in input_list:
-        if n > prev:
-            count += 1
-        prev = n
-    return count
+    # Great use of int(True) == 1 and zip from
+    #  https://www.reddit.com/r/adventofcode/comments/r66vow/comment/hmrfyu8
+    return sum(n > p for p, n in zip(input_list, input_list[1:]))
 
 
 def sliding_window(input_list: List[int], window_size: int = 3) -> List[int]:
