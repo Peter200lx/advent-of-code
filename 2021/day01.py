@@ -11,13 +11,10 @@ def count_inc(input_list: List[int]) -> int:
 
 
 def sliding_window(input_list: List[int], window_size: int = 3) -> List[int]:
-    sliding_counts = []
-    for i, _n in enumerate(input_list):
-        try:
-            sliding_counts.append(sum(input_list[i : i + window_size]))
-        except KeyError:
-            break
-    return sliding_counts
+    return [
+        sum(input_list[i - window_size : i])
+        for i in range(window_size, len(input_list) + 1)
+    ]
 
 
 if __name__ == "__main__":
