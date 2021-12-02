@@ -1,14 +1,10 @@
 from pathlib import Path
+from typing import List, Tuple
 
 FILE_DIR = Path(__file__).parent
 
 
-def parse_line(line):
-    direction, num = line.split()
-    return direction, int(num)
-
-
-def calc_both(moves):
+def calc_both(moves: List[Tuple[str, int]]) -> Tuple[int, int]:
     aim = forward = depth1 = depth2 = 0
     for direction, n in moves:
         if direction == "up":
@@ -25,6 +21,6 @@ def calc_both(moves):
 
 if __name__ == "__main__":
     DATA = (FILE_DIR / "day02.input").read_text().strip()
-    INPUT = [parse_line(line) for line in DATA.split("\n")]
+    INPUT = [(d, int(n)) for line in DATA.split("\n") for d, n in [line.split()]]
 
     print(calc_both(INPUT))
