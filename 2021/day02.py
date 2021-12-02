@@ -8,28 +8,23 @@ def parse_line(line):
     return direction, int(num)
 
 
-def part1(moves):
-    forward = sum(n for d, n in moves if d == "forward")
-    depth = sum(n if d == "down" else -n for d, n in INPUT if d != "forward")
-    return forward * depth
-
-
-def part2(moves):
-    aim = forward = depth = 0
+def calc_both(moves):
+    aim = forward = depth1 = depth2 = 0
     for direction, n in moves:
         if direction == "up":
             aim -= n
+            depth1 -= n
         elif direction == "down":
             aim += n
+            depth1 += n
         else:
             forward += n
-            depth += aim * n
-    return depth * forward
+            depth2 += aim * n
+    return depth1 * forward, depth2 * forward
 
 
 if __name__ == "__main__":
     DATA = (FILE_DIR / "day02.input").read_text().strip()
     INPUT = [parse_line(line) for line in DATA.split("\n")]
 
-    print(part1(INPUT))
-    print(part2(INPUT))
+    print(calc_both(INPUT))
