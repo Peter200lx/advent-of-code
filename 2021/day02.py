@@ -5,18 +5,16 @@ FILE_DIR = Path(__file__).parent
 
 
 def calc_both(moves: List[Tuple[str, int]]) -> Tuple[int, int]:
-    aim = forward = depth1 = depth2 = 0
+    forward = depth1aim = depth2 = 0
     for direction, n in moves:
         if direction == "up":
-            aim -= n
-            depth1 -= n
+            depth1aim -= n
         elif direction == "down":
-            aim += n
-            depth1 += n
+            depth1aim += n
         else:
             forward += n
-            depth2 += aim * n
-    return depth1 * forward, depth2 * forward
+            depth2 += depth1aim * n
+    return depth1aim * forward, depth2 * forward
 
 
 if __name__ == "__main__":
