@@ -5,10 +5,7 @@ FILE_DIR = Path(__file__).parent
 
 
 def part1(lines):
-    counters = [Counter() for _ in range(len(lines[0]))]
-    for line in lines:
-        for i, c in enumerate(line):
-            counters[i][c] += 1
+    counters = [Counter(line[i] for line in lines) for i in range(len(lines[0]))]
 
     most = "".join(count.most_common()[0][0] for count in counters)
     least = "".join(count.most_common()[-1][0] for count in counters)
@@ -20,17 +17,11 @@ def part2(lines):
     for i in range(len(lines[0])):
         if len(oxy_pool) > 1:
             oxy_mc = Counter(l[i] for l in oxy_pool).most_common()
-            if oxy_mc[0][1] == oxy_mc[1][1]:
-                oxy_digit = "1"
-            else:
-                oxy_digit = oxy_mc[0][0]
+            oxy_digit = "1" if oxy_mc[0][1] == oxy_mc[1][1] else oxy_mc[0][0]
             oxy_pool = [l for l in oxy_pool if l[i] == oxy_digit]
         if len(co2_pool) > 1:
             co2_mc = Counter(l[i] for l in co2_pool).most_common()
-            if co2_mc[0][1] == co2_mc[1][1]:
-                co2_digit = "0"
-            else:
-                co2_digit = co2_mc[-1][0]
+            co2_digit = "0" if co2_mc[0][1] == co2_mc[1][1] else co2_mc[-1][0]
             co2_pool = [l for l in co2_pool if l[i] == co2_digit]
     return oxy_pool[0], co2_pool[0]
 
