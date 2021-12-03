@@ -1,10 +1,11 @@
 from collections import Counter
 from pathlib import Path
+from typing import List, Tuple
 
 FILE_DIR = Path(__file__).parent
 
 
-def part1(lines):
+def part1(lines: List[str]) -> Tuple[str, str]:
     counters = [Counter(line[i] for line in lines) for i in range(len(lines[0]))]
 
     most = "".join(count.most_common()[0][0] for count in counters)
@@ -12,7 +13,7 @@ def part1(lines):
     return most, least
 
 
-def part2(lines):
+def part2(lines: List[str]) -> Tuple[str, str]:
     oxy_pool = co2_pool = lines
     for i in range(len(lines[0])):
         if len(oxy_pool) > 1:
