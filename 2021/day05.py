@@ -22,17 +22,17 @@ def parse_input(lines: str) -> List[Tuple[Coord, Coord]]:
 
 
 def solve(coord_pairs: List[Tuple[Coord, Coord]]) -> Tuple[int, int]:
-    seen_locs: Dict[Coord, int] = defaultdict(int)
+    seen_locs: Dict[Tuple[int, int], int] = defaultdict(int)
     diagonals: List[Tuple[Coord, Coord]] = []
     for first, second in coord_pairs:
         if first.x == second.x:
             points_on_line = (
-                Coord(first.x, y)
+                (first.x, y)
                 for y in range(min(first.y, second.y), max(first.y, second.y) + 1)
             )
         elif first.y == second.y:
             points_on_line = (
-                Coord(x, first.y)
+                (x, first.y)
                 for x in range(min(first.x, second.x), max(first.x, second.x) + 1)
             )
         else:
@@ -45,12 +45,9 @@ def solve(coord_pairs: List[Tuple[Coord, Coord]]) -> Tuple[int, int]:
     for first, second in diagonals:
         xdown = 1 if first.x < second.x else -1
         ydown = 1 if first.y < second.y else -1
-        for point in (
-            Coord(x, y)
-            for x, y in zip(
-                range(first.x, second.x + xdown, xdown),
-                range(first.y, second.y + ydown, ydown),
-            )
+        for point in zip(
+            range(first.x, second.x + xdown, xdown),
+            range(first.y, second.y + ydown, ydown),
         ):
             seen_locs[point] += 1
     return part1, sum(v > 1 for v in seen_locs.values())
