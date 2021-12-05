@@ -21,36 +21,39 @@ def parse_input(lines: str) -> List[Tuple[Coord, Coord]]:
     ]
 
 
-def solve(coord_pairs: List[Tuple[Coord, Coord]], part2: bool = False) -> int:
+def solve(coord_pairs: List[Tuple[Coord, Coord]]) -> Tuple[int, int]:
     seen_locs: Dict[Coord, int] = defaultdict(int)
+    diagonals: List[Tuple[Coord, Coord]] = []
     for first, second in coord_pairs:
         if first.x == second.x:
             points_on_line = (
                 Coord(first.x, y)
                 for y in range(min(first.y, second.y), max(first.y, second.y) + 1)
             )
-            for point in points_on_line:
-                seen_locs[point] += 1
         elif first.y == second.y:
             points_on_line = (
                 Coord(x, first.y)
                 for x in range(min(first.x, second.x), max(first.x, second.x) + 1)
             )
-            for point in points_on_line:
-                seen_locs[point] += 1
-        elif part2:
-            xdown = 1 if first.x < second.x else -1
-            ydown = 1 if first.y < second.y else -1
-            points_on_line = (
-                Coord(x, y)
-                for x, y in zip(
-                    range(first.x, second.x + xdown, xdown),
-                    range(first.y, second.y + ydown, ydown),
-                )
+        else:
+            diagonals.append((first, second))
+            continue
+        for point in points_on_line:
+            seen_locs[point] += 1
+    part1 = sum(v > 1 for v in seen_locs.values())
+
+    for first, second in diagonals:
+        xdown = 1 if first.x < second.x else -1
+        ydown = 1 if first.y < second.y else -1
+        for point in (
+            Coord(x, y)
+            for x, y in zip(
+                range(first.x, second.x + xdown, xdown),
+                range(first.y, second.y + ydown, ydown),
             )
-            for point in points_on_line:
-                seen_locs[point] += 1
-    return sum(v > 1 for v in seen_locs.values())
+        ):
+            seen_locs[point] += 1
+    return part1, sum(v > 1 for v in seen_locs.values())
 
 
 if __name__ == "__main__":
@@ -59,4 +62,3 @@ if __name__ == "__main__":
     VENT_LINES = parse_input(DATA)
 
     print(solve(VENT_LINES))
-    print(solve(VENT_LINES, part2=True))
