@@ -10,26 +10,12 @@ def part1(sub_pos: List[int]) -> int:
     return int(sum(abs(pos - mean) for pos in sub_pos))
 
 
-def gen_from_average(mid: int):
-    yield int(mid)
-    for i in range(1, 99):
-        yield int(mid - i)
-        yield int(mid + i)
-
-
-def calc_p2_cost(sub_pos: List[int], mid: int) -> int:
-    p2cost = sum(sum(range(1, int(abs(pos - mid)) + 1)) for pos in sub_pos)
-    return p2cost
-
-
 def part2(sub_pos: List[int]) -> int:
-    min_so_far = 9e9
-    last_min = 9e9
-    for mid in gen_from_average(int(statistics.mean(sub_pos))):
-        min_so_far = min(min_so_far, calc_p2_cost(sub_pos, mid))
-        if last_min == min_so_far:
-            return min_so_far
-        last_min = min_so_far
+    mid = int(statistics.mean(sub_pos))
+    min_so_far = min(
+        sum(sum(range(1, int(abs(pos - to_check)) + 1)) for pos in sub_pos)
+        for to_check in range(mid - 1, mid + 1)
+    )
     return min_so_far
 
 
