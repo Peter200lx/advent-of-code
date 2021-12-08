@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import List, Set, Dict
+from typing import List, FrozenSet, Dict
 
 FILE_DIR = Path(__file__).parent
 
@@ -32,10 +32,10 @@ KNOWN_NUMS = {
 
 
 def decode_line(left: List[str], right: List[str]) -> int:
-    int_set_map: Dict[int, Set] = {}
+    int_set_map: Dict[int, FrozenSet] = {}
     for seq in left:
         if len(seq) in KNOWN_NUMS:
-            int_set_map[KNOWN_NUMS[len(seq)]] = set(seq)
+            int_set_map[KNOWN_NUMS[len(seq)]] = frozenset(seq)
     n2_3_5_sets = {frozenset(seq) for seq in left if len(seq) == 5}
     n0_6_9_sets = {frozenset(seq) for seq in left if len(seq) == 6}
     for seq in n2_3_5_sets:
@@ -52,7 +52,7 @@ def decode_line(left: List[str], right: List[str]) -> int:
         if len(int_set_map[1] & seq) == 2:
             int_set_map[0] = seq
     int_set_map[6] = next(iter(n0_6_9_sets - {int_set_map[9], int_set_map[0]}))
-    set_to_num = {frozenset(s): f"{n}" for n, s in int_set_map.items()}
+    set_to_num = {s: f"{n}" for n, s in int_set_map.items()}
 
     return int("".join(set_to_num[frozenset(seq)] for seq in right))
 
