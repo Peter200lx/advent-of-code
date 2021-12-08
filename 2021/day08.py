@@ -32,28 +32,19 @@ KNOWN_NUMS = {
 
 
 def decode_line(left: List[str], right: List[str]) -> int:
-    int_set_map: Dict[int, FrozenSet] = {}
-    for seq in left:
-        if len(seq) in KNOWN_NUMS:
-            int_set_map[KNOWN_NUMS[len(seq)]] = frozenset(seq)
-    n2_3_5_sets = {frozenset(seq) for seq in left if len(seq) == 5}
-    n0_6_9_sets = {frozenset(seq) for seq in left if len(seq) == 6}
-    for seq in n2_3_5_sets:
-        if len(int_set_map[1] & seq) == 2:
-            int_set_map[3] = seq
-    for seq in n2_3_5_sets - {int_set_map[3]}:
-        if len(int_set_map[4] | seq) == 7:
-            int_set_map[2] = seq
-    int_set_map[5] = next(iter(n2_3_5_sets - {int_set_map[3], int_set_map[2]}))
-    for seq in n0_6_9_sets:
-        if len(int_set_map[3] | seq) == len(seq):
-            int_set_map[9] = seq
-    for seq in n0_6_9_sets - {int_set_map[9]}:
-        if len(int_set_map[1] & seq) == 2:
-            int_set_map[0] = seq
-    int_set_map[6] = next(iter(n0_6_9_sets - {int_set_map[9], int_set_map[0]}))
-    set_to_num = {s: f"{n}" for n, s in int_set_map.items()}
+    num_map: Dict[int, FrozenSet] = {
+        KNOWN_NUMS[len(seq)]: frozenset(seq) for seq in left if len(seq) in KNOWN_NUMS
+    }
+    n2_3_5 = {frozenset(seq) for seq in left if len(seq) == 5}
+    n0_6_9 = {frozenset(seq) for seq in left if len(seq) == 6}
+    num_map[3] = next(s for s in n2_3_5 if len(num_map[1] & s) == 2)
+    num_map[2] = next(s for s in n2_3_5 - {num_map[3]} if len(num_map[4] | s) == 7)
+    num_map[5] = next(iter(n2_3_5 - {num_map[3], num_map[2]}))
+    num_map[9] = next(s for s in n0_6_9 if len(num_map[3] | s) == len(s))
+    num_map[0] = next(s for s in n0_6_9 - {num_map[9]} if len(num_map[1] & s) == 2)
+    num_map[6] = next(iter(n0_6_9 - {num_map[9], num_map[0]}))
 
+    set_to_num = {s: f"{n}" for n, s in num_map.items()}
     return int("".join(set_to_num[frozenset(seq)] for seq in right))
 
 
