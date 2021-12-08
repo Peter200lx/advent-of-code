@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import List, FrozenSet, Dict
 
-FILE_DIR = Path(__file__).parent
+INPUT_FILE = Path(__file__).with_suffix(".input")
 
 """
   0:      1:      2:      3:      4:
@@ -58,7 +58,7 @@ def decode_line(left: List[str], right: List[str]) -> int:
 
 
 if __name__ == "__main__":
-    DATA = (FILE_DIR / "day08.input").read_text().strip()
+    DATA = INPUT_FILE.read_text().strip()
 
     SEGMENTS = [
         (left.split(), right.split())

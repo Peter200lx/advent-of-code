@@ -2,7 +2,7 @@ from collections import Counter
 from pathlib import Path
 from typing import List, Tuple
 
-FILE_DIR = Path(__file__).parent
+INPUT_FILE = Path(__file__).with_suffix(".input")
 
 
 def part1(lines: List[str]) -> Tuple[str, str]:
@@ -28,7 +28,7 @@ def part2(lines: List[str]) -> Tuple[str, str]:
 
 
 if __name__ == "__main__":
-    DATA = (FILE_DIR / "day03.input").read_text().strip()
+    DATA = INPUT_FILE.read_text().strip()
     INPUT = [i for i in DATA.split("\n")]
 
     MOST_COMMON, LEAST_COMMON = part1(INPUT)

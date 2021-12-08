@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import List
 
-FILE_DIR = Path(__file__).parent
+INPUT_FILE = Path(__file__).with_suffix(".input")
 
 
 def solve(fish_ages: List[int], days: int) -> int:
@@ -14,7 +14,7 @@ def solve(fish_ages: List[int], days: int) -> int:
 
 
 if __name__ == "__main__":
-    DATA = (FILE_DIR / "day06.input").read_text().strip()
+    DATA = INPUT_FILE.read_text().strip()
     AGES = [int(line) for line in DATA.split(",")]
 
     print(solve(AGES, 80))

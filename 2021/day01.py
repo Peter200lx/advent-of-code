@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import List
 
-FILE_DIR = Path(__file__).parent
+INPUT_FILE = Path(__file__).with_suffix(".input")
 
 
 def count_inc(input_list: List[int]) -> int:
@@ -18,7 +18,7 @@ def sliding_window(input_list: List[int], window_size: int = 3) -> List[int]:
 
 
 if __name__ == "__main__":
-    DATA = (FILE_DIR / "day01.input").read_text().strip()
+    DATA = INPUT_FILE.read_text().strip()
     INPUT_INTS = [int(i) for i in DATA.split("\n")]
 
     print(count_inc(INPUT_INTS))

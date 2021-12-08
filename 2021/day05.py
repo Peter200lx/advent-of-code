@@ -2,7 +2,7 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Dict, List, Tuple, NamedTuple
 
-FILE_DIR = Path(__file__).parent
+INPUT_FILE = Path(__file__).with_suffix(".input")
 
 
 class Coord(NamedTuple):
@@ -54,7 +54,7 @@ def solve(coord_pairs: List[Tuple[Coord, Coord]]) -> Tuple[int, int]:
 
 
 if __name__ == "__main__":
-    DATA = (FILE_DIR / "day05.input").read_text().strip()
+    DATA = INPUT_FILE.read_text().strip()
 
     VENT_LINES = parse_input(DATA)
 

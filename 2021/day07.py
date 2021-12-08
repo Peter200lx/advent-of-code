@@ -2,7 +2,7 @@ from pathlib import Path
 from statistics import mean, median
 from typing import List
 
-FILE_DIR = Path(__file__).parent
+INPUT_FILE = Path(__file__).with_suffix(".input")
 
 
 def part1(sub_pos: List[int]) -> int:
@@ -19,7 +19,7 @@ def part2(sub_pos: List[int]) -> int:
 
 
 if __name__ == "__main__":
-    DATA = (FILE_DIR / "day07.input").read_text().strip()
+    DATA = INPUT_FILE.read_text().strip()
     POSITIONS = [int(line) for line in DATA.split(",")]
     print(part1(POSITIONS))
     print(part2(POSITIONS))

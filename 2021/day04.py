@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Tuple, NamedTuple
 
-FILE_DIR = Path(__file__).parent
+INPUT_FILE = Path(__file__).with_suffix(".input")
 
 SIZE = 5
 
@@ -65,7 +65,7 @@ def solve(
 
 
 if __name__ == "__main__":
-    DATA = (FILE_DIR / "day04.input").read_text().strip()
+    DATA = INPUT_FILE.read_text().strip()
 
     DRAWS, BOARDS = parse_input(DATA)
 
