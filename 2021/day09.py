@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from math import prod
 from pathlib import Path
 from typing import List, Dict, NamedTuple, Set
 
@@ -49,10 +50,7 @@ def part2(floor: Dict[Coord, Square]) -> int:
             nxt = to_check.pop()
             real = possible_spots & {nxt + adj for adj in ADJACENT}
             to_check |= real
-    count = 1
-    for group in sorted(known_groups, key=lambda x: -len(x))[:3]:
-        count *= len(group)
-    return count
+    return prod(len(g) for g in sorted(known_groups, key=lambda x: -len(x))[:3])
 
 
 if __name__ == "__main__":
