@@ -15,16 +15,13 @@ class Coord(NamedTuple):
         return Coord(self.x + other.x, self.y + other.y)
 
 
+# fmt: off
 ADJACENT = [
-    Coord(-1, -1),
-    Coord(1, 1),
-    Coord(-1, 1),
-    Coord(1, -1),
-    Coord(-1, 0),
-    Coord(1, 0),
-    Coord(0, 1),
-    Coord(0, -1),
+    Coord(-1, -1), Coord(-1, 0), Coord(-1, 1),
+    Coord(0, -1),                Coord(0, 1),
+    Coord(1, -1),  Coord(1, 0),  Coord(1, 1),
 ]
+# fmt: on
 
 
 @dataclass
