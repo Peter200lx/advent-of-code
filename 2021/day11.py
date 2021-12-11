@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, NamedTuple
+from typing import Dict, List, NamedTuple, Tuple
 
 INPUT_FILE = Path(__file__).with_suffix(".input")
 
@@ -33,9 +33,7 @@ class Squid:
 
     def run(self):
         self.step += 1
-        if self.step > 9:
-            if self.flashed:
-                return
+        if not self.flashed and self.step > 9:
             self.flashed = True
             for other in self.adjacent:
                 other.run()
@@ -53,25 +51,18 @@ def build_adjacent(grid: Dict[Coord, Squid]):
         ]
 
 
-def run_p1(grid: List[Squid], steps: int = P1_STEP_COUNT) -> int:
-    flashes = 0
-    for i in range(steps):
-        for squid in grid:
-            squid.run()
-        flashes += sum(squid.flashed for squid in grid)
-        for squid in grid:
-            squid.reset()
-    return flashes
-
-
-def run_p2(grid: List[Squid], steps_so_far: int = P1_STEP_COUNT) -> int:
-    while not all(squid.flashed for squid in grid):
+def run(grid: List[Squid]) -> Tuple[int, int]:
+    flashes = i = 0
+    for i in range(1, 9999999):
         for squid in grid:
             squid.reset()
         for squid in grid:
             squid.run()
-        steps_so_far += 1
-    return steps_so_far
+        if i <= P1_STEP_COUNT:
+            flashes += sum(squid.flashed for squid in grid)
+        elif all(squid.flashed for squid in grid):
+            break
+    return flashes, i
 
 
 if __name__ == "__main__":
@@ -83,5 +74,4 @@ if __name__ == "__main__":
         for x, n in enumerate(line)
     }
     build_adjacent(GRID)
-    print(run_p1(list(GRID.values())))
-    print(run_p2(list(GRID.values())))
+    print(run(list(GRID.values())))
