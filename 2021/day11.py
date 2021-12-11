@@ -35,8 +35,7 @@ class Squid:
         self.step += 1
         if not self.flashed and self.step > 9:
             self.flashed = True
-            for other in self.adjacent:
-                other.run()
+            [other.run() for other in self.adjacent]
 
     def reset(self):
         if self.flashed:
@@ -52,17 +51,14 @@ def build_adjacent(grid: Dict[Coord, Squid]):
 
 
 def run(grid: List[Squid]) -> Tuple[int, int]:
-    flashes = i = 0
+    flashes = 0
     for i in range(1, 9999999):
-        for squid in grid:
-            squid.reset()
-        for squid in grid:
-            squid.run()
+        [squid.reset() for squid in grid]
+        [squid.run() for squid in grid]
         if i <= P1_STEP_COUNT:
             flashes += sum(squid.flashed for squid in grid)
         elif all(squid.flashed for squid in grid):
-            break
-    return flashes, i
+            return flashes, i
 
 
 if __name__ == "__main__":
