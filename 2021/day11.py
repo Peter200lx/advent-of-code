@@ -4,6 +4,8 @@ from typing import Dict, List, NamedTuple
 
 INPUT_FILE = Path(__file__).with_suffix(".input")
 
+P1_STEP_COUNT = 100
+
 
 class Coord(NamedTuple):
     x: int
@@ -47,29 +49,29 @@ class Squid:
             self.flashed = False
 
 
-def build_adjacent(grid: Dict[Coord, "Squid"]):
+def build_adjacent(grid: Dict[Coord, Squid]):
     for squid in grid.values():
         squid.adjacent = [
             grid[squid.coord + adj] for adj in ADJACENT if squid.coord + adj in grid
         ]
 
 
-def run_p1(grid: Dict[Coord, "Squid"], steps: int = 100) -> int:
+def run_p1(grid: List[Squid], steps: int = P1_STEP_COUNT) -> int:
     flashes = 0
     for i in range(steps):
-        for squid in grid.values():
+        for squid in grid:
             squid.run()
-        flashes += sum(squid.flashed for squid in grid.values())
-        for squid in grid.values():
+        flashes += sum(squid.flashed for squid in grid)
+        for squid in grid:
             squid.reset()
     return flashes
 
 
-def run_p2(grid: Dict[Coord, "Squid"], steps_so_far: int = 100) -> int:
-    while not all(squid.flashed for squid in grid.values()):
-        for squid in grid.values():
+def run_p2(grid: List[Squid], steps_so_far: int = P1_STEP_COUNT) -> int:
+    while not all(squid.flashed for squid in grid):
+        for squid in grid:
             squid.reset()
-        for squid in grid.values():
+        for squid in grid:
             squid.run()
         steps_so_far += 1
     return steps_so_far
@@ -84,5 +86,5 @@ if __name__ == "__main__":
         for x, n in enumerate(line)
     }
     build_adjacent(GRID)
-    print(run_p1(GRID))
-    print(run_p2(GRID))
+    print(run_p1(list(GRID.values())))
+    print(run_p2(list(GRID.values())))
