@@ -21,23 +21,19 @@ class Cave:
             self.large = True
 
     def navigate_to_end(
-        self, my_path: List[str], list_o_paths: List[List[str]], dupe_cave: str = None
+        self, my_path: List[str] = None, list_o_paths: List[List[str]] = None, dupe_cave: str = None
     ) -> List[List[str]]:
+        my_path = my_path or []
+        list_o_paths = list_o_paths if list_o_paths is not None else []
         if not self.large and self.name in my_path:
-            if self.name == dupe_cave and my_path.count(self.name) == 1:
-                pass
-            else:
+            if not (self.name == dupe_cave and my_path.count(self.name) == 1):
                 return list_o_paths
-        if self.name == "start":
-            from_cave = None
-        elif self.name == "end":
-            my_path.append(self.name)
+        my_path.append(self.name)
+        if self.name == "end":
             list_o_paths.append(my_path)
             return list_o_paths
-        else:
-            from_cave = my_path[-1]
 
-        my_path.append(self.name)
+        from_cave = my_path[-1] if my_path else None
         for cave in self.adjacent - {from_cave}:
             cave.navigate_to_end(my_path[:], list_o_paths, dupe_cave)
         return list_o_paths
@@ -67,6 +63,6 @@ if __name__ == "__main__":
     DATA = INPUT_FILE.read_text().strip()
 
     STARTING_CAVE, SMALL_CAVES = build_underground(DATA)
-    print(len(STARTING_CAVE.navigate_to_end([], [])))
-    P2_PATHS = [STARTING_CAVE.navigate_to_end([], [], small) for small in SMALL_CAVES]
+    print(len(STARTING_CAVE.navigate_to_end()))
+    P2_PATHS = [STARTING_CAVE.navigate_to_end(dupe_cave=small) for small in SMALL_CAVES]
     print(len({"->".join(path) for path_attempt in P2_PATHS for path in path_attempt}))
