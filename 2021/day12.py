@@ -23,14 +23,13 @@ class Cave:
             if dupe_cave is None or dupe_cave or self.name in {"start", "end"}:
                 return list_o_paths
             dupe_cave = True
-        my_path.append(self.name)
+        my_path = my_path + [self.name]
         if self.name == "end":
             list_o_paths.append(my_path)
             return list_o_paths
 
-        from_cave = my_path[-1] if my_path else None
-        for cave in self.adjacent - {from_cave}:
-            cave.navigate_to_end(my_path[:], list_o_paths, dupe_cave)
+        for cave in self.adjacent:
+            cave.navigate_to_end(my_path, list_o_paths, dupe_cave)
         return list_o_paths
 
 
