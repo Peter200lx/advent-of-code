@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Set
+from typing import Set
 
 INPUT_FILE = Path(__file__).with_suffix(".input")
 
@@ -14,23 +14,17 @@ class Cave:
     def __hash__(self):
         return self.name.__hash__()
 
-    def navigate_to_end(
-        self, my_path: List[str] = None, list_o_paths: List[List[str]] = None, dupe_cave: bool = None
-    ) -> List[List[str]]:
-        my_path = my_path or []
-        list_o_paths = list_o_paths if list_o_paths is not None else []
+    def navigate_to_end(self, my_path: Set[str] = None, dupe_cave: bool = True) -> int:
+        my_path = my_path or set()
         if not self.large and self.name in my_path:
-            if dupe_cave is None or dupe_cave or self.name in {"start", "end"}:
-                return list_o_paths
+            if dupe_cave or self.name == "start":
+                return 0
             dupe_cave = True
-        my_path = my_path + [self.name]
         if self.name == "end":
-            list_o_paths.append(my_path)
-            return list_o_paths
+            return 1
 
-        for cave in self.adjacent:
-            cave.navigate_to_end(my_path, list_o_paths, dupe_cave)
-        return list_o_paths
+        my_path = my_path | {self.name}
+        return sum(cave.navigate_to_end(my_path, dupe_cave) for cave in self.adjacent)
 
 
 def build_underground(in_str: str) -> Cave:
@@ -52,5 +46,5 @@ if __name__ == "__main__":
     DATA = INPUT_FILE.read_text().strip()
 
     STARTING_CAVE = build_underground(DATA)
-    print(len(STARTING_CAVE.navigate_to_end()))
-    print(len(STARTING_CAVE.navigate_to_end(dupe_cave=False)))
+    print((STARTING_CAVE.navigate_to_end()))
+    print((STARTING_CAVE.navigate_to_end(dupe_cave=False)))
