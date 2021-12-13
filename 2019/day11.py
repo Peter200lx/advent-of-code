@@ -53,7 +53,7 @@ def print_hull(hull: Dict[Point, int]) -> None:
     maxx = max(p.x for p in hull)
     for row in range(miny, maxy + 1):
         line = (hull.get(Point(row, x), 0) for x in range(minx, maxx + 1))
-        print("".join("#" if i else " " for i in line))
+        print("".join("█" if i else " " for i in line))
 
 
 if __name__ == "__main__":

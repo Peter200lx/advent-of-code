@@ -54,7 +54,7 @@ def print_dots(dots):
     minx, maxx = min(dot.x for dot in dots), max(dot.x for dot in dots)
     miny, maxy = min(dot.y for dot in dots), max(dot.y for dot in dots)
     for y in range(miny, maxy + 1):
-        print("".join("#" if (x, y) in dots else " " for x in range(minx, maxx + 1)))
+        print("".join("█" if (x, y) in dots else " " for x in range(minx, maxx + 1)))
 
 
 if __name__ == "__main__":
