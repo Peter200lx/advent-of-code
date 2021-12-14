@@ -4,18 +4,13 @@ from pathlib import Path
 INPUT_FILE = Path(__file__).with_suffix(".input")
 
 
-def generate_pairs(s: str) -> str:
-    for i in range(len(s) - 1):
-        yield s[i : i + 2]
-
-
 def solve(s: str, rules_blob: str, iterations: int) -> int:
     rules = {
         first: (first[0] + second, second + first[1])
         for line in rules_blob.split("\n")
         for first, second in [line.split(" -> ")]
     }
-    pair_count = Counter(generate_pairs(s))
+    pair_count = Counter(s[i : i + 2] for i in range(len(s) - 1))
     for i in range(iterations):
         new_count = Counter()
         for pair, count in pair_count.most_common():
