@@ -9,26 +9,14 @@ def generate_pairs(s: str) -> str:
         yield s[i : i + 2]
 
 
-def part1(s: str, rules_blob: str) -> int:
-    rules = {
-        first: first[0] + second + first[1]
-        for line in rules_blob.split("\n")
-        for first, second in [line.split(" -> ")]
-    }
-    for i in range(10):
-        s = s[0] + "".join(rules.get(pair, pair)[1:] for pair in generate_pairs(s))
-    c = Counter(s)
-    return c.most_common()[0][1] - c.most_common()[-1][1]
-
-
-def part2(s: str, rules_blob: str) -> int:
+def solve(s: str, rules_blob: str, iterations: int) -> int:
     rules = {
         first: (first[0] + second, second + first[1])
         for line in rules_blob.split("\n")
         for first, second in [line.split(" -> ")]
     }
     pair_count = Counter(generate_pairs(s))
-    for i in range(40):
+    for i in range(iterations):
         new_count = Counter()
         for pair, count in pair_count.most_common():
             for new_pair in rules.get(pair, [pair]):
@@ -43,5 +31,5 @@ def part2(s: str, rules_blob: str) -> int:
 if __name__ == "__main__":
     DATA = INPUT_FILE.read_text().strip()
     TEMPLATE, RULES_BLOB = DATA.split("\n\n")
-    print(part1(TEMPLATE, RULES_BLOB))
-    print(part2(TEMPLATE, RULES_BLOB))
+    print(solve(TEMPLATE, RULES_BLOB, 10))
+    print(solve(TEMPLATE, RULES_BLOB, 40))
