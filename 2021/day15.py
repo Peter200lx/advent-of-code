@@ -1,88 +1,50 @@
 import heapq
-from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, NamedTuple, Tuple
+from typing import List
 
 INPUT_FILE = Path(__file__).with_suffix(".input")
 
-P1_STEP_COUNT = 100
+
+def p2_find_value(grid: List[List[int]], x: int, y: int) -> int:
+    size_x, size_y = len(grid[-1]), len(grid)
+    real_x, real_y = x % size_x, y % size_y
+    delta_x, delta_y = x // size_x, y // size_y
+    raw_value = grid[real_y][real_x]
+    for _ in range(delta_x + delta_y):
+        raw_value += 1
+        if raw_value > 9:
+            raw_value = 1
+    return raw_value
 
 
-class Coord(NamedTuple):
-    x: int
-    y: int
-
-    def __add__(self, other):
-        return Coord(self.x + other.x, self.y + other.y)
-
-
-ADJACENT = [Coord(-1, 0), Coord(0, -1), Coord(0, 1), Coord(1, 0)]
-
-
-@dataclass
-class Cave:
-    risk: int
-    coord: Coord
-    adjacent: List["Cave"]
-
-    def __lt__(self, other):
-        return self.risk < other.risk
-
-    def find_paths_from_start(self, finish: Coord):
-        heap = []
-        heapq.heappush(heap, (0, self))
-        coord_cost = {}
-        while heap:
-            risk_so_far, cave = heapq.heappop(heap)
-            if coord_cost.get(cave.coord, 999999999) <= risk_so_far:
-                continue
-            if cave.coord == finish:
-                return risk_so_far
-            coord_cost[cave.coord] = risk_so_far
-            for other_cave in cave.adjacent:
-                other_risk = risk_so_far + other_cave.risk
-                if coord_cost.get(other_cave.coord, 999999999) <= other_risk:
+def find_paths_from_start(grid: List[List[int]], p2: bool = False) -> int:
+    heap = []
+    heapq.heappush(heap, (0, (0, 0)))
+    coord_cost = {}
+    finish = (len(grid[-1]) - 1, len(grid) - 1)
+    get_func = lambda g, x, y: g[y][x]
+    if p2:
+        get_func = p2_find_value
+        finish = (len(grid[-1]) * 5 - 1, len(grid) * 5 - 1)
+    while heap:
+        risk_so_far, cur_coord = heapq.heappop(heap)
+        if coord_cost.get(cur_coord, 999999999) <= risk_so_far:
+            continue
+        if cur_coord == finish:
+            return risk_so_far
+        coord_cost[cur_coord] = risk_so_far
+        for diff_x, diff_y in ((-1, 0), (0, -1), (0, 1), (1, 0)):
+            new_x, new_y = cur_coord[0] + diff_x, cur_coord[1] + diff_y
+            if 0 <= new_x <= finish[0] and 0 <= new_y <= finish[1]:
+                other_risk = risk_so_far + get_func(grid, new_x, new_y)
+                if coord_cost.get((new_x, new_y), 999999999) <= other_risk:
                     continue
-                heapq.heappush(heap, (other_risk, other_cave))
-
-
-def build_adjacent(grid: Dict[Coord, Cave]) -> Tuple[Cave, Coord]:
-    start = None
-    maxx = max(cave.coord.x for cave in grid.values())
-    maxy = max(cave.coord.y for cave in grid.values())
-    for cave in grid.values():
-        if cave.coord == (0, 0):
-            start = cave
-        cave.adjacent = [
-            grid[cave.coord + adj] for adj in ADJACENT if cave.coord + adj in grid
-        ]
-    return start, Coord(maxx, maxy)
-
-
-def quintuple_grid(grid: Dict[Coord, Cave]):
-    maxx = max(cave.coord.x for cave in grid.values()) + 1
-    maxy = max(cave.coord.y for cave in grid.values()) + 1
-    for y in range(maxy * 5):
-        for x in range(maxx * 5):
-            if (x, y) in grid:
-                continue
-            if x < maxx:
-                cost = grid[Coord(x, y - (maxy))].risk + 1
-            else:
-                cost = grid[Coord(x - (maxx), y)].risk + 1
-            grid[Coord(x, y)] = Cave(cost if cost <= 9 else 1, Coord(x, y), list())
+                heapq.heappush(heap, (other_risk, (new_x, new_y)))
 
 
 if __name__ == "__main__":
     DATA = INPUT_FILE.read_text().strip()
 
-    GRID = {
-        Coord(x, y): Cave(int(n), Coord(x, y), list())
-        for y, line in enumerate(DATA.split("\n"))
-        for x, n in enumerate(line)
-    }
-    START, END_COORD = build_adjacent(GRID)
-    print(START.find_paths_from_start(finish=END_COORD))
-    quintuple_grid(GRID)
-    START, END_COORD = build_adjacent(GRID)
-    print(START.find_paths_from_start(finish=END_COORD))
+    GRID = [[int(n) for n in line] for line in DATA.split("\n")]
+    print(find_paths_from_start(GRID))
+    print(find_paths_from_start(GRID, p2=True))
