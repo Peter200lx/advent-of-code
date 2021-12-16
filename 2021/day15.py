@@ -7,14 +7,9 @@ INPUT_FILE = Path(__file__).with_suffix(".input")
 
 def p2_find_value(grid: List[List[int]], x: int, y: int) -> int:
     size_x, size_y = len(grid[-1]), len(grid)
-    real_x, real_y = x % size_x, y % size_y
-    delta_x, delta_y = x // size_x, y // size_y
-    raw_value = grid[real_y][real_x]
-    for _ in range(delta_x + delta_y):
-        raw_value += 1
-        if raw_value > 9:
-            raw_value = 1
-    return raw_value
+    raw_value = grid[y % size_y][x % size_x]
+    raw_value += x // size_x + y // size_y
+    return raw_value - 9 if raw_value > 9 else raw_value
 
 
 def find_paths_from_start(grid: List[List[int]], p2: bool = False) -> int:
