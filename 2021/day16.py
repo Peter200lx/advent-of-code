@@ -73,9 +73,7 @@ def read_packet(binary: str, start: int = 0) -> Packet:
             loc += 5
         p_value += binary[loc + 1 : loc + 5]
         loc += 5
-        return PacketLiteral(
-            p_version, p_type, start, end=loc, value=int(p_value, 2)
-        )
+        return PacketLiteral(p_version, p_type, start, end=loc, value=int(p_value, 2))
     elif binary[start + 6] == "0":
         subpacket_start = start + 7 + 15
         subpacket_bit_length = int(binary[start + 7 : subpacket_start], 2)
