@@ -18,16 +18,13 @@ class Target(NamedTuple):
 
 
 def fire_probe(target: Target, xvel: int, yvel: int, p2=False) -> Union[bool, int]:
-    xloc, yloc = 0, 0
-    ymax = 0
+    xloc = yloc = ymax = 0
     while xloc < target.x_range[1] and yloc > target.y_range[0]:
         xloc, yloc = xloc + xvel, yloc + yvel
         ymax = max(ymax, yloc)
         yvel -= 1
         if xvel > 0:
             xvel -= 1
-        elif xvel < 0:
-            xvel += 1
         if (
             target.x_range[0] <= xloc <= target.x_range[1]
             and target.y_range[0] <= yloc <= target.y_range[1]
@@ -36,7 +33,7 @@ def fire_probe(target: Target, xvel: int, yvel: int, p2=False) -> Union[bool, in
     return False
 
 
-def find_x_values(target: Target, only_stall: bool = True) -> List[int]:
+def find_x_values(target: Target, only_stall: bool = False) -> List[int]:
     possible_x = []
     for x in range(1, 999):
         xvel = x
@@ -53,23 +50,8 @@ def find_x_values(target: Target, only_stall: bool = True) -> List[int]:
 
 
 def part1(target: Target) -> int:
-    x = find_x_values(target)[0]
-    max_y = 0
-    for y in range(1, 100):
-        attempt = fire_probe(target, x, y)
-        if attempt:
-            max_y = attempt
-    return max_y
-
-
-def part2(target: Target) -> int:
-    possible_x = find_x_values(target, only_stall=False)
-    viable_coords = []
-    for x in possible_x:
-        for y in range(-100, 100):
-            if fire_probe(target, x, y, p2=True):
-                viable_coords.append((x, y))
-    return len(viable_coords)
+    x = find_x_values(target, only_stall=True)[0]
+    return max(fire_probe(target, x, y) for y in range(1, 100))
 
 
 if __name__ == "__main__":
@@ -77,4 +59,10 @@ if __name__ == "__main__":
     TARGET = Target.from_str(DATA)
 
     print(part1(TARGET))
-    print(part2(TARGET))
+    print(
+        sum(
+            fire_probe(TARGET, x, y, p2=True)
+            for x in find_x_values(TARGET)
+            for y in range(-100, 100)
+        )
+    )
