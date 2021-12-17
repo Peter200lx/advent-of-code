@@ -35,7 +35,7 @@ def fire_probe(target: Target, xvel: int, yvel: int, p2=False) -> Union[bool, in
 
 def find_x_values(target: Target, only_stall: bool = False) -> List[int]:
     possible_x = []
-    for x in range(1, 999):
+    for x in range(1, target.x_range[1] + 1):
         xvel = x
         xloc = 0
         while xvel > 0 and xloc <= target.x_range[1]:
@@ -63,6 +63,6 @@ if __name__ == "__main__":
         sum(
             fire_probe(TARGET, x, y, p2=True)
             for x in find_x_values(TARGET)
-            for y in range(-100, 100)
+            for y in range(-abs(TARGET.y_range[0]), abs(TARGET.y_range[0]))
         )
     )
