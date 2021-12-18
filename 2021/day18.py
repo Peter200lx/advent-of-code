@@ -8,7 +8,7 @@ INPUT_FILE = Path(__file__).with_suffix(".input")
 SnailfishLine = List[Union[str, int]]
 
 
-def explode(line: SnailfishLine) -> bool:
+def explode(line: SnailfishLine):
     depth = 0
     for i, item in enumerate(line):
         if item == "[":
@@ -24,7 +24,7 @@ def explode(line: SnailfishLine) -> bool:
                         line[k] += to_ex_l
                         break
                 line[i : i + 4] = [0]
-                return True
+                depth -= 1
         elif item == "]":
             depth -= 1
 
@@ -39,8 +39,7 @@ def split(line: SnailfishLine) -> bool:
 
 def reduce(line: SnailfishLine):
     while True:
-        if explode(line):
-            continue
+        explode(line)
         if split(line):
             continue
         return line
