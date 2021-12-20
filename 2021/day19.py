@@ -1,6 +1,6 @@
 from collections import Counter
 from dataclasses import dataclass, field
-from itertools import combinations
+from itertools import combinations, product, permutations
 from pathlib import Path
 from typing import List, NamedTuple, Dict, Tuple, Set
 
@@ -45,18 +45,15 @@ class FullConversion(NamedTuple):
     shift: Coord
 
 
-# fmt: off
-ROTATIONS = {
-    Transf.from_str("x", "y", "z"),    Transf.from_str("x", "-z", "y"),  Transf.from_str("x", "-y", "-z"),
-    Transf.from_str("x", "z", "-y"),   Transf.from_str("-y", "x", "z"),  Transf.from_str("z", "x", "y"),
-    Transf.from_str("y", "x", "-z"),   Transf.from_str("-z", "x", "-y"), Transf.from_str("-x", "-y", "z"),
-    Transf.from_str("-x", "-z", "-y"), Transf.from_str("-x", "y", "-z"), Transf.from_str("-x", "z", "y"),
-    Transf.from_str("y", "-x", "z"),   Transf.from_str("z", "-x", "-y"), Transf.from_str("-y", "-x", "-z"),
-    Transf.from_str("-z", "-y", "x"),  Transf.from_str("-z", "y", "x"),  Transf.from_str("y", "z", "x"),
-    Transf.from_str("z", "-y", "x"),   Transf.from_str("-y", "-z", "x"), Transf.from_str("-z", "-y", "-x"),
-    Transf.from_str("-y", "z", "-x"),  Transf.from_str("z", "y", "-x"),  Transf.from_str("y", "-z", "-x"),
-}
-# fmt: on
+ROTATIONS = [
+    Transf(
+        (X_muls[0], X_perm[0]),
+        (X_muls[1], X_perm[1]),
+        (X_muls[2], X_perm[2]),
+    )
+    for X_muls in product([-1, 1], [-1, 1], [-1, 1])
+    for X_perm in permutations(["x", "y", "z"])
+]
 
 
 @dataclass
