@@ -8,9 +8,6 @@ class Coord(NamedTuple):
     x: int
     y: int
 
-    def __add__(self, other):
-        return Coord(self.x + other.x, self.y + other.y)
-
 
 def step(grid: Set[Coord], enhance: Dict[int, bool], depth=0):
     new_grid = set()
@@ -19,21 +16,16 @@ def step(grid: Set[Coord], enhance: Dict[int, bool], depth=0):
     for cury in range(miny - 1, maxy + 2):
         for curx in range(minx - 1, maxx + 2):
             num = 0
-            for delta_y in range(-1, 2):
-                for delta_x in range(-1, 2):
+            for delta_y in (-1, 0, 1):
+                for delta_x in (-1, 0, 1):
                     num <<= 1
                     scan_x, scan_y = curx + delta_x, cury + delta_y
-                    if not (
-                        minx - 1 < scan_x < maxx + 1 and miny - 1 < scan_y < maxy + 1
-                    ):
-                        if depth % 2 == 1:
-                            if enhance[0]:
-                                num |= 1
-                        else:
-                            if enhance[511]:
-                                num |= 1
-                    elif (scan_x, scan_y) in grid:
-                        num |= 1
+                    # If the point is within bounds, read position value from grid
+                    if minx <= scan_x <= maxx and miny <= scan_y <= maxy:
+                        if (scan_x, scan_y) in grid:
+                            num |= 1
+                    else:  # read surrounding points based on depth and enhance
+                        num |= int(enhance[0] if depth % 2 else enhance[511])
             if enhance[num]:
                 new_grid.add(Coord(curx, cury))
     return new_grid
