@@ -1,6 +1,12 @@
 from pathlib import Path
 from typing import NamedTuple, Dict, Set
 
+try:
+    from rich.progress import track
+except ImportError:
+    def track(thing):
+        yield from thing
+
 INPUT_FILE = Path(__file__).with_suffix(".input")
 
 
@@ -32,7 +38,7 @@ def step(grid: Set[Coord], enhance: Dict[int, bool], depth=0):
 
 
 def solve(grid: Set[Coord], enhance: Dict[int, bool]):
-    for i in range(50):
+    for i in track(range(50)):
         grid = step(grid, enhance, depth=i)
         if i == 1:
             print(len(grid))
