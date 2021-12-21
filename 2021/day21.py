@@ -48,13 +48,14 @@ def part2(
     p1wins = p2wins = 0
     for roll in dir_die():
         move = (pos[player] + roll) % 10
-        new_pos = list(pos)
-        new_pos[player] = move
-        new_score = list(sco)
-        new_score[player] += move + 1
-        np1wins, np2wins = part2(
-            (player + 1) % 2, tuple(new_pos), tuple(new_score), seen
-        )
+        if player:
+            np1wins, np2wins = part2(
+                (player + 1) % 2, (pos[0], move), (sco[0], sco[1] + move + 1), seen
+            )
+        else:
+            np1wins, np2wins = part2(
+                (player + 1) % 2, (move, pos[1]), (sco[0] + move + 1, sco[1]), seen
+            )
         p1wins += np1wins
         p2wins += np2wins
     seen[(player, pos, sco)] = p1wins, p2wins
