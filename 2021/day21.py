@@ -1,35 +1,31 @@
 from itertools import islice
+from pathlib import Path
 from typing import List, Tuple
+
+INPUT_FILE = Path(__file__).with_suffix(".input")
 
 
 def det_die():
-    i = 1
     while True:
-        yield i
-        i += 1
-        if i > 100:
-            i = 1
+        yield from range(1, 101)
 
 
 def dir_die():
-    for r1 in (1, 2, 3):
-        for r2 in (1, 2, 3):
-            for r3 in (1, 2, 3):
-                yield r1 + r2 + r3
+    nums = (1, 2, 3)
+    yield from (r1 + r2 + r3 for r1 in nums for r2 in nums for r3 in nums)
 
 
 def part1(player_positions: List[int]) -> int:
-    player_positions = [player_positions[0] - 1, player_positions[1] - 1]
+    player_positions = [n - 1 for n in player_positions]
     player_scores = [0, 0]
-    player = 0
+    player = rolls = 0
     determ_die = det_die()
-    rolls = 0
     while all(sc < 1000 for sc in player_scores):
-        move = sum(islice(determ_die, 3))
+        roll = sum(islice(determ_die, 3))
         rolls += 3
-        new_position = (player_positions[player] + move) % 10
-        player_scores[player] += new_position + 1
-        player_positions[player] = new_position
+        move = (player_positions[player] + roll) % 10
+        player_scores[player] += move + 1
+        player_positions[player] = move
         player = (player + 1) % 2
     return rolls * min(player_scores)
 
@@ -37,33 +33,27 @@ def part1(player_positions: List[int]) -> int:
 def part2(
     player: int, pos: Tuple[int, int], sco: Tuple[int, int], seen: dict
 ) -> Tuple[int, int]:
-    prior = seen.get((player, pos, sco))
-    if prior:
+    if prior := seen.get((player, pos, sco)):
         return prior
     if sco[0] >= 21:
         assert sco[1] < 21
         return 1, 0
     elif sco[1] >= 21:
         return 0, 1
-    p1wins = p2wins = 0
+    wins = [0, 0]
     for roll in dir_die():
         move = (pos[player] + roll) % 10
         if player:
-            np1wins, np2wins = part2(
-                (player + 1) % 2, (pos[0], move), (sco[0], sco[1] + move + 1), seen
-            )
+            new_wins = part2(0, (pos[0], move), (sco[0], sco[1] + move + 1), seen)
         else:
-            np1wins, np2wins = part2(
-                (player + 1) % 2, (move, pos[1]), (sco[0] + move + 1, sco[1]), seen
-            )
-        p1wins += np1wins
-        p2wins += np2wins
-    seen[(player, pos, sco)] = p1wins, p2wins
-    return p1wins, p2wins
+            new_wins = part2(1, (move, pos[1]), (sco[0] + move + 1, sco[1]), seen)
+        wins = [wins[0] + new_wins[0], wins[1] + new_wins[1]]
+    seen[(player, pos, sco)] = wins
+    return wins
 
 
 if __name__ == "__main__":
-    START = [1, 2]  # My Input   | 1, 2
-    # START = [4, 8]  # Test Input | 4, 8
+    DATA = INPUT_FILE.read_text().strip()
+    START = [int(n) for line in DATA.split("\n") for *_, n in [line.split()]]
     print(part1(START))
     print(max(part2(0, (START[0] - 1, START[1] - 1), (0, 0), {})))
