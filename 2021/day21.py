@@ -31,25 +31,20 @@ def part1(player_positions: List[int]) -> int:
     return rolls * min(player_scores)
 
 
-def part2(
-    player: int, pos: Tuple[int, int], sco: Tuple[int, int], seen: dict
-) -> Tuple[int, int]:
-    if prior := seen.get((player, pos, sco)):
+def part2(pos: Tuple[int, int], sco: Tuple[int, int], seen: dict) -> Tuple[int, int]:
+    if prior := seen.get((pos, sco)):
         return prior
     if sco[0] >= 21:
         assert sco[1] < 21
         return 1, 0
     elif sco[1] >= 21:
         return 0, 1
-    wins = [0, 0]
+    wins = (0, 0)
     for roll, roll_count in DIRAC_DIE:
-        move = (pos[player] + roll) % 10
-        if player:
-            new_wins = part2(0, (pos[0], move), (sco[0], sco[1] + move + 1), seen)
-        else:
-            new_wins = part2(1, (move, pos[1]), (sco[0] + move + 1, sco[1]), seen)
-        wins = (wins[0] + new_wins[0] * roll_count, wins[1] + new_wins[1] * roll_count)
-    seen[(player, pos, sco)] = wins
+        move = (pos[0] + roll) % 10
+        p2w, p1w = part2((pos[1], move), (sco[1], sco[0] + move + 1), seen)
+        wins = (wins[0] + p1w * roll_count, wins[1] + p2w * roll_count)
+    seen[(pos, sco)] = wins
     return wins
 
 
@@ -57,4 +52,4 @@ if __name__ == "__main__":
     DATA = INPUT_FILE.read_text().strip()
     START = [int(n) for line in DATA.split("\n") for *_, n in [line.split()]]
     print(part1(START))
-    print(max(part2(0, (START[0] - 1, START[1] - 1), (0, 0), {})))
+    print(max(part2((START[0] - 1, START[1] - 1), (0, 0), {})))
