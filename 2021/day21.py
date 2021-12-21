@@ -1,18 +1,19 @@
+from collections import Counter
 from itertools import islice
 from pathlib import Path
-from typing import List, Tuple
+from typing import List, Tuple, Iterator
 
 INPUT_FILE = Path(__file__).with_suffix(".input")
 
+DNUMS = (1, 2, 3)
+DIRAC_DIE = Counter(
+    r1 + r2 + r3 for r1 in DNUMS for r2 in DNUMS for r3 in DNUMS
+).most_common()
 
-def det_die():
+
+def det_die() -> Iterator[int]:
     while True:
         yield from range(1, 101)
-
-
-def dir_die():
-    nums = (1, 2, 3)
-    yield from (r1 + r2 + r3 for r1 in nums for r2 in nums for r3 in nums)
 
 
 def part1(player_positions: List[int]) -> int:
@@ -41,13 +42,13 @@ def part2(
     elif sco[1] >= 21:
         return 0, 1
     wins = [0, 0]
-    for roll in dir_die():
+    for roll, roll_count in DIRAC_DIE:
         move = (pos[player] + roll) % 10
         if player:
             new_wins = part2(0, (pos[0], move), (sco[0], sco[1] + move + 1), seen)
         else:
             new_wins = part2(1, (move, pos[1]), (sco[0] + move + 1, sco[1]), seen)
-        wins = [wins[0] + new_wins[0], wins[1] + new_wins[1]]
+        wins = (wins[0] + new_wins[0] * roll_count, wins[1] + new_wins[1] * roll_count)
     seen[(player, pos, sco)] = wins
     return wins
 
