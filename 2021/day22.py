@@ -43,21 +43,22 @@ class Cube(NamedTuple):
         return max(o_min, my_min), min(o_max, my_max)
 
     def overlap(self, other: Tuple[Coord, Coord]) -> Optional[Tuple["Coord", "Coord"]]:
-        ranges = [self.overlap_1d(other, i) for i in range(3)]
-        if any(r is None for r in ranges):  # If no overlap, return None
+        if (
+            (xr := self.overlap_1d(other, 0)) is None
+            or (yr := self.overlap_1d(other, 1)) is None
+            or (zr := self.overlap_1d(other, 2)) is None
+        ):
             return None
-        return tuple(Coord(*(ranges[d][i] for d in (0, 1, 2))) for i in (0, 1))
+        return tuple(Coord(xr[i], yr[i], zr[i]) for i in (0, 1))
 
 
 def part1(cubes: List[Cube]) -> int:
     max_space = Cube(False, Coord(-50, -50, -50), Coord(50, 50, 50))
     seen_cubes: Dict[Tuple[Coord, Coord], int] = defaultdict(int)
     for cube in cubes:
-        max_overlap = max_space.overlap((cube.c1, cube.c2))
-        if max_overlap:
+        if max_overlap := max_space.overlap((cube.c1, cube.c2)):
             for sq, count in tuple(seen_cubes.items()):
-                overlap = cube.overlap(sq)
-                if overlap:
+                if overlap := cube.overlap(sq):
                     seen_cubes[overlap] -= count
             if cube.on:
                 seen_cubes[max_overlap] += 1
@@ -71,8 +72,7 @@ def part2(cubes: List[Cube]) -> int:
             if count == 0:
                 del seen_cubes[sq]
                 continue
-            overlap = cube.overlap(sq)
-            if overlap:
+            if overlap := cube.overlap(sq):
                 seen_cubes[overlap] -= count
         if cube.on:
             seen_cubes[cube.c1, cube.c2] += 1
