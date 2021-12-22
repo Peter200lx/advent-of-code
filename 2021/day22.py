@@ -68,6 +68,9 @@ def part2(cubes: List[Cube]) -> int:
     seen_cubes: Dict[Tuple[Coord, Coord], int] = defaultdict(int)
     for cube in cubes:
         for sq, count in tuple(seen_cubes.items()):
+            if count == 0:
+                del seen_cubes[sq]
+                continue
             overlap = cube.overlap(sq)
             if overlap:
                 seen_cubes[overlap] -= count
