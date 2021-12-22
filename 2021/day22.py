@@ -68,12 +68,14 @@ def part1(cubes: List[Cube]) -> int:
 def part2(cubes: List[Cube]) -> int:
     seen_cubes: Dict[Tuple[Coord, Coord], int] = defaultdict(int)
     for cube in cubes:
-        for sq, count in tuple(seen_cubes.items()):
-            if count == 0:
-                del seen_cubes[sq]
-                continue
+        new_cubes = defaultdict(int)
+        for sq, count in seen_cubes.items():
             if overlap := cube.overlap(sq):
-                seen_cubes[overlap] -= count
+                new_cubes[overlap] -= count
+        for sq, count in new_cubes.items():
+            seen_cubes[sq] += count
+            if seen_cubes[sq] == 0:
+                del seen_cubes[sq]
         if cube.on:
             seen_cubes[cube.c1, cube.c2] += 1
     return sum(c1.volume(c2) * count for (c1, c2), count in seen_cubes.items())
