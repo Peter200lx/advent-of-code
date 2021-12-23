@@ -145,14 +145,7 @@ class WorldState(NamedTuple):
                 )
 
 
-def part2(start: Tuple[str, str, str, str]) -> int:
-    """Add
-    #D#C#B#A#
-    #D#B#A#C#
-    """
-    to_add = ("DD", "CB", "BA", "AC")
-    start = tuple(start[i][0] + to_add[i] + start[i][-1] for i in range(4))
-    starting_world = WorldState(EMPTY_HALLWAY, start)
+def solve(starting_world: WorldState) -> int:
     seen_worlds: Dict[WorldState, int] = {}
     queue: List[Tuple[int, WorldState]] = []
     heapq.heappush(queue, (0, starting_world))
@@ -170,86 +163,20 @@ def part2(start: Tuple[str, str, str, str]) -> int:
     raise NotImplementedError
 
 
-def part1(_start: Tuple[str, str, str, str]) -> int:
-    """Manual solve:
-    #############
-    #...........#
-    ###C#A#B#D###
-      #B#A#D#C#
-      #########
+def part2(start: Tuple[str, str, str, str]) -> int:
+    """Add
+    #D#C#B#A#
+    #D#B#A#C#
+    """
+    to_add = ("DD", "CB", "BA", "AC")
+    start = tuple(start[i][0] + to_add[i] + start[i][-1] for i in range(4))
+    starting_world = WorldState(EMPTY_HALLWAY, start)
+    return solve(starting_world)
 
-    #############
-    #A..........# 5
-    ###C#.#B#D###
-      #B#A#D#C#
-      #########
 
-    #############
-    #AA.........# 5
-    ###C#.#B#D###
-      #B#.#D#C#
-      #########
-
-    #############
-    #AA.........# 5 * 10
-    ###C#.#.#D###
-      #B#B#D#C#
-      #########
-
-    #############
-    #AA.......D.# 2 * 1000
-    ###C#.#.#.###
-      #B#B#D#C#
-      #########
-
-    #############
-    #AA...C...D.# 5 * 100
-    ###C#.#.#.###
-      #B#B#D#.#
-      #########
-
-    #############
-    #AA...C...D.# 6 * 1000
-    ###C#.#.#.###
-      #B#B#.#D#
-      #########
-
-    #############
-    #AA...C.....# 2 * 1000
-    ###C#.#.#D###
-      #B#B#.#D#
-      #########
-
-    #############
-    #AA.........# 3 * 100
-    ###C#.#.#D###
-      #B#B#C#D#
-      #########
-
-    #############
-    #AA.........# 6 * 100
-    ###.#.#C#D###
-      #B#B#C#D#
-      #########
-
-    #############
-    #AA.........# 5 * 10
-    ###.#B#C#D###
-      #.#B#C#D#
-      #########
-
-    #############
-    #A..........# 3
-    ###.#B#C#D###
-      #A#B#C#D#
-      #########
-
-    #############
-    #...........# 3
-    ###A#B#C#D###
-      #A#B#C#D#
-      #########"""
-    return 5 + 5 + 50 + 2000 + 500 + 6000 + 2000 + 300 + 600 + 50 + 3 + 3
+def part1(start: Tuple[str, str, str, str]) -> int:
+    starting_world = WorldState(EMPTY_HALLWAY, start)
+    return solve(starting_world)
 
 
 if __name__ == "__main__":
