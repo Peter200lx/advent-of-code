@@ -34,7 +34,8 @@ class WorldState(NamedTuple):
         if self.hallway != EMPTY_HALLWAY:
             return False
         for i, room in enumerate(self.rooms):
-            if any(c != ROOMS[i] for c in room):
+            room_type = ROOMS[i]
+            if any(c != room_type for c in room):
                 return False
         return True
 
@@ -50,7 +51,7 @@ class WorldState(NamedTuple):
         """Returns list of moves, where a move is:
         (letter moving, cost of move, room to enter, new hallway)
         """
-        if all(c == "." for c in self.hallway):
+        if self.hallway == EMPTY_HALLWAY:
             return []
         for loc, c in enumerate(self.hallway):
             if c == ".":
@@ -98,17 +99,13 @@ class WorldState(NamedTuple):
         room_type = ROOMS[room_num]
         if mover != room_type:
             return 0, None  # mover can't enter this room
-        if any(c not in (".", room_type) for c in self.rooms[room_num]):
-            return 0, None  # Nothing can move in until all have moved out
-        room = self.rooms[room_num]
-        if room[0] == room_type:
-            raise NotImplementedError(
-                f"Why are we trying to move {room_type} into full room {room}!!"
-            )
         deepest_open = 0
-        for depth, c in enumerate(room):
+        for depth, c in enumerate(self.rooms[room_num]):
             if c == ".":
                 deepest_open = depth
+            elif c != room_type:
+                return 0, None  # Nothing can move in until all have moved out
+        room = self.rooms[room_num]
         return (
             deepest_open + 1,
             room[:deepest_open] + mover + room[deepest_open + 1 :],
