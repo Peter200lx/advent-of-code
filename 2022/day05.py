@@ -9,15 +9,13 @@ RE_NUMS = re.compile(r"-?\d+")
 
 def parse_start(start: str) -> Dict[int, List[str]]:
     start_lines = start.split("\n")
-    row_pas: Dict[int, int] = {}
-    for i, c in enumerate(start_lines[-1]):
+    index_to_tower: Dict[int, int] = {}
+    for i, c in enumerate(start_lines[-1]):  # find index of tower numbers
         if c.isdigit():
-            row_pas[i] = int(c)
-    row_items: Dict[int, List[str]] = {i: list() for i in row_pas.values()}
-    for row in start_lines[-2:None:-1]:
-        if not row:
-            continue
-        for index, val in row_pas.items():
+            index_to_tower[i] = int(c)
+    row_items: Dict[int, List[str]] = {i: [] for i in index_to_tower.values()}
+    for row in start_lines[-2:None:-1]:  # move up towers
+        for index, val in index_to_tower.items():
             if row[index] != " ":
                 row_items[val].append(row[index])
     return row_items
@@ -25,11 +23,10 @@ def parse_start(start: str) -> Dict[int, List[str]]:
 
 def run_moves_9000(start: str, moves: str) -> str:
     towers = parse_start(start)
-    for move in moves.split("\n"):
-        if not move:
+    for line in moves.split("\n"):
+        if not line:
             continue
-        num, fro, to = list(map(int, RE_NUMS.findall(move)))
-        assert len(towers[fro]) >= num
+        num, fro, to = list(map(int, RE_NUMS.findall(line)))
         for _i in range(num):
             towers[to].append(towers[fro].pop())
     return "".join(towers[c][-1] for c in sorted(towers))
@@ -37,14 +34,12 @@ def run_moves_9000(start: str, moves: str) -> str:
 
 def run_moves_9001(start: str, moves: str) -> str:
     towers = parse_start(start)
-    for move in moves.split("\n"):
-        if not move:
+    for line in moves.split("\n"):
+        if not line:
             continue
-        num, fro, to = list(map(int, RE_NUMS.findall(move)))
-        assert len(towers[fro]) >= num
-        moved = towers[fro][-num:]
-        towers[fro] = towers[fro][:-num]
-        towers[to].extend(moved)
+        num, fro, to = list(map(int, RE_NUMS.findall(line)))
+        towers[fro], to_move = towers[fro][:-num], towers[fro][-num:]
+        towers[to].extend(to_move)
     return "".join(towers[c][-1] for c in sorted(towers))
 
 
