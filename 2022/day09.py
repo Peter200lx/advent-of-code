@@ -12,23 +12,18 @@ class Pos(NamedTuple):
         return Pos(self.x + other.x, self.y + other.y)
 
     def follow(self, other: "Pos") -> "Pos":
+        # This is assuming that 'other' is always within one movement from 'self'
         if abs(self.x - other.x) <= 1 and abs(self.y - other.y) <= 1:
             return self
         elif abs(self.x - other.x) == 0:
-            new_y = self.y + (other.y - self.y) // 2
-            return Pos(self.x, new_y)
+            return Pos(self.x, self.y + (1 if other.y > self.y else -1))
         elif abs(self.y - other.y) == 0:
-            new_x = self.x + (other.x - self.x) // 2
-            return Pos(new_x, self.y)
+            return Pos(self.x + (1 if other.x > self.x else -1), self.y)
         else:  # Diagonal
-            if abs(self.x - other.x) == 2:
-                new_x = self.x + (other.x - self.x) // 2
-                new_y = self.y + (1 if other.y > self.y else -1)
-                return Pos(new_x, new_y)
-            elif abs(self.y - other.y) == 2:
-                new_x = self.x + (1 if other.x > self.x else -1)
-                new_y = self.y + (other.y - self.y) // 2
-                return Pos(new_x, new_y)
+            return Pos(
+                x=self.x + (1 if other.x > self.x else -1),
+                y=self.y + (1 if other.y > self.y else -1),
+            )
 
 
 START = Pos(0, 0)
@@ -45,8 +40,7 @@ def full_solve(inst: List[Tuple[str, int]], length=2) -> int:
     seen_tails = {snake[-1]}
     for direc, n in inst:
         for _i in range(n):
-            move = DIR_MOVES[direc]
-            snake[0] += move
+            snake[0] += DIR_MOVES[direc]
             for i in range(1, len(snake)):
                 snake[i] = snake[i].follow(snake[i - 1])
             seen_tails.add(snake[-1])
