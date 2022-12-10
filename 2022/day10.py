@@ -5,8 +5,7 @@ INPUT_FILE = Path(__file__).with_suffix(".input")
 
 
 class Processor:
-    def __init__(self, program):
-        self.program = program
+    def __init__(self):
         self.cycle = 0
         self.reg = 1
         self.record: List[Tuple[int, int]] = []
@@ -31,8 +30,8 @@ class Processor:
     def op_noop(self, _param):
         self.inc_cycle()
 
-    def run(self):
-        for op, param in self.program:
+    def run(self, program: List[Tuple[str, str]]):
+        for op, param in program:
             func = getattr(self, f"op_{op}")
             func(int(param) if param else None)
 
@@ -41,7 +40,7 @@ if __name__ == "__main__":
     DATA = INPUT_FILE.read_text().strip()
     INPUT_DATA = [(line[0:4], line[4:]) for line in DATA.split("\n")]
 
-    proc = Processor(INPUT_DATA)
-    proc.run()
+    proc = Processor()
+    proc.run(INPUT_DATA)
     print(sum(x * y for x, y in proc.record))
     proc.display()
