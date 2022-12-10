@@ -3,8 +3,6 @@ from typing import List, Tuple
 
 INPUT_FILE = Path(__file__).with_suffix(".input")
 
-INTERESTING_CYCLES = [20, 60, 100, 140, 180, 220]
-
 
 class Processor:
     def __init__(self, program):
@@ -15,23 +13,15 @@ class Processor:
         self.screen: List[str] = [" "] * 240
 
     def inc_cycle(self):
-        cycle_pos = self.cycle % 40
-        self.cycle += 1
-        if self.reg - 1 <= cycle_pos <= self.reg + 1:
+        if self.reg - 1 <= self.cycle % 40 <= self.reg + 1:
             self.screen[self.cycle] = "#"
-        if self.cycle in INTERESTING_CYCLES:
+        self.cycle += 1
+        if self.cycle in range(20, 221, 40):
             self.record.append((self.cycle, self.reg))
 
     def display(self):
-        for chunk in (
-            slice(1, 41),
-            slice(41, 81),
-            slice(81, 121),
-            slice(121, 161),
-            slice(161, 201),
-            slice(201, 241),
-        ):
-            print("".join(self.screen[chunk]))
+        for i in range(0, 241, 40):
+            print("".join(self.screen[i : i + 40]))
 
     def op_addx(self, param):
         self.inc_cycle()
