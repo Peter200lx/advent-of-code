@@ -16,9 +16,9 @@ class Processor:
 
     def inc_cycle(self):
         cycle_pos = self.cycle % 40
+        self.cycle += 1
         if self.reg - 1 <= cycle_pos <= self.reg + 1:
             self.screen[self.cycle] = "#"
-        self.cycle += 1
         if self.cycle in INTERESTING_CYCLES:
             self.record.append((self.cycle, self.reg))
 
