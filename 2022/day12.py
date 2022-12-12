@@ -1,6 +1,6 @@
 import heapq
 from pathlib import Path
-from typing import List, Tuple, NamedTuple, Dict, Set
+from typing import List, Tuple, NamedTuple, Dict
 
 INPUT_FILE = Path(__file__).with_suffix(".input")
 
@@ -32,34 +32,28 @@ def parse_input(instr: str):
     return start, end, ground
 
 
-def find_path(start: Pos, end: Pos, ground: Dict[Pos, int]) -> int:
-    prio_queue: List[Tuple[int, Pos]] = [(1, start)]
-    seen_points: Set[Pos] = {start}
+def find_path(end: Pos, ground: Dict[Pos, int]) -> Dict[Pos, int]:
+    prio_queue: List[Tuple[int, Pos]] = [(0, end)]
+    cost_to_point: Dict[Pos, int] = {end: 0}
     while prio_queue:
         depth, last_point = heapq.heappop(prio_queue)
         for direc in DIR_MOVES:
             new_point = direc + last_point
             if new_point not in ground:
                 continue
-            if ground[new_point] - ground[last_point] >= 2:
+            if ground[last_point] - ground[new_point] >= 2:
                 continue
-            if new_point == end:
-                return depth
-            if new_point in seen_points:
+            if new_point in cost_to_point:
                 continue
-            seen_points.add(new_point)
+            cost_to_point[new_point] = depth + 1
             heapq.heappush(prio_queue, (depth + 1, new_point))
-    return int(9e9)  # Idea from Caleb so None check isn't needed
-
-
-def find_from_low(end: Pos, ground: Dict[Pos, int]) -> int:
-    start_points = [p for p, h in ground.items() if h == ord("a")]
-    return min(find_path(s, end, ground) for s in start_points)
+    return cost_to_point
 
 
 if __name__ == "__main__":
     DATA = INPUT_FILE.read_text().strip()
     START, END, GROUND = parse_input(DATA)
 
-    print(find_path(START, END, GROUND))
-    print(find_from_low(END, GROUND))
+    POINT_COSTS = find_path(END, GROUND)
+    print(POINT_COSTS[START])
+    print(min(POINT_COSTS[point] for point in POINT_COSTS if GROUND[point] == ord("a")))
