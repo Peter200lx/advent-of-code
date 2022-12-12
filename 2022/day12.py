@@ -1,6 +1,6 @@
 import heapq
 from pathlib import Path
-from typing import List, Tuple, NamedTuple, Dict, Optional
+from typing import List, Tuple, NamedTuple, Dict, Set
 
 INPUT_FILE = Path(__file__).with_suffix(".input")
 
@@ -13,12 +13,7 @@ class Pos(NamedTuple):
         return Pos(self.x + other.x, self.y + other.y)
 
 
-DIR_MOVES = [
-    Pos(0, 1),
-    Pos(0, -1),
-    Pos(-1, 0),
-    Pos(1, 0),
-]
+DIR_MOVES = [Pos(0, 1), Pos(0, -1), Pos(-1, 0), Pos(1, 0)]
 
 
 def parse_input(instr: str):
@@ -37,31 +32,29 @@ def parse_input(instr: str):
     return start, end, ground
 
 
-def find_path(start: Pos, end: Pos, ground: Dict[Pos, int]) -> Optional[int]:
-    prio_queue: List[Tuple[int, List[Pos]]] = [(0, [start])]
-    seen_points: Dict[Pos, int] = {start: 0}
+def find_path(start: Pos, end: Pos, ground: Dict[Pos, int]) -> int:
+    prio_queue: List[Tuple[int, Pos]] = [(1, start)]
+    seen_points: Set[Pos] = {start}
     while prio_queue:
-        prio, so_far = heapq.heappop(prio_queue)
+        depth, last_point = heapq.heappop(prio_queue)
         for direc in DIR_MOVES:
-            last_point = so_far[-1]
             new_point = direc + last_point
             if new_point not in ground:
                 continue
             if ground[new_point] - ground[last_point] >= 2:
                 continue
             if new_point == end:
-                return len(so_far)
-            new_cost = prio + 1
-            if seen_points.get(new_point, 9e9) <= new_cost:
+                return depth
+            if new_point in seen_points:
                 continue
-            seen_points[new_point] = new_cost
-            heapq.heappush(prio_queue, (new_cost, so_far + [new_point]))
+            seen_points.add(new_point)
+            heapq.heappush(prio_queue, (depth + 1, new_point))
+    return int(9e9)  # Idea from Caleb so None check isn't needed
 
 
-def find_from_low(end: Pos, ground: Dict[Pos, int]):
+def find_from_low(end: Pos, ground: Dict[Pos, int]) -> int:
     start_points = [p for p, h in ground.items() if h == ord("a")]
-    possible = [find_path(s, end, ground) for s in start_points]
-    return min(p for p in possible if p)
+    return min(find_path(s, end, ground) for s in start_points)
 
 
 if __name__ == "__main__":
