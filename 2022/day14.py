@@ -1,5 +1,3 @@
-import re
-import sys
 from enum import Enum
 from pathlib import Path
 from typing import NamedTuple, Union, Dict, List, Optional
@@ -93,6 +91,7 @@ class Field:
         self.falling_sand = set()
         self.point_cloud[source] = FieldTypes.SOURCE
         sand_loc = Coord(source.y + 1, source.x)
+        self.falling_sand.add(source)
         self.falling_sand.add(sand_loc)
         self.point_cloud[sand_loc] = FieldTypes.SAND_FALLING
 
@@ -121,7 +120,7 @@ class Field:
             self.falling_sand.add(below_loc)
             below_loc = Coord(below_loc.y + 1, below_loc.x)
             if below_loc.y == self.range.y_max:
-                return False
+                return
         return below_loc
 
     def fill_angle(self, orig_loc: Coord, direc: int):
@@ -170,18 +169,27 @@ class Field:
         return old_set != self.falling_sand
 
 
-def run_simulation(field):
+def run_simulation(field: Field) -> int:
     while field.step_sand():
         pass
-    field.print()
+    # field.print()
+    return sum(v == FieldTypes.SAND_STATIONARY for v in field.point_cloud.values())
+
+
+def run_floor_simulation(field: Field) -> int:
+    for x in range(field.range.x_min - 2000, field.range.x_max + 2000):
+        field.point_cloud[Coord(y=field.range.y_max - 1, x=x)] = FieldTypes.ROCK
+
+    while field.step_sand():
+        pass
+    # field.print()
     return sum(v == FieldTypes.SAND_STATIONARY for v in field.point_cloud.values())
 
 
 if __name__ == "__main__":
     DATA = INPUT_FILE.read_text().strip()
-    DAdTA = """498,4 -> 498,6 -> 496,6
-503,4 -> 502,4 -> 502,9 -> 494,9"""
 
     SCAN_OUTPUT, RANGE = parse_input(DATA)
     GROUND = Field(SCAN_OUTPUT, RANGE, SOURCE)
     print(run_simulation(GROUND))
+    print(run_floor_simulation(GROUND))
