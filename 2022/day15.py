@@ -43,45 +43,51 @@ class Sensor:
         cross_point = Pos(self.loc.x, y_line)
         cpoint_mann = self.loc.mann(cross_point)
         if cpoint_mann <= self.dist:
-            x_dist = self.dist - abs(y_line-self.loc.y)
-            return range(self.loc.x - x_dist, self.loc.x + x_dist)
+            x_dist = self.dist - abs(y_line - self.loc.y)
+            return range(self.loc.x - x_dist, self.loc.x + x_dist + 1)
         return
 
     def just_outside_points(self, min_loc: Pos, max_loc: Pos) -> Set[Pos]:
         just_outside: Set[Pos] = set()
         cur_x, cur_y = self.loc.x, self.loc.y - self.dist - 1
         for direc in (Pos(1, 1), Pos(-1, 1), Pos(-1, -1), Pos(1, -1)):
-            if (
-                min_loc.x <= cur_x <= max_loc.x
-                and min_loc.y <= cur_y <= max_loc.y
-            ):
+            if min_loc.x <= cur_x <= max_loc.x and min_loc.y <= cur_y <= max_loc.y:
                 just_outside.add(Pos(cur_x, cur_y))
             cur_x, cur_y = cur_x + direc.x, cur_y + direc.y
             while not (cur_x == self.loc.x or cur_y == self.loc.y):
-                if (
-                    min_loc.x <= cur_x <= max_loc.x
-                    and min_loc.y <= cur_y <= max_loc.y
-                ):
+                if min_loc.x <= cur_x <= max_loc.x and min_loc.y <= cur_y <= max_loc.y:
                     just_outside.add(Pos(cur_x, cur_y))
                 cur_x, cur_y = cur_x + direc.x, cur_y + direc.y
         return just_outside
 
 
-def part_1(sensors: List[Sensor]) -> int:
-    all_ranges = [r for r in (s.filled_space(P1_Y) for s in sensors) if r is not None]
+def collapse_ranges(all_ranges: List[range]) -> List[range]:
     all_ranges.sort(key=lambda x: x.start)
     final_ranges = []
     cur_range: range = all_ranges[0]
     for i in range(len(all_ranges) - 1):
         next_range = all_ranges[i + 1]
-        if cur_range.stop - 1 in next_range or next_range.stop - 1 in cur_range:
+        if cur_range.start in next_range or next_range.start in cur_range:
             cur_range = range(cur_range.start, max(cur_range.stop, next_range.stop))
         else:
             final_ranges.append(cur_range)
             cur_range = next_range
     final_ranges.append(cur_range)
-    return sum(len(r) for r in final_ranges)
+    return final_ranges
 
+
+def part_1(sensors: List[Sensor], target_y: int) -> int:
+    all_ranges = [
+        r for r in (s.filled_space(target_y) for s in sensors) if r is not None
+    ]
+    ranges = collapse_ranges(all_ranges)
+    beacons_in_range = {
+        s.b_loc.x
+        for s in sensors
+        for r in ranges
+        if s.b_loc.y == target_y and s.b_loc.x in r
+    }
+    return sum(len(r) for r in ranges) - len(beacons_in_range)
 
 
 def part_2(sensors: List[Sensor]) -> int:
@@ -106,5 +112,5 @@ if __name__ == "__main__":
     DATA = INPUT_FILE.read_text().strip()
     SENSORS = [Sensor(line) for line in DATA.split("\n")]
 
-    print(part_1(SENSORS))
+    print(part_1(SENSORS, P1_Y))
     print(part_2(SENSORS))
