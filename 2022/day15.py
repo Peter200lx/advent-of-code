@@ -1,6 +1,6 @@
 import re
 from pathlib import Path
-from typing import List, NamedTuple, Set
+from typing import List, NamedTuple, Set, Optional
 
 INPUT_FILE = Path(__file__).with_suffix(".input")
 
@@ -34,22 +34,13 @@ class Sensor:
     def __repr__(self):
         return f"Sensor(loc={self.loc}, dist={self.dist})"
 
-    def filled_space(self, y_line: int) -> Set[Pos]:
+    def filled_space(self, y_line: int) -> Optional[range]:
         cross_point = Pos(self.loc.x, y_line)
-        invalid_points = set()
-        if self.loc.mann(cross_point) <= self.dist:
-            invalid_points.add(cross_point)
-            for i in range(9999999):
-                l_point = Pos(cross_point.x - i, y_line)
-                r_point = Pos(cross_point.x + i, y_line)
-                if self.loc.mann(l_point) <= self.dist:
-                    invalid_points.add(l_point)
-                if self.loc.mann(r_point) <= self.dist:
-                    invalid_points.add(r_point)
-                else:
-                    break
-        invalid_points.discard(self.b_loc)
-        return invalid_points
+        cpoint_mann = self.loc.mann(cross_point)
+        if cpoint_mann <= self.dist:
+            x_dist = self.dist - abs(y_line-self.loc.y)
+            return range(self.loc.x - x_dist, self.loc.x + x_dist)
+        return
 
     def just_outside_points(self, min_loc: Pos, max_loc: Pos) -> Set[Pos]:
         just_outside: Set[Pos] = set()
@@ -69,6 +60,23 @@ class Sensor:
                     just_outside.add(cur_loc)
                 cur_loc += direc
         return just_outside
+
+
+def part_1(sensors: List[Sensor]) -> int:
+    all_ranges = [r for r in (s.filled_space(P1_Y) for s in sensors) if r is not None]
+    all_ranges.sort(key=lambda x: x.start)
+    final_ranges = []
+    cur_range: range = all_ranges[0]
+    for i in range(len(all_ranges) - 1):
+        next_range = all_ranges[i + 1]
+        if cur_range.stop - 1 in next_range or next_range.stop - 1 in cur_range:
+            cur_range = range(cur_range.start, max(cur_range.stop, next_range.stop))
+        else:
+            final_ranges.append(cur_range)
+            cur_range = next_range
+    final_ranges.append(cur_range)
+    return sum(len(r) for r in final_ranges)
+
 
 
 def part_2(sensors: List[Sensor]) -> int:
@@ -92,5 +100,5 @@ if __name__ == "__main__":
     DATA = INPUT_FILE.read_text().strip()
     SENSORS = [Sensor(line) for line in DATA.split("\n")]
 
-    print(len(set.union(*(s.filled_space(P1_Y) for s in SENSORS))))
+    print(part_1(SENSORS))
     print(part_2(SENSORS))
