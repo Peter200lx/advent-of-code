@@ -31,6 +31,11 @@ class Sensor:
         self.b_loc = Pos(b_x, b_y)
         self.dist = self.loc.mann(self.b_loc)
 
+    def in_range(self, other: "Sensor") -> bool:
+        if other == self:
+            return False
+        return self.loc.mann(other.loc) <= self.dist + other.dist + 1
+
     def __repr__(self):
         return f"Sensor(loc={self.loc}, dist={self.dist})"
 
@@ -44,21 +49,21 @@ class Sensor:
 
     def just_outside_points(self, min_loc: Pos, max_loc: Pos) -> Set[Pos]:
         just_outside: Set[Pos] = set()
-        cur_loc = Pos(self.loc.x, self.loc.y - self.dist - 1)
+        cur_x, cur_y = self.loc.x, self.loc.y - self.dist - 1
         for direc in (Pos(1, 1), Pos(-1, 1), Pos(-1, -1), Pos(1, -1)):
             if (
-                min_loc.x <= cur_loc.x <= max_loc.x
-                and min_loc.y <= cur_loc.y <= max_loc.y
+                min_loc.x <= cur_x <= max_loc.x
+                and min_loc.y <= cur_y <= max_loc.y
             ):
-                just_outside.add(cur_loc)
-            cur_loc += direc
-            while not (cur_loc.x == self.loc.x or cur_loc.y == self.loc.y):
+                just_outside.add(Pos(cur_x, cur_y))
+            cur_x, cur_y = cur_x + direc.x, cur_y + direc.y
+            while not (cur_x == self.loc.x or cur_y == self.loc.y):
                 if (
-                    min_loc.x <= cur_loc.x <= max_loc.x
-                    and min_loc.y <= cur_loc.y <= max_loc.y
+                    min_loc.x <= cur_x <= max_loc.x
+                    and min_loc.y <= cur_y <= max_loc.y
                 ):
-                    just_outside.add(cur_loc)
-                cur_loc += direc
+                    just_outside.add(Pos(cur_x, cur_y))
+                cur_x, cur_y = cur_x + direc.x, cur_y + direc.y
         return just_outside
 
 
@@ -83,9 +88,10 @@ def part_2(sensors: List[Sensor]) -> int:
     for sensor in sensors:
         to_try = sensor.just_outside_points(P2_MIN, P2_MAX)
         print(f"On Sensor {sensor.loc} trying {len(to_try)} points")
+        close_sensors = [s for s in sensors if sensor.in_range(s)]
         for point in to_try:
             bad_point = False
-            for other_s in sensors:
+            for other_s in close_sensors:
                 if other_s == sensor:
                     continue
                 if other_s.loc.mann(point) <= other_s.dist:
