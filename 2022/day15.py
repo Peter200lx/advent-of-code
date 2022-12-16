@@ -91,20 +91,25 @@ def part_1(sensors: List[Sensor], target_y: int) -> int:
 
 
 def part_2(sensors: List[Sensor]) -> int:
-    for sensor in sensors:
-        to_try = sensor.just_outside_points(P2_MIN, P2_MAX)
-        print(f"On Sensor {sensor.loc} trying {len(to_try)} points")
-        close_sensors = [s for s in sensors if sensor.in_range(s)]
+    for i, from_s in enumerate(sensors):
+        has_diag = False
+        for to_s in sensors[i + 1 :]:
+            if from_s.loc.mann(to_s.loc) == from_s.dist + to_s.dist + 2:
+                has_diag = True
+                break
+        if not has_diag:
+            continue
+        to_try = from_s.just_outside_points(P2_MIN, P2_MAX)
+        close_sensors = [s for s in sensors if from_s.in_range(s)]
         for point in to_try:
             bad_point = False
             for other_s in close_sensors:
-                if other_s == sensor:
+                if other_s == from_s:
                     continue
                 if other_s.loc.mann(point) <= other_s.dist:
                     bad_point = True
                     break
             if not bad_point:
-                print(f"Found good point {point}")
                 return point.x * 4000000 + point.y
 
 
