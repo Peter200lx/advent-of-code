@@ -113,8 +113,8 @@ def part_2(wind: str, rocks: List[List[Pos]]):
     locked_rocks: Set[Pos] = set()
     y_top = 0
     height_list = []
-    i = 0
-    while i < P2_ROCK_COUNT:
+    checked_length = 1
+    for i in range(P2_ROCK_COUNT):
         cur_rock = next(rock_iter)
         shift = Pos(LEFT_DIST, y_top + ABOVE)
         cur_rock = [p + shift for p in cur_rock]
@@ -131,13 +131,18 @@ def part_2(wind: str, rocks: List[List[Pos]]):
                 height_list.append(-y_top)
                 locked_rocks |= set(cur_rock)
                 break
-        if i > repeat_len * 2 and i % (5 * repeat_len) == 0:
+        if i % (5 * repeat_len) == 0:  # Clear out locked_rocks regularly
             locked_rocks = {p for p in locked_rocks if p.y < (y_top + 50)}
-            print(f"Checking for repeats at {i}")
+        if (
+            i > (checked_length * 2 + 10) * repeat_len
+            and i % (checked_length * repeat_len) == 0
+        ):
+            ranges = list(range(checked_length, 2 * checked_length + 1))
+            print(f"Checking for repeats at {i} for {ranges}")
             inc_pattern = [
                 height_list[i + 1] - height_list[i] for i in range(len(height_list) - 1)
             ]
-            for j in range(1, i // repeat_len):
+            for j in ranges:
                 if (
                     inc_pattern[-repeat_len * j :]
                     == inc_pattern[-repeat_len * j * 2 : -repeat_len * j]
@@ -159,7 +164,9 @@ def part_2(wind: str, rocks: List[List[Pos]]):
                             ]
                         )
                     )
-        i += 1
+                else:
+                    checked_length = j
+            print(f"Failed to find repeats")
     return y_top
 
 
