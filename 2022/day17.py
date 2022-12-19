@@ -135,20 +135,24 @@ def part_2(wind: str, rocks: List[List[Pos]], rock_count: int):
             locked_rocks = {p for p in locked_rocks if p.y < (y_top + 50)}
         if i > (checked_length * 2 + 10):
             inc_pattern = tuple(
-                height_list[i + 1] - height_list[i] for i in range(i-25, len(height_list) - 1)
+                height_list[i + 1] - height_list[i]
+                for i in range(i - 25, len(height_list) - 1)
             )
             if inc_pattern not in delta_snapshots:
                 delta_snapshots[inc_pattern] = i, y_top
             else:
                 old_i, old_y_top = delta_snapshots[inc_pattern]
-                pattern = [height_list[i + 1] - height_list[i] for i in range(old_i, len(height_list) - 1)]
+                pattern = [
+                    height_list[i + 1] - height_list[i]
+                    for i in range(old_i, len(height_list) - 1)
+                ]
                 remaining_i = rock_count - i
                 jump_count = remaining_i // len(pattern)
                 y_top -= jump_count * sum(pattern)
                 print(f"Jumping from {i=} to {i+jump_count * len(pattern)}")
                 i += jump_count * len(pattern)
                 remaining_i = rock_count - i
-                return -(y_top - sum(pattern[:remaining_i-1]))
+                return -(y_top - sum(pattern[: remaining_i - 1]))
 
     return y_top
 
