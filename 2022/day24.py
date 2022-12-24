@@ -65,28 +65,13 @@ def pre_plot_storms(storms: Dict[Pos, Pos]) -> List[Set[Pos]]:
     return storm_seq
 
 
-def print_storms(storms: Set[Pos]):
-    min_x, max_x = min(p.x for p in storms), max(p.x for p in storms)
-    min_y, max_y = min(p.y for p in storms), max(p.y for p in storms)
-    print(f"{min_x=} {max_x=}  {min_y=} {max_y=}")
-    for y in range(min_y, max_y + 1):
-        print(
-            "".join(
-                "@" if Pos(x, y) in storms else "." for x in range(min_x, max_x + 1)
-            )
-        )
-    print("")
-
-
-def part_1(storms: Dict[Pos, Pos]) -> int:
-    x_max = max(p.x for p in storms)
-    y_max = max(p.y for p in storms)
-    end = Pos(x_max, y_max + 1)
-    storm_sets = pre_plot_storms(storms)
-    paths: List[Tuple[int, Pos, List[Pos]]] = [(0, START, [START])]
+def path_find(
+    storm_sets: List[Set[Pos]], max_pos: Pos, start: Pos, end: Pos, start_depth: int = 0
+) -> int:
+    paths: List[Tuple[int, Pos]] = [(start_depth, start)]
     seen: Set[Tuple[int, Pos]] = set()
     while paths:
-        depth, cur_loc, so_far = heapq.heappop(paths)
+        depth, cur_loc = heapq.heappop(paths)
         key = depth % len(storm_sets), cur_loc
         if key in seen:
             continue
@@ -99,102 +84,31 @@ def part_1(storms: Dict[Pos, Pos]) -> int:
             if new_loc in storm_sets[new_depth % len(storm_sets)]:
                 continue
             if not (
-                new_loc == START
-                and cur_loc == START
-                or 0 <= new_loc.x <= x_max
-                and 0 <= new_loc.y <= y_max
+                new_loc == start
+                and cur_loc == start
+                or 0 <= new_loc.x <= max_pos.x
+                and 0 <= new_loc.y <= max_pos.y
             ):
                 continue
-            heapq.heappush(paths, (new_depth, new_loc, so_far + [new_loc]))
+            heapq.heappush(paths, (new_depth, new_loc))
     raise NotImplementedError
 
 
-def part_2(storms: Dict[Pos, Pos]) -> int:
-    x_max = max(p.x for p in storms)
-    y_max = max(p.y for p in storms)
-    end = Pos(x_max, y_max + 1)
+def solve(storms: Dict[Pos, Pos]) -> int:
+    max_pos = Pos(max(p.x for p in storms), max(p.y for p in storms))
+    end = Pos(max_pos.x, max_pos.y + 1)
     storm_sets = pre_plot_storms(storms)
-    paths: List[Tuple[int, Pos, List[Pos]]] = [(0, START, [START])]
-    seen: Set[Tuple[int, Pos]] = set()
-    p1_depth = None
-    while paths:
-        depth, cur_loc, so_far = heapq.heappop(paths)
-        key = depth % len(storm_sets), cur_loc
-        if key in seen:
-            continue
-        seen.add(key)
-        new_depth = depth + 1
-        for direc in POSSIBLE:
-            new_loc = cur_loc + direc
-            if new_loc == end:
-                p1_depth = new_depth
-                paths = []
-                break
-            if new_loc in storm_sets[new_depth % len(storm_sets)]:
-                continue
-            if not (
-                new_loc == START
-                and cur_loc == START
-                or 0 <= new_loc.x <= x_max
-                and 0 <= new_loc.y <= y_max
-            ):
-                continue
-            heapq.heappush(paths, (new_depth, new_loc, so_far + [new_loc]))
+    p1_depth = path_find(storm_sets, max_pos, START, end)
 
-    returned_depth = None
-    paths: List[Tuple[int, Pos, List[Pos]]] = [(p1_depth, end, [end])]
-    seen: Set[Tuple[int, Pos]] = set()
-    while paths:
-        depth, cur_loc, so_far = heapq.heappop(paths)
-        key = depth % len(storm_sets), cur_loc
-        if key in seen:
-            continue
-        seen.add(key)
-        new_depth = depth + 1
-        for direc in POSSIBLE:
-            new_loc = cur_loc + direc
-            if new_loc == START:
-                returned_depth = new_depth
-                paths = []
-                break
-            if new_loc in storm_sets[new_depth % len(storm_sets)]:
-                continue
-            if not (
-                new_loc == end
-                and cur_loc == end
-                or 0 <= new_loc.x <= x_max
-                and 0 <= new_loc.y <= y_max
-            ):
-                continue
-            heapq.heappush(paths, (new_depth, new_loc, so_far + [new_loc]))
+    returned_depth = path_find(storm_sets, max_pos, end, START, p1_depth)
 
-    paths: List[Tuple[int, Pos, List[Pos]]] = [(returned_depth, START, [START])]
-    seen: Set[Tuple[int, Pos]] = set()
-    while paths:
-        depth, cur_loc, so_far = heapq.heappop(paths)
-        key = depth % len(storm_sets), cur_loc
-        if key in seen:
-            continue
-        seen.add(key)
-        new_depth = depth + 1
-        for direc in POSSIBLE:
-            new_loc = cur_loc + direc
-            if new_loc == end:
-                return p1_depth, new_depth
-            if new_loc in storm_sets[new_depth % len(storm_sets)]:
-                continue
-            if not (
-                new_loc == START
-                and cur_loc == START
-                or 0 <= new_loc.x <= x_max
-                and 0 <= new_loc.y <= y_max
-            ):
-                continue
-            heapq.heappush(paths, (new_depth, new_loc, so_far + [new_loc]))
+    p2_depth = path_find(storm_sets, max_pos, START, end, returned_depth)
+
+    return p1_depth, p2_depth
 
 
 if __name__ == "__main__":
     DATA = INPUT_FILE.read_text().rstrip()
     STORMS = parse(DATA)
 
-    print(part_2(STORMS))
+    print(solve(STORMS))
