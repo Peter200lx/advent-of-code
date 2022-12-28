@@ -1,8 +1,7 @@
 from collections import Counter
-from functools import lru_cache
 from math import prod
 from pathlib import Path
-from typing import List, Dict, Tuple, Optional
+from typing import List, Dict, Optional, Set
 
 INPUT_FILE = Path(__file__).with_suffix(".input")
 
@@ -41,8 +40,7 @@ class Blueprint:
         self.max_want: Dict[str, int] = {}
         for req_dict in self.costs.values():
             for resource, cost in req_dict.items():
-                total = self.max_want.get(resource, 0) + cost
-                self.max_want[resource] = total
+                self.max_want[resource] = max(self.max_want.get(resource, 0), cost)
 
         self.max_filter = self._build_reduced()
 
@@ -62,7 +60,8 @@ class Blueprint:
         self,
         items: Counter[str, int],
         bots: Counter[str, int],
-        cache,
+        ignored: Set[str],
+        cache: Optional[dict] = None,
         minutes: int = P1_MINUTES,
     ) -> int:
         if cache is None:
@@ -79,33 +78,32 @@ class Blueprint:
         )
         if key in cache:
             return cache[key]
+        tried: Set[str] = set()
         for bot, requires in self.costs.items():
+            if bot in ignored:
+                continue
             if bots[bot] > self.max_want.get(bot, 9999999999):
                 continue
             try_buy = req_met(requires, items)
             if try_buy is None:
                 continue
             new_bots = bots + Counter((bot,))
-            best = max(best, self.run_dfs(try_buy + bots, new_bots, cache, minutes - 1))
+            best = max(
+                best, self.run_dfs(try_buy + bots, new_bots, set(), cache, minutes - 1)
+            )
+            tried.add(bot)
             if bot == "geode":
                 break
-        best = max(best, self.run_dfs(items + bots, bots, cache, minutes - 1))
+        best = max(
+            best, self.run_dfs(items + bots, bots, ignored | tried, cache, minutes - 1)
+        )
         cache[key] = best + bots["geode"]
         return cache[key]
 
-    def run_bfs(
-        self,
-        items: Counter[str, int],
-        bots: Counter[str, int],
-        minutes: int = P1_MINUTES,
-    ) -> int:
-        pass
-
 
 def part_1(blueprints: List[Blueprint]) -> int:
-    # print(blueprints[1].run_dfs(Counter(), Counter((START_BOT,)), {}))
     results = {
-        b.id: b.run_dfs(Counter(), Counter((START_BOT,)), {}) for b in blueprints
+        b.id: b.run_dfs(Counter(), Counter((START_BOT,)), set()) for b in blueprints
     }
     print(results)
     return sum(i * c for i, c in results.items())
@@ -115,9 +113,10 @@ def part_2(blueprints: List[Blueprint]) -> int:
     blueprints = blueprints[:3]
     results = {}
     for b in blueprints:
-        results[b.id] = b.run_dfs(Counter(), Counter((START_BOT,)), None, P2_MINUTES)
+        results[b.id] = b.run_dfs(
+            Counter(), Counter((START_BOT,)), set(), minutes=P2_MINUTES
+        )
         print(results)
-    print(results)
     return prod(c for c in results.values())
 
 
