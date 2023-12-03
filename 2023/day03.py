@@ -15,7 +15,6 @@ directions = [
 
 class Part(NamedTuple):
     symbol: str
-    loc: Tuple[int, int]
     nums: Set[Tuple[Tuple[int, int], int]]
 
     def is_gear(self):
@@ -24,6 +23,16 @@ class Part(NamedTuple):
     def ratio(self):
         nums = list(self.nums)
         return nums[0][1] * nums[1][1]
+
+
+def parse_digit(all_lines: List[str], y, x) -> Tuple[Tuple[int, int], int]:
+    dig_start = dig_end = x
+    while dig_start >= 0 and all_lines[y][dig_start].isdigit():
+        dig_start -= 1
+    while dig_end < len(all_lines[y]) and all_lines[y][dig_end].isdigit():
+        dig_end += 1
+    loc = (y, dig_start + 1)
+    return loc, int(all_lines[y][dig_start + 1 : dig_end])
 
 
 def parse_input(raw: str) -> List[Part]:
@@ -37,19 +46,9 @@ def parse_input(raw: str) -> List[Part]:
                     newy, newx = y + dy, x + dx
                     if not (0 <= newy < len(all_lines) and 0 <= newx <= len(line)):
                         continue
-                    digit = all_lines[newy][newx]
-                    if digit.isdigit():
-                        dig_start = dig_end = newx
-                        while dig_start >= 0 and all_lines[newy][dig_start].isdigit():
-                            dig_start -= 1
-                        while (
-                            dig_end < len(all_lines[newy])
-                            and all_lines[newy][dig_end].isdigit()
-                        ):
-                            dig_end += 1
-                        loc = (newy, dig_start + 1)
-                        nums.add((loc, int(all_lines[newy][dig_start + 1 : dig_end])))
-                parts.append(Part(c, (y, x), nums))
+                    if all_lines[newy][newx].isdigit():
+                        nums.add(parse_digit(all_lines, newy, newx))
+                parts.append(Part(c, nums))
     return parts
 
 
