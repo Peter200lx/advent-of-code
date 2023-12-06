@@ -33,13 +33,20 @@ def parse_input(instr: str) -> List[Race]:
 def solve(instr: str):
     races = parse_input(instr)
     ways = []
-    for n, race in enumerate(races):
-        wins = 0
+    for race in races:
+        first = last = None
         for i in range(1, race.time):
             dist = race.run_race(i)
             if dist > race.dist:
-                wins += 1
-        ways.append(wins)
+                first = i
+                break
+        assert first is not None, f"Didn't find a win?!?"
+        for i in range(race.time - first, 1, -1):
+            dist = race.run_race(i)
+            if dist > race.dist:
+                last = i + 1
+                break
+        ways.append(len(range(first, last)))
     return prod(ways)
 
 
