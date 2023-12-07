@@ -17,9 +17,7 @@ class Game:
         ]
 
     def possible(self, req: Dict[str, int]) -> bool:
-        return not any(
-            turn.get(color, 0) > n for color, n in req.items() for turn in self.rounds
-        )
+        return not any(turn.get(color, 0) > n for color, n in req.items() for turn in self.rounds)
 
     def req(self) -> Dict[str, int]:
         totals = {"red": 0, "green": 0, "blue": 0}

@@ -43,13 +43,9 @@ class Hand:
             return True
         if self.type == other.type:
             for i, my_card in enumerate(self.cards):
-                if self.card_order.index(my_card) > self.card_order.index(
-                    other.cards[i]
-                ):
+                if self.card_order.index(my_card) > self.card_order.index(other.cards[i]):
                     return True
-                elif self.card_order.index(my_card) < self.card_order.index(
-                    other.cards[i]
-                ):
+                elif self.card_order.index(my_card) < self.card_order.index(other.cards[i]):
                     return False
         return False
 
