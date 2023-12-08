@@ -1,11 +1,8 @@
-import re
 from math import lcm
 from pathlib import Path
-from typing import Dict
+from typing import Dict, Tuple
 
 INPUT_FILE = Path(__file__).with_suffix(".input")
-
-RE_NUMS = re.compile(r"-?\d+")
 
 
 class Node:
@@ -20,7 +17,7 @@ class Node:
         return f"Node({self.id}, {self.left_str=} {self.right_str=})"
 
 
-def parse_input(instr: str):
+def parse_input(instr: str) -> Tuple[str, Dict[str, Node]]:
     dirs, nodestr = instr.split("\n\n")
     nodes = {}
     for line in nodestr.split("\n"):
@@ -33,11 +30,9 @@ def parse_input(instr: str):
     return dirs, nodes
 
 
-def part_one(path: str, nodes):
+def part_one(path: str, nodes) -> int:
     steps = 0
-    found = False
-    start = nodes["AAA"]
-    next_node = start
+    next_node = nodes["AAA"]
     while True:
         for c in path:
             if c == "L":
@@ -46,18 +41,12 @@ def part_one(path: str, nodes):
                 next_node = next_node.right
             steps += 1
             if next_node.id == "ZZZ":
-                found = True
-                break
-        if found:
-            break
-    return steps
+                return steps
 
 
-def part_two(path: str, nodes: Dict[str, Node]):
+def part_two(path: str, nodes: Dict[str, Node]) -> int:
     steps = 0
-    found = False
-    starts = [n for n in nodes.values() if n.id.endswith("A")]
-    cur_nodes = list(starts)
+    cur_nodes = [n for n in nodes.values() if n.id.endswith("A")]
     repeat = [None] * len(cur_nodes)
     seen = [{} for _ in repeat]
     while True:
@@ -68,18 +57,14 @@ def part_two(path: str, nodes: Dict[str, Node]):
                 cur_nodes = [n.right for n in cur_nodes]
             steps += 1
             for i, node in enumerate(cur_nodes):
-                if not node.id.endswith("Z"):
+                if repeat[i] or not node.id.endswith("Z"):
                     continue
-                if node.id in seen[i] and not repeat[i]:
+                if node.id in seen[i]:
                     repeat[i] = seen[i][node.id]
                     continue
                 seen[i][node.id] = steps
             if all(repeat):
-                found = True
-                break
-        if found:
-            break
-    return lcm(*repeat)
+                return lcm(*repeat)
 
 
 if __name__ == "__main__":
