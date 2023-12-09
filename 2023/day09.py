@@ -5,9 +5,7 @@ INPUT_FILE = Path(__file__).with_suffix(".input")
 
 
 def solve_line(nums: List[int]) -> int:
-    deltas = []
-    for i in range(1, len(nums)):
-        deltas.append(nums[i] - nums[i - 1])
+    deltas = [nums[i] - nums[i - 1] for i in range(1, len(nums))]
     if all(n == 0 for n in deltas):
         return 0
     return deltas[-1] + solve_line(deltas)
