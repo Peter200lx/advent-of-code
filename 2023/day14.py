@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Dict, NamedTuple, Tuple
+from typing import NamedTuple, Tuple, Set
 
 INPUT_FILE = Path(__file__).with_suffix(".input")
 
@@ -14,102 +14,98 @@ class Coord(NamedTuple):
         return Coord(self.x + other.x, self.y + other.y)
 
 
-def print_stuff(rocks: Dict[Coord, str]):
-    minx, maxx = min(c.x for c in rocks), max(c.x for c in rocks)
-    miny, maxy = min(c.y for c in rocks), max(c.y for c in rocks)
-    for y in range(miny, maxy + 1):
-        print("".join(rocks.get(Coord(x, y), ".") for x in range(minx, maxx + 1)))
-
-
 class Floor:
     def __init__(self, chunk: str):
         lines = chunk.strip().split("\n")
         self.rocks = {
-            Coord(x, y): c for y, line in enumerate(lines) for x, c in enumerate(line) if c != "."
+            Coord(x, y) for y, line in enumerate(lines) for x, c in enumerate(line) if c == "O"
+        }
+        self.walls = {
+            Coord(x, y) for y, line in enumerate(lines) for x, c in enumerate(line) if c == "#"
         }
         self.max = Coord(max(c.x for c in self.rocks), max(c.y for c in self.rocks))
 
-    def roll_rock_north(self, rocks: Dict[Coord, str], loc: Coord):
+    def roll_rock_north(self, rocks: Set[Coord], loc: Coord):
         for y in range(loc.y - 1, -1, -1):
-            if (loc.x, y) in rocks:
+            if (loc.x, y) in rocks or (loc.x, y) in self.walls:
                 return y + 1
         return 0
 
-    def roll_rock_south(self, rocks: Dict[Coord, str], loc: Coord):
+    def roll_rock_south(self, rocks: Set[Coord], loc: Coord):
         for y in range(loc.y + 1, self.max.y + 1):
-            if (loc.x, y) in rocks:
+            if (loc.x, y) in rocks or (loc.x, y) in self.walls:
                 return y - 1
         return self.max.y
 
-    def roll_rock_west(self, rocks: Dict[Coord, str], loc: Coord):
+    def roll_rock_west(self, rocks: Set[Coord], loc: Coord):
         for x in range(loc.x - 1, -1, -1):
-            if (x, loc.y) in rocks:
+            if (x, loc.y) in rocks or (x, loc.y) in self.walls:
                 return x + 1
         return 0
 
-    def roll_rock_east(self, rocks: Dict[Coord, str], loc: Coord):
+    def roll_rock_east(self, rocks: Set[Coord], loc: Coord):
         for x in range(loc.x + 1, self.max.x + 1):
-            if (x, loc.y) in rocks:
+            if (x, loc.y) in rocks or (x, loc.y) in self.walls:
                 return x - 1
         return self.max.x
 
-    def roll_north(self, rocks: Dict[Coord, str]):
-        for y in range(self.max.y + 1):
-            to_move = {c for c, t in rocks.items() if c.y == y and t == "O"}
-            for rock in to_move:
-                new_y = self.roll_rock_north(rocks, rock)
-                if new_y != rock.y:
-                    rocks[Coord(rock.x, new_y)] = rocks.pop(rock)
+    def roll_north(self, rocks: Set[Coord]):
+        to_move = sorted(rocks, key=lambda c: c.y)
+        for rock in to_move:
+            new_y = self.roll_rock_north(rocks, rock)
+            if new_y != rock.y:
+                rocks.discard(rock)
+                rocks.add(Coord(rock.x, new_y))
         return rocks
 
-    def roll_south(self, rocks: Dict[Coord, str]):
-        for y in range(self.max.y, -1, -1):
-            to_move = {c for c, t in rocks.items() if c.y == y and t == "O"}
-            for rock in to_move:
-                new_y = self.roll_rock_south(rocks, rock)
-                if new_y != rock.y:
-                    rocks[Coord(rock.x, new_y)] = rocks.pop(rock)
+    def roll_south(self, rocks: Set[Coord]):
+        to_move = sorted(rocks, key=lambda c: c.y, reverse=True)
+        for rock in to_move:
+            new_y = self.roll_rock_south(rocks, rock)
+            if new_y != rock.y:
+                rocks.discard(rock)
+                rocks.add(Coord(rock.x, new_y))
         return rocks
 
-    def roll_west(self, rocks: Dict[Coord, str]):
-        for x in range(self.max.x + 1):
-            to_move = {c for c, t in rocks.items() if c.x == x and t == "O"}
-            for rock in to_move:
-                new_x = self.roll_rock_west(rocks, rock)
-                if new_x != rock.x:
-                    rocks[Coord(new_x, rock.y)] = rocks.pop(rock)
+    def roll_west(self, rocks: Set[Coord]):
+        to_move = sorted(rocks, key=lambda c: c.x)
+        for rock in to_move:
+            new_x = self.roll_rock_west(rocks, rock)
+            if new_x != rock.x:
+                rocks.discard(rock)
+                rocks.add(Coord(new_x, rock.y))
         return rocks
 
-    def roll_east(self, rocks: Dict[Coord, str]):
-        for x in range(self.max.x, -1, -1):
-            to_move = {c for c, t in rocks.items() if c.x == x and t == "O"}
-            for rock in to_move:
-                new_x = self.roll_rock_east(rocks, rock)
-                if new_x != rock.x:
-                    rocks[Coord(new_x, rock.y)] = rocks.pop(rock)
+    def roll_east(self, rocks: Set[Coord]):
+        to_move = sorted(rocks, key=lambda c: c.x, reverse=True)
+        for rock in to_move:
+            new_x = self.roll_rock_east(rocks, rock)
+            if new_x != rock.x:
+                rocks.discard(rock)
+                rocks.add(Coord(new_x, rock.y))
         return rocks
 
-    def spin_cycle(self, rocks: Dict[Coord, str]) -> Dict[Coord, str]:
+    def spin_cycle(self, rocks: Set[Coord]) -> Set[Coord]:
         rocks = self.roll_north(rocks)
         rocks = self.roll_west(rocks)
         rocks = self.roll_south(rocks)
         return self.roll_east(rocks)
 
-    def value(self, rocks: Dict[Coord, str]) -> int:
+    def value(self, rocks: Set[Coord]) -> int:
         value = 0
         for y in range(self.max.y + 1):
-            value += (self.max.y - y + 1) * sum(t == "O" for c, t in rocks.items() if c.y == y)
+            value += (self.max.y - y + 1) * sum(1 for c in rocks if c.y == y)
         return value
 
     def part_one(self) -> int:
-        new_rocks = self.roll_north(dict(self.rocks))
+        new_rocks = self.roll_north(set(self.rocks))
         return self.value(new_rocks)
 
-    def keyify(self, rocks: Dict[Coord, str]) -> Tuple[Coord, ...]:
-        return tuple(sorted({c for c in rocks if rocks[c] == "O"}))
+    def keyify(self, rocks: Set[Coord]) -> Tuple[Coord, ...]:
+        return tuple(sorted(rocks))
 
     def part_two(self) -> int:
-        rocks = dict(self.rocks)
+        rocks = set(self.rocks)
         seen_patterns = []
         for i in range(PART_TWO):
             rocks = self.spin_cycle(rocks)
@@ -119,7 +115,7 @@ class Floor:
                 delta = i - prev
                 target = prev + (PART_TWO - prev) % delta
                 pattern = seen_patterns[target - 1]
-                return self.value({c: "O" for c in pattern})
+                return self.value(set(pattern))
             seen_patterns.append(key)
 
 
