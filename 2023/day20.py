@@ -1,7 +1,7 @@
+from collections import deque
 from enum import Enum
 from math import prod
 from pathlib import Path
-from queue import Queue
 from typing import Dict, List, NamedTuple, Set, Tuple
 
 INPUT_FILE = Path(__file__).with_suffix(".input")
@@ -95,10 +95,9 @@ class RatsNest:
 
     def press_button(self, loop: int = 0) -> Tuple[int, int]:
         lows = highs = 0
-        queue = Queue()
-        queue.put(Signal("button", "broadcaster", Pulse.low))
-        while not queue.empty():
-            cur: Signal = queue.get()
+        queue = deque([Signal("button", "broadcaster", Pulse.low)])
+        while queue:
+            cur: Signal = queue.popleft()
             # print(cur)
             if cur.pulse == Pulse.low:
                 lows += 1
@@ -110,7 +109,7 @@ class RatsNest:
             if cur.target not in self.modules:
                 continue
             for sig in self.modules[cur.target].recv(cur):
-                queue.put(sig)
+                queue.append(sig)
         # print(f"{self.lows=}, {self.highs=}, {self.lows*self.highs}")
         return lows, highs
 
