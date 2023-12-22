@@ -1,6 +1,6 @@
 import heapq
 from pathlib import Path
-from typing import NamedTuple, Dict
+from typing import List, NamedTuple, Dict
 
 INPUT_FILE = Path(__file__).with_suffix(".input")
 
@@ -62,7 +62,7 @@ class Garden:
         return sum(v % 2 == (max_steps % 2) for v in polarity.values() if v <= max_steps)
 
     def part_two(self) -> int:
-        max_steps = 600
+        aligned_points: List[Coord] = []
         to_proc = [(0, self.start)]
         polarity: Dict[Coord, int] = {}
         last_step = 0
@@ -72,9 +72,12 @@ class Garden:
                 continue
             polarity[loc] = dist
             if dist > last_step:
+                if last_step % self.max.x == PART_TWO_STEPS % self.max.x:
+                    y = sum(v % 2 == (last_step % 2) for v in polarity.values() if v <= last_step)
+                    aligned_points.append(Coord(last_step, y))
+                if len(aligned_points) == 3:
+                    break
                 last_step = dist
-            if dist > max_steps:
-                break
             new_dist = dist + 1
             for direct in DIRS:
                 new_loc = loc + direct
@@ -83,12 +86,7 @@ class Garden:
         assert self.max.x == self.max.y, "The map must be square"
         assert self.start.x == self.start.y
         assert self.max.x // 2 == self.start.x, "We must be starting in the center"
-        later_items = [
-            Coord(n, sum(v % 2 == (n % 2) for v in polarity.values() if v <= n))
-            for n in range(200, max_steps + 1)
-            if n % self.max.x == self.start.x
-        ]
-        one, two, three = later_items
+        one, two, three = aligned_points
         # Calculating 2nd order polynomial: https://math.stackexchange.com/a/680695
         a_top = one.x * (three.y - two.y) + two.x * (one.y - three.y) + three.x * (two.y - one.y)
         a_bottom = (one.x - two.x) * (one.x - three.x) * (two.x - three.x)
