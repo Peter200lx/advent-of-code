@@ -1,6 +1,5 @@
-import heapq
 from pathlib import Path
-from typing import NamedTuple, Dict, List, Set
+from typing import List, NamedTuple, Set, Tuple
 
 INPUT_FILE = Path(__file__).with_suffix(".input")
 
@@ -12,9 +11,6 @@ class Coord(NamedTuple):
 
     def __add__(self, other: "Coord") -> "Coord":
         return Coord(self.x + other.x, self.y + other.y, self.z + other.z)
-
-    def __mul__(self, n: int):
-        return Coord(self.x * n, self.y * n, self.z * n)
 
     @classmethod
     def from_str(cls, chunk: str):
@@ -34,7 +30,7 @@ class Slab(NamedTuple):
     def from_str(cls, line: str):
         front, back = line.split("~")
         one, two = Coord.from_str(front), Coord.from_str(back)
-        assert sum(one[i] == two[i] for i in range(3)) >= 2, f"{ret=}"
+        assert sum(one[i] == two[i] for i in range(3)) >= 2, f"{one=} {two=}"
         if one.x != two.x:
             align = 0
             if one.x > two.x:  # Put lower number first
@@ -58,12 +54,9 @@ class Slab(NamedTuple):
             return {Coord(self.one.x, self.one.y, n) for n in range(self.one.z, self.two.z + 1)}
 
     def bottom_points(self) -> Set[Coord]:
-        if self.align == 0:
-            return {Coord(n, self.one.y, self.one.z) for n in range(self.one.x, self.two.x + 1)}
-        if self.align == 1:
-            return {Coord(self.one.x, n, self.one.z) for n in range(self.one.y, self.two.y + 1)}
         if self.align == 2:
             return {Coord(self.one.x, self.one.y, self.one.z)}
+        return self.points()
 
     def lower(self, dist: int) -> "Slab":
         return Slab(
@@ -81,7 +74,7 @@ def drop_bricks(bricks: List[Slab]) -> List[Slab]:
     locked_points = {Coord(x, y, 0) for x in range(minx, maxx + 1) for y in range(miny, maxy + 1)}
     for brick in bricks:
         lowest = brick.bottom_points()
-        assert len(lowest & locked_points) == 0, f"{brick=}, {lowest & locked_points}"
+        assert len(lowest & locked_points) == 0, f"Brick should not be overlapping locked points"
         for i in range(9999):
             new_lowest = set()
             stopped = False
@@ -101,34 +94,13 @@ def drop_bricks(bricks: List[Slab]) -> List[Slab]:
     return new_bricks
 
 
-def disintegrate_bricks(bricks: List[Slab]):
+def calc_dependencies(bricks: List[Slab]) -> Tuple[int, int]:
     # Assuming bricks have already been dropped
-    bricks = sorted(bricks, key=lambda x: x.two.z, reverse=True)
-    destructable = 0
     b_clouds = {b: b.points() for b in bricks}
-    claimed_bricks = set()
-    for brick in bricks:
-        if brick not in claimed_bricks:
-            destructable += 1
-        dependents = set()
-        for c in brick.bottom_points():
-            lowered_c = c + DOWN
-            for b, cloud in b_clouds.items():
-                if lowered_c in cloud:
-                    dependents.add(b)
-        if len(dependents) == 1:
-            claimed_bricks.add(dependents.pop())
-    return destructable
-
-
-def most_dropped(bricks: List[Slab]):
-    # Assuming bricks have already been dropped
-    bricks = sorted(bricks, key=lambda x: x.two.z, reverse=True)
-    b_clouds = {b: b.points() for b in bricks}
-    supporting = {}
     supports = {b: set() for b in bricks}
+    supporting = {}
     claimed_bricks = set()
-    for brick in bricks:
+    for brick in sorted(bricks, key=lambda x: x.two.z, reverse=True):
         dependents = set()
         for c in brick.bottom_points():
             lowered_c = c + DOWN
@@ -136,22 +108,23 @@ def most_dropped(bricks: List[Slab]):
                 if lowered_c in cloud:
                     dependents.add(b)
                     supports[b].add(brick)
+                    break
         if len(dependents) == 1:
-            claimed_bricks.add(dependents.pop())
+            claimed_bricks.add(next(iter(dependents)))
         supporting[brick] = dependents
 
     all_fall = 0
-    for key_brick in sorted(claimed_bricks, key=lambda x: x.one.z):
+    for key_brick in claimed_bricks:
         removed = {key_brick}
         to_proc = [b for b in supports[key_brick]]
         while to_proc:
             brick = to_proc.pop(0)
             if all(b in removed for b in supporting[brick]):
                 removed.add(brick)
-                to_proc.extend(sorted(supports[brick], key=lambda x: x.one.z))
+                to_proc.extend(supports[brick])
         all_fall += len(removed) - 1
 
-    return all_fall
+    return len(set(bricks) - claimed_bricks), all_fall
 
 
 if __name__ == "__main__":
@@ -159,5 +132,6 @@ if __name__ == "__main__":
     BRICKS = [Slab.from_str(line) for line in DATA.split("\n")]
 
     DROPPED_BRICKS = drop_bricks(BRICKS)
-    print(disintegrate_bricks(DROPPED_BRICKS))
-    print(most_dropped(DROPPED_BRICKS))
+    DISINTEGRABLE, TOTAL_DROPPED_ON_REMOVAL = calc_dependencies(DROPPED_BRICKS)
+    print(DISINTEGRABLE)
+    print(TOTAL_DROPPED_ON_REMOVAL)
