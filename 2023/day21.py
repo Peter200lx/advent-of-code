@@ -61,7 +61,8 @@ class Garden:
                     heapq.heappush(to_proc, (new_dist, new_loc))
         return sum(v % 2 == (max_steps % 2) for v in polarity.values() if v <= max_steps)
 
-    def part_two(self, max_steps: int = PART_TWO_STEPS) -> int:
+    def part_two(self) -> int:
+        max_steps = 600
         to_proc = [(0, self.start)]
         polarity: Dict[Coord, int] = {}
         last_step = 0
@@ -71,7 +72,6 @@ class Garden:
                 continue
             polarity[loc] = dist
             if dist > last_step:
-                print(f"{last_step=}")
                 last_step = dist
             if dist > max_steps:
                 break
@@ -80,13 +80,24 @@ class Garden:
                 new_loc = loc + direct
                 if new_loc % self.max in self.gardens:
                     heapq.heappush(to_proc, (new_dist, new_loc))
+        assert self.max.x == self.max.y, "The map must be square"
+        assert self.start.x == self.start.y
+        assert self.max.x // 2 == self.start.x, "We must be starting in the center"
         later_items = [
-            sum(v % 2 == (n % 2) for v in polarity.values() if v <= n)
+            Coord(n, sum(v % 2 == (n % 2) for v in polarity.values() if v <= n))
             for n in range(200, max_steps + 1)
+            if n % self.max.x == self.start.x
         ]
-        for i, n in enumerate(later_items, start=200):
-            print(f"{i},{n}")
-        return sum(v % 2 == (max_steps % 2) for v in polarity.values() if v <= max_steps)
+        one, two, three = later_items
+        # Calculating 2nd order polynomial: https://math.stackexchange.com/a/680695
+        a_top = one.x * (three.y - two.y) + two.x * (one.y - three.y) + three.x * (two.y - one.y)
+        a_bottom = (one.x - two.x) * (one.x - three.x) * (two.x - three.x)
+        a = a_top / a_bottom
+        b = (two.y - one.y) / (two.x - one.x) - a * (one.x + two.x)
+        c = one.y - a * (one.x**2) - b * one.x
+        # print(f"{a} * x**2 + {b} * x + {c}")
+        x = PART_TWO_STEPS
+        return int(a * x**2 + b * x + c)
 
 
 if __name__ == "__main__":
@@ -94,25 +105,4 @@ if __name__ == "__main__":
     GARDEN = Garden(DATA)
 
     print(GARDEN.part_one())
-    print(GARDEN.part_two(2000))  # This printed out a CSV of steps, location_count
-    # csv = [l.split(",") for l in Path("2023/day21.csv").read_text().split("\n")]
-    # csv = [(int(l[0]), int(l[1])) for l in csv if l[0]]
-    # Opened in LibreOffice Calc, graphed and saw a 2nd order polynomial had a R2=0.99999996 fit
-    print(f"{PART_TWO_STEPS=} - 65 steps from edge = {PART_TWO_STEPS-65}")
-    print(
-        f"Take {PART_TWO_STEPS-65} and divide by 131 input size (it is a square) {(PART_TWO_STEPS-65)/131}"
-    )
-    # This means the final answer is on the edge of a square
-    # Bpendragon points out https://en.wikipedia.org/wiki/Centered_square_number is the pattern
-    # Extract all visited counts where the steps are on the edge of a square
-    # csv = [l[1] for l in csv if l[0] % 131 == 65]
-    # print(csv)
-    # [94475, 185083, 305871, 456839, 637987, 849315, 1090823, 1362511, 1664379, 1996427, 2358655, 2751063, 3173651]
-    # Asked https://www.wolframalpha.com/ to give the 2nd order polynomial of the above list
-    #   (following hunch from LibreOffice)
-    # That gave answer = 34047 + 45338*x + 15090*(x**2) on the above numbers
-    print(f"x = {(PART_TWO_STEPS-65)/131 - 1=}")
-    x = (PART_TWO_STEPS - 65) / 131 - 1
-    print(f"answer = {34047 + 45338*x + 15090*(x**2)=}")
-    print(int(34047 + 45338 * x + 15090 * (x**2)))
-    # Will build a proper solution for the mystery box of WolframAlpha in a later commit
+    print(GARDEN.part_two())
