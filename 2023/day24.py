@@ -69,7 +69,7 @@ def fast_fail_p1(
 
         inter = line_intersection((l1_p1, l1_p2), (l2_p1, l2_p2))
         if inter is None:
-            return
+            continue
         if master_inter is None:
             master_inter = inter
         elif inter != master_inter:
