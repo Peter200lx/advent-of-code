@@ -51,7 +51,7 @@ def part_one(hailstones: List[TYPE_3D_LINE]) -> int:
                 break
         if backwards:
             continue
-        r = P1_RANGE  # TEST_RANGE if testing
+        r = TEST_RANGE  # TEST_RANGE if testing
         if r.start <= inter[0] <= r.stop and r.start <= inter[1] <= r.stop:
             count += 1
     return count
@@ -96,10 +96,10 @@ def part_two(hailstones: List[TYPE_3D_LINE]) -> int:
     # Using the idea from reddit of using the 2d crossings after adjusting for rock vector
     # https://www.reddit.com/r/adventofcode/comments/18pptor/comment/kepufsi/
     for rock_vel_2d in vec_2d_gen():
-        inter_2d_xy = fast_fail_p1(hailstones[:10], rock_vel_2d, range(2))
+        inter_2d_xy = fast_fail_p1(hailstones, rock_vel_2d, range(2))
         if inter_2d_xy:
             for z in vec_1d_gen():
-                inter_2d_yz = fast_fail_p1(hailstones[:10], rock_vel_2d + (z,), range(1, 3))
+                inter_2d_yz = fast_fail_p1(hailstones, rock_vel_2d + (z,), range(1, 3))
                 if inter_2d_yz:
                     assert inter_2d_xy[1] == inter_2d_yz[0]
                     return sum(inter_2d_xy) + inter_2d_yz[1]
@@ -107,6 +107,11 @@ def part_two(hailstones: List[TYPE_3D_LINE]) -> int:
 
 if __name__ == "__main__":
     DATA = INPUT_FILE.read_text().strip()
+    DATA = """19, 13, 30 @ -2,  1, -2
+18, 19, 22 @ -1, -1, -2
+20, 25, 34 @ -2, -2, -4
+12, 31, 28 @ -1, -2, -1
+20, 19, 15 @  1, -5, -3"""
     HAILSTONES = [
         (tuple(map(int, p.split(", "))), tuple(map(int, v.split(", "))))
         for line in DATA.split("\n")
