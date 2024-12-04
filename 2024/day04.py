@@ -40,16 +40,6 @@ p2_o = [
 ]
 
 
-def parse_table(in_str: str) -> dict[Coord, str]:
-    lines = [line for line in in_str.split("\n")]
-    assert all(len(lines[0]) == len(line) for line in lines)
-    board = {}
-    for y, line in enumerate(lines):
-        for x, c in enumerate(line):
-            board[Coord(x, y)] = c
-    return board
-
-
 def p1(board: dict[Coord, str]) -> int:
     count = 0
     for coord in board:
@@ -58,10 +48,9 @@ def p1(board: dict[Coord, str]) -> int:
         for direc in p1_d:
             new_loc = coord
             found = True
-            for i, c in enumerate(P1_KEY[1:], start=1):
+            for c in P1_KEY[1:]:
                 new_loc += direc
-                new_c = board.get(new_loc)
-                if c != new_c:
+                if c != board.get(new_loc):
                     found = False
                     break
             if found:
@@ -92,7 +81,11 @@ def p2(board: dict[Coord, str]) -> int:
 
 if __name__ == "__main__":
     DATA = INPUT_FILE.read_text().strip()
-    BOARD = parse_table(DATA)
+    BOARD = {
+        Coord(x, y): c
+        for y, line in enumerate(DATA.split("\n"))
+        for x, c in enumerate(line)
+    }
 
     print(p1(BOARD))
     print(p2(BOARD))
