@@ -19,25 +19,9 @@ class Coord(NamedTuple):
 p1_d = [Coord(-1, -1), Coord(0, -1), Coord(1, -1),
         Coord(-1, 0),                Coord(1, 0),
         Coord(-1, 1),  Coord(0, 1),  Coord(1, 1)]
+p2_d = [Coord(-1, -1), Coord(1, -1),
+        Coord(-1, 1),  Coord(1, 1)]
 # fmt: on
-p2_o = [
-    (
-        (Coord(-1, -1), Coord(1, -1), Coord(-1, 1), Coord(1, 1)),
-        ((0, 0, 2, 2), (0, 2, 0, 2)),
-    ),
-    (
-        (Coord(-1, 1), Coord(1, 1), Coord(-1, -1), Coord(1, -1)),
-        ((0, 0, 2, 2), (0, 2, 0, 2)),
-    ),
-    (
-        (Coord(1, -1), Coord(-1, -1), Coord(1, 1), Coord(-1, 1)),
-        ((0, 0, 2, 2), (0, 2, 0, 2)),
-    ),
-    (
-        (Coord(1, 1), Coord(-1, 1), Coord(1, -1), Coord(-1, -1)),
-        ((0, 0, 2, 2), (0, 2, 0, 2)),
-    ),
-]
 
 
 def p1(board: dict[Coord, str]) -> int:
@@ -60,22 +44,20 @@ def p1(board: dict[Coord, str]) -> int:
 
 def p2(board: dict[Coord, str]) -> int:
     count = 0
-    for coord in sorted(board):
+    for coord in board:
         if board[coord] != P2_KEY[1]:
             continue
-        for orientation in p2_o:
-            direc, seqs = orientation
-            for seq in seqs:
-                found = True
-                for i in range(4):
-                    if board.get(coord + direc[i]) != P2_KEY[seq[i]]:
-                        found = False
-                        break
-                if found:
+        new_locs = [coord + p2_d[i] for i in range(4)]
+        for seq in ((0, 0, 2, 2), (0, 2, 0, 2), (2, 2, 0, 0), (2, 0, 2, 0)):
+            found = True
+            for i in range(4):
+                if board.get(new_locs[i]) != P2_KEY[seq[i]]:
+                    found = False
                     break
             if found:
-                count += 1
                 break
+        if found:
+            count += 1
     return count
 
 
