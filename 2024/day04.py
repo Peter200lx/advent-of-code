@@ -47,7 +47,7 @@ def p2(board: dict[Coord, str]) -> int:
     for coord in board:
         if board[coord] != P2_KEY[1]:
             continue
-        new_locs = [coord + p2_d[i] for i in range(4)]
+        new_locs = [coord + d for d in p2_d]
         for seq in ((0, 0, 2, 2), (0, 2, 0, 2), (2, 2, 0, 0), (2, 0, 2, 0)):
             found = True
             for i in range(4):
