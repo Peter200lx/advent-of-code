@@ -4,21 +4,19 @@ INPUT_FILE = Path(__file__).with_suffix(".input")
 
 
 def is_valid(rules: dict, update: list[int], update_vals: set[int]) -> bool:
-    valid = True
     for r_set, r_seq in rules.items():
         if len(update_vals & r_set) == 2:
             if update.index(r_seq[0]) > update.index(r_seq[1]):
-                valid = False
-                break
-    return valid
+                return False
+    return True
 
 
 def p1(rules: dict, updates: list[list[int]]) -> int:
-    count = 0
-    for update in updates:
-        if is_valid(rules, update, set(update)):
-            count += update[len(update) // 2]
-    return count
+    return sum(
+        update[len(update) // 2]
+        for update in updates
+        if is_valid(rules, update, set(update))
+    )
 
 
 def p2(rules: dict, updates: list[list[int]]) -> int:
