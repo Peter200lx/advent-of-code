@@ -72,28 +72,9 @@ def p1(obs: set[Coord], guard: tuple[Coord, str]) -> set[Coord]:
     return been_at
 
 
-def find_loop(obs: set[Coord], guard: tuple[Coord, str]) -> bool:
-    been_at = {guard}
-    minx, maxx = min(p.x for p in obs), max(p.x for p in obs)
-    miny, maxy = min(p.y for p in obs), max(p.y for p in obs)
-    new_loc = guard[0] + ORIENT[guard[1]]
-    while (minx <= new_loc.x <= maxx) and (miny <= new_loc.y <= maxy):
-        if new_loc in obs:
-            guard = guard[0], ROTATE[guard[1]]
-            if guard in been_at:
-                return True
-            been_at.add(guard)
-        else:
-            guard = new_loc, guard[1]
-            if guard in been_at:
-                return True
-            been_at.add(guard)
-        new_loc = guard[0] + ORIENT[guard[1]]
-    return False
-
-
 def p2(obs: set[Coord], guard: tuple[Coord, str], cached: set[Coord]) -> int:
     blocked_locs = obs | {guard[0]}
+    cached_moves = {}
     found_locs = set()
     minx, maxx = min(p.x for p in obs), max(p.x for p in obs)
     miny, maxy = min(p.y for p in obs), max(p.y for p in obs)
@@ -101,9 +82,39 @@ def p2(obs: set[Coord], guard: tuple[Coord, str], cached: set[Coord]) -> int:
         if test_loc in blocked_locs:
             continue
         local_obs = obs | {test_loc}
-        if find_loop(local_obs, guard):
+        local_guard: tuple[Coord, str] = guard
+        loop = False
+        been_at = {local_guard}
+        while (minx <= local_guard[0].x <= maxx) and (miny <= local_guard[0].y <= maxy):
+            if local_guard in cached_moves:
+                if not (
+                    test_loc.x - 1 <= local_guard[0].x <= test_loc.x + 1
+                    and test_loc.y - 1 <= local_guard[0].y <= test_loc.y + 1
+                ):
+                    new_guard = cached_moves[local_guard]
+                    local_guard = new_guard
+                    if local_guard in been_at:
+                        loop = True
+                        break
+                    been_at.add(local_guard)
+                    continue
+            new_loc = local_guard[0] + ORIENT[local_guard[1]]
+            if new_loc in local_obs:
+                new_guard = local_guard[0], ROTATE[local_guard[1]]
+            else:
+                new_guard = new_loc, local_guard[1]
+            if not (
+                test_loc.x - 1 <= local_guard[0].x <= test_loc.x + 1
+                and test_loc.y - 1 <= local_guard[0].y <= test_loc.y + 1
+            ):
+                cached_moves[local_guard] = new_guard
+            local_guard = new_guard
+            if local_guard in been_at:
+                loop = True
+                break
+            been_at.add(local_guard)
+        if loop:
             found_locs.add(test_loc)
-            print(len(found_locs))
     return len(found_locs)
 
 
