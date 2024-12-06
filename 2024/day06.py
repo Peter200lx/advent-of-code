@@ -55,7 +55,7 @@ def printg(obs, guard, been_at):
         print(line)
 
 
-def p1(obs: set[Coord], guard: tuple[Coord, str]) -> int:
+def p1(obs: set[Coord], guard: tuple[Coord, str]) -> set[Coord]:
     been_at = {guard[0]}
     # printg(obs, guard, been_at)
     minx, maxx = min(p.x for p in obs), max(p.x for p in obs)
@@ -69,7 +69,7 @@ def p1(obs: set[Coord], guard: tuple[Coord, str]) -> int:
             guard = new_loc, guard[1]
         new_loc = guard[0] + ORIENT[guard[1]]
     # printg(obs, guard, been_at)
-    return len(been_at)
+    return been_at
 
 
 def find_loop(obs: set[Coord], guard: tuple[Coord, str]) -> bool:
@@ -92,20 +92,18 @@ def find_loop(obs: set[Coord], guard: tuple[Coord, str]) -> bool:
     return False
 
 
-def p2(obs: set[Coord], guard: tuple[Coord, str]) -> int:
+def p2(obs: set[Coord], guard: tuple[Coord, str], cached: set[Coord]) -> int:
     blocked_locs = obs | {guard[0]}
     found_locs = set()
     minx, maxx = min(p.x for p in obs), max(p.x for p in obs)
     miny, maxy = min(p.y for p in obs), max(p.y for p in obs)
-    for y in range(miny, maxy + 1):
-        for x in range(minx, maxx + 1):
-            test_loc = Coord(x, y)
-            if test_loc in blocked_locs:
-                continue
-            local_obs = obs | {test_loc}
-            if find_loop(local_obs, guard):
-                found_locs.add(test_loc)
-                print(len(found_locs))
+    for test_loc in cached:
+        if test_loc in blocked_locs:
+            continue
+        local_obs = obs | {test_loc}
+        if find_loop(local_obs, guard):
+            found_locs.add(test_loc)
+            print(len(found_locs))
     return len(found_locs)
 
 
@@ -113,5 +111,6 @@ if __name__ == "__main__":
     DATA = INPUT_FILE.read_text().strip()
     OBS, GUARD = read(DATA)
 
-    print(p1(OBS, GUARD))
-    print(p2(OBS, GUARD))
+    STEPS = p1(OBS, GUARD)
+    print(len(STEPS))
+    print(p2(OBS, GUARD, STEPS))
