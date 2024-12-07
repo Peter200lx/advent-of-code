@@ -1,22 +1,19 @@
-from itertools import product
 from pathlib import Path
 
 INPUT_FILE = Path(__file__).with_suffix(".input")
 
 
-def is_valid(test: int, vals: list[int], ops="*+") -> bool:
-    for seq in product(ops, repeat=len(vals) - 1):
-        result = vals[0]
-        for i, c in enumerate(seq, start=1):
-            if result > test:
-                break
-            if c == "*":
-                result *= vals[i]
-            elif c == "+":
-                result += vals[i]
-            else:
-                result = int(f"{result}{vals[i]}")
-        if result == test:
+def is_valid(test: int, vals: list[int], so_far: int, ops="*+") -> bool:
+    if so_far > test:
+        return False
+    if not vals:
+        return so_far == test
+    for op in ops:
+        if op == "*" and is_valid(test, vals[1:], so_far * vals[0], ops):
+            return True
+        elif op == "+" and is_valid(test, vals[1:], so_far + vals[0], ops):
+            return True
+        elif op == "|" and is_valid(test, vals[1:], int(f"{so_far}{vals[0]}"), ops):
             return True
     return False
 
@@ -29,5 +26,5 @@ if __name__ == "__main__":
         for left, right in [line.split(": ")]
     ]
 
-    print(sum(l[0] for l in OPERATORS if is_valid(*l)))
-    print(sum(l[0] for l in OPERATORS if is_valid(*l, ops="*+|")))
+    print(sum(t for t, o in OPERATORS if is_valid(t, o[1:], o[0])))
+    print(sum(t for t, o in OPERATORS if is_valid(t, o[1:], o[0], ops="*+|")))
