@@ -44,29 +44,19 @@ class Resonance:
         antinodes = set()
         for c, pcloud in self.antennas.items():
             for p1, p2 in combinations(pcloud, 2):
-                a1 = p1 + p1 - p2
-                a2 = p2 + p2 - p1
-                for a in (a1, a2):
+                for a in (p1 + p1 - p2, p2 + p2 - p1):
                     if 0 <= a.x < self.size.x and 0 <= a.y < self.size.y:
                         antinodes.add(a)
-
         return len(antinodes)
 
     def p2(self) -> int:
         antinodes = set()
         for c, pcloud in self.antennas.items():
             for p1, p2 in combinations(pcloud, 2):
-                d1 = p1 - p2
-                a = p1
-                while 0 <= a.x < self.size.x and 0 <= a.y < self.size.y:
-                    antinodes.add(a)
-                    a += d1
-                d2 = p2 - p1
-                a = p2
-                while 0 <= a.x < self.size.x and 0 <= a.y < self.size.y:
-                    antinodes.add(a)
-                    a += d2
-
+                for a, d in ((p1, p1 - p2), (p2, p2 - p1)):
+                    while 0 <= a.x < self.size.x and 0 <= a.y < self.size.y:
+                        antinodes.add(a)
+                        a += d
         return len(antinodes)
 
 
