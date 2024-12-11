@@ -8,25 +8,9 @@ P1_COUNT = 25
 P2_COUNT = 75
 
 
-def rules(value: int) -> list[int]:
-    if value == 0:
-        return [1]
-    v_str = f"{value}"
-    if len(v_str) % 2 == 0:
-        return [int(v_str[: len(v_str) // 2]), int(v_str[len(v_str) // 2 :])]
-    return [value * 2024]
-
-
-def p1(values: list[int]) -> int:
-    my_list = list(values)
-    for i in range(P1_COUNT):
-        my_list = [v for n in my_list for v in rules(n)]
-    return len(my_list)
-
-
-def p2(values: list[int]) -> int:
+def solve(values: list[int], iterations: int) -> int:
     stones = Counter(values)
-    for i in range(P2_COUNT):
+    for i in range(iterations):
         nstones = Counter()
         for stone, count in stones.items():
             if stone == 0:
@@ -37,7 +21,7 @@ def p2(values: list[int]) -> int:
                 nstones[int(v_str[: len(v_str) // 2])] += count
                 nstones[int(v_str[len(v_str) // 2 :])] += count
                 continue
-            nstones[stone * 2024] += count
+            nstones[stone * MUL_NUM] += count
         stones = nstones
     return sum(stones.values())
 
@@ -46,5 +30,5 @@ if __name__ == "__main__":
     DATA = INPUT_FILE.read_text().strip()
     STONES = [int(n) for n in DATA.split()]
 
-    print(p1(STONES))
-    print(p2(STONES))
+    print(solve(STONES, P1_COUNT))
+    print(solve(STONES, P2_COUNT))
