@@ -1,4 +1,3 @@
-from collections import defaultdict
 from itertools import combinations
 from pathlib import Path
 from typing import NamedTuple
@@ -23,12 +22,10 @@ DIRS = [              Coord(0, -1),
 
 class Plot(NamedTuple):
     inside: dict[Coord, set[Coord]]
-    adjacent: dict[Coord, set[Coord]]
 
     @classmethod
     def make(cls, field: dict[Coord, str], start: Coord) -> "Plot":
         inside = {}
-        adjacent = defaultdict(set)
         possible = {start}
         my_letter = field[start]
         while possible:
@@ -41,30 +38,7 @@ class Plot(NamedTuple):
                         possible.add(new_loc)
                 else:
                     inside[coord].add(d)
-                    adjacent[new_loc].add(d)
-        return cls(inside, adjacent)
-
-    @property
-    def sides_old(self):
-        dir_groupings: dict[Coord, list[set[Coord]]] = {d: [] for d in DIRS}
-        for coord in self.adjacent:
-            found = set()
-            for d in DIRS:
-                new_loc = coord + d
-                if new_loc in self.adjacent:
-                    shared_dirs = self.adjacent[coord] & self.adjacent[new_loc]
-                    for dir in shared_dirs:
-                        found.add(dir)
-                        my_side = {coord, new_loc}
-                        for side in dir_groupings[dir]:
-                            if side & my_side:  # Any shared points
-                                side |= my_side  # add other point to set
-                                break
-                        else:
-                            dir_groupings[dir].append(my_side)
-            for dir_remain in self.adjacent[coord] - found:
-                dir_groupings[dir_remain].append(set())
-        return sum(len(rs) for rs in dir_groupings.values())
+        return cls(inside)
 
     @property
     def sides(self):
@@ -108,10 +82,6 @@ class Map:
             letter_plots = self.plots.setdefault(self.locs[coord], [])
             letter_plots.append(Plot.make(self.locs, coord))
             seen |= letter_plots[-1].inside.keys()
-
-    def printg(self):
-        for y in range(self.size.y):
-            print("".join(f"{self.locs[(x, y)]}" for x in range(self.size.x)))
 
     def p1(self) -> int:
         return sum(
