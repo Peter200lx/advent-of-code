@@ -69,31 +69,24 @@ def p1(robots: list[Robot]) -> int:
     return res
 
 
-def p2_print(robots: list[Robot]) -> int:
-    # mid_x = P1_SPACE.x // 2
-    for i in range(500):
+def p2(robots: list[Robot]) -> int:
+    starts = {"x": None, "y": None}
+    for i in range(P1_LOOPS):
+        if all(starts.values()):
+            break
         robots = [r.step() for r in robots]
-        printg(dict(Counter(r.point for r in robots)))
-        print(i + 1)
-
-        # valid = True
-        # for y in range(0, 4):
-        #     x_ranges = (range(0, mid_x-y), range(mid_x+1+y, P1_SPACE.x))
-        #     for x_range in x_ranges:
-        #         if any(r.point.x in x_range and r.point.y == y for r in robots):
-        #             valid = False
-        #             break
-        #     if not valid:
-        #         break
-        # if valid:
-        #     printg(dict(Counter(r.point for r in robots)))
-        #     print(i)
-        #     break
-
-
-def p2():
-    x = 14  # vertical pattern found
-    y = 64  # horizontal pattern found
+        counts = {
+            "x": Counter(r.point.x for r in robots),
+            "y": Counter(r.point.y for r in robots),
+        }
+        for v in ("x", "y"):
+            ordered_counter = [n for _x, n in counts[v].most_common()]
+            if (
+                sum(ordered_counter[:10])
+                > sum(ordered_counter[-10:]) + len(robots) // 3
+            ):
+                starts[v] = i + 1
+    x, y = starts["x"], starts["y"]
     while x != y:
         if x < y:
             x += P1_SPACE.x
@@ -107,5 +100,4 @@ if __name__ == "__main__":
     ROBOTS = [Robot.make(line) for line in DATA.split("\n")]
 
     print(p1(ROBOTS))
-    # p2_print(ROBOTS)
-    print(p2())
+    print(p2(ROBOTS))
