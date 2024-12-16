@@ -46,23 +46,7 @@ class Map:
                 elif c == "E":
                     self.end = Coord(x, y)
 
-    def p1(self) -> int:
-        to_proc = [(0, START_DIR, self.start)]
-        seen = {}
-        while to_proc:
-            cost, cur_dir, loc = heapq.heappop(to_proc)
-            if loc == self.end:
-                return cost
-            if seen.get((loc, cur_dir), 999e9) < cost:
-                continue
-            seen[(loc, cur_dir)] = cost
-            forward_loc = loc + DIRS[cur_dir]
-            if forward_loc not in self.walls:
-                heapq.heappush(to_proc, (cost + 1, cur_dir, forward_loc))
-            for direct in TURNS[cur_dir]:
-                heapq.heappush(to_proc, (cost + TURN_COST, direct, loc))
-
-    def p2(self) -> int:
+    def solve(self) -> tuple[int, int]:
         to_proc = [(0, START_DIR, {self.start}, self.start)]
         best_end_cost = 99e99
         best_seats = set()
@@ -73,7 +57,7 @@ class Map:
                 best_end_cost = cost
                 best_seats |= locs
             if cost > best_end_cost:
-                return len(best_seats)
+                return best_end_cost, len(best_seats)
             if seen.get((loc, cur_dir), 999e9) < cost:
                 continue
             seen[(loc, cur_dir)] = cost
@@ -90,5 +74,4 @@ if __name__ == "__main__":
     DATA = INPUT_FILE.read_text().strip()
     MAP = Map(DATA)
 
-    print(MAP.p1())
-    print(MAP.p2())
+    print("\n".join(str(n) for n in MAP.solve()))
