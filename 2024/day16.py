@@ -1,4 +1,5 @@
 import heapq
+from collections import deque
 from pathlib import Path
 from typing import NamedTuple
 
@@ -47,27 +48,31 @@ class Map:
                     self.end = Coord(x, y)
 
     def solve(self) -> tuple[int, int]:
-        to_proc = [(0, START_DIR, {self.start}, self.start)]
+        to_proc = deque([(0, START_DIR, {self.start}, self.start)])
         best_end_cost = 99e99
         best_seats = set()
         seen = {}
         while to_proc:
-            cost, cur_dir, locs, loc = heapq.heappop(to_proc)
-            if loc == self.end:
-                best_end_cost = cost
-                best_seats |= locs
-            if cost > best_end_cost:
-                return best_end_cost, len(best_seats)
+            cost, cur_dir, locs, loc = to_proc.popleft()
             if seen.get((loc, cur_dir), 999e9) < cost:
                 continue
             seen[(loc, cur_dir)] = cost
+            if loc == self.end:
+                if cost < best_end_cost:
+                    best_seats = set(locs)
+                    best_end_cost = cost
+                elif best_end_cost == cost:
+                    best_end_cost = cost
+                else:
+                    continue
             forward_loc = loc + DIRS[cur_dir]
             if forward_loc not in self.walls:
-                heapq.heappush(
-                    to_proc, (cost + 1, cur_dir, locs | {forward_loc}, forward_loc)
+                to_proc.appendleft(
+                    (cost + 1, cur_dir, locs | {forward_loc}, forward_loc)
                 )
             for direct in TURNS[cur_dir]:
-                heapq.heappush(to_proc, (cost + TURN_COST, direct, locs, loc))
+                to_proc.append((cost + TURN_COST, direct, locs, loc))
+        return best_end_cost, len(best_seats)
 
 
 if __name__ == "__main__":
