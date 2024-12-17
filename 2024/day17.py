@@ -74,26 +74,7 @@ class Comp:
                 cur_op += 2
 
 
-def part2_first(data: str) -> int:
-    for i in range(999999999999):
-        comp = Comp(data)
-        comp.a = i
-        comp.run()
-        print(i, comp.output)
-
-
-def part2_maybe_smarter(prog: list[int]) -> int:
-    for i in range(8 ** (len(prog) - 1), 8 ** (len(prog) + 1)):
-        test = []
-        while i:
-            val = (i % 8) ^ (i >> ((i % 8) ^ 7))
-            test.append(val)
-            i //= 8
-        if test == prog:
-            return i
-
-
-def p2_test(data: str, start: int, length: int) -> list[int]:
+def p2_potentials(data: str, start: int, length: int) -> list[int]:
     res = []
     for j in range(8):
         comp = Comp(data)
@@ -107,7 +88,7 @@ def p2_test(data: str, start: int, length: int) -> list[int]:
 def part2(data: str, prog: list[int]) -> int:
     viable = [0]
     for i in range(len(prog)):
-        viable = [r for n in viable for r in p2_test(data, n << 3, i)]
+        viable = [r for n in viable for r in p2_potentials(data, n << 3, i)]
     return min(viable)
 
 
