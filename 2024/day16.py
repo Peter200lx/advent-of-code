@@ -71,7 +71,9 @@ class Map:
                     (cost + 1, cur_dir, locs | {forward_loc}, forward_loc)
                 )
             for direct in TURNS[cur_dir]:
-                to_proc.append((cost + TURN_COST, direct, locs, loc))
+                new_loc = loc + DIRS[direct]
+                if new_loc not in self.walls:
+                    to_proc.append((cost + TURN_COST + 1, direct, locs | {new_loc}, new_loc))
         return best_end_cost, len(best_seats)
 
 
