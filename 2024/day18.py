@@ -64,28 +64,24 @@ def solve(walls: set[Coord]) -> int:
     raise ValueError
 
 
-def part1(data: str) -> int:
-    full_bytes = [
-        Coord(int(x), int(y))
-        for line in data.split("\n")[:P1_BYTES]
-        for x, y in [line.split(",")]
-    ]
-    return solve(set(full_bytes))
-
-
-def part2(data: str):
-    full_bytes = [
-        Coord(int(x), int(y)) for line in data.split("\n") for x, y in [line.split(",")]
-    ]
-    for i in range(P1_BYTES, len(full_bytes)):
+def binary_search(walls: list[Coord]):
+    low, high = P1_BYTES, len(walls)
+    while low < high:
+        mid = (low + high) // 2
         try:
-            solve(set(full_bytes[:i]))
+            solve(set(walls[:mid]))
         except ValueError:
-            return f"{full_bytes[i-1].x},{full_bytes[i-1].y}"
+            high = mid
+            continue
+        low = mid + 1
+    return f"{walls[mid-1].x},{walls[mid-1].y}"
 
 
 if __name__ == "__main__":
     DATA = INPUT_FILE.read_text().strip()
+    WALLS = [
+        Coord(int(x), int(y)) for line in DATA.split("\n") for x, y in [line.split(",")]
+    ]
 
-    print(part1(DATA))
-    print(part2(DATA))
+    print(solve(set(WALLS[:P1_BYTES])))
+    print(binary_search(WALLS))
