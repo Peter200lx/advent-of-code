@@ -6,7 +6,8 @@ def solve(patterns: list[str], designs: list[str]) -> tuple[int, int]:
     part1_count = 0
     valid_count = 0
     for design in designs:
-        possible = {pat: 1 for pat in patterns if design.startswith(pat)}
+        matching_patterns = {pat for pat in patterns if pat in design}
+        possible = {pat: 1 for pat in matching_patterns if design.startswith(pat)}
         valid_designs = 0
         while possible:
             attempt_str: str = min(possible, key=lambda x: len(x))
@@ -15,7 +16,7 @@ def solve(patterns: list[str], designs: list[str]) -> tuple[int, int]:
                 valid_designs += attempt_count
             elif len(attempt_str) > len(design):
                 break
-            for pattern in patterns:
+            for pattern in matching_patterns:
                 if design[len(attempt_str) :].startswith(pattern):
                     next_str = attempt_str + pattern
                     if next_str in possible:
