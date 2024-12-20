@@ -69,13 +69,17 @@ class Map:
                         result += 1
         return result
 
-    def solve_cheat_p2(self, best_cost: int, path: list[tuple[Coord, int]]) -> int:
+    @staticmethod
+    def solve_cheat_p2(best_cost: int, path: list[tuple[Coord, int]]) -> int:
         in_path = dict(path)
         result = 0
         for loc, _cost in path:
-            for nearby in (l for l in in_path if 2 <= loc.mann(l) <= 20):
-                if nearby == loc:
-                    continue
+            grid_scan = set()
+            for y in range(-20, 21):
+                for x in range(abs(y)-20, 21-abs(y)):
+                    if (loc.x+x, loc.y+y) in in_path:
+                        grid_scan.add(Coord(loc.x+x, loc.y+y))
+            for nearby in (l for l in grid_scan if 2 <= loc.mann(l) <= 20):
                 score = best_cost - (in_path[nearby] - in_path[loc]) + loc.mann(nearby)
                 if best_cost - score >= 100:
                     result += 1
