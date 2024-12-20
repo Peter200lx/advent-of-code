@@ -1,4 +1,4 @@
-from collections import deque, Counter
+from collections import deque
 from pathlib import Path
 from typing import NamedTuple
 
@@ -22,24 +22,12 @@ DIRS = {
     "<": Coord(-1, 0),
     ">": Coord(1, 0),
 }
-TURNS = {
-    "^": "<>",
-    "v": "<>",
-    "<": "^v",
-    ">": "^v",
-}
-
-START_DIR = ">"
 
 
 class Map:
     def __init__(self, data: str):
         self.walls = set()
-        self.bot = None
         lines = data.split("\n")
-        self.max = Coord(len(lines[0]), len(lines))
-        self.in_play_x = range(1, self.max.x - 2)
-        self.in_play_y = range(1, self.max.y - 2)
         for y, line in enumerate(lines):
             for x, c in enumerate(line):
                 if c == "#":
@@ -50,64 +38,47 @@ class Map:
                     self.end = Coord(x, y)
 
     def solve(self) -> tuple[int, list[tuple[Coord, int]]]:
-        to_proc = deque([(0, START_DIR, [(self.start, 0)], self.start)])
+        to_proc = deque([(0, [(self.start, 0)], self.start)])
         seen = {}
         while to_proc:
-            cost, cur_dir, locs, loc = to_proc.popleft()
-            if seen.get((loc, cur_dir), 999e9) < cost:
+            cost, locs, loc = to_proc.popleft()
+            if seen.get(loc, 999e9) < cost:
                 continue
-            seen[(loc, cur_dir)] = cost
+            seen[loc] = cost
             if loc == self.end:
                 return cost, locs
-            for direct in TURNS[cur_dir] + cur_dir:
-                new_loc = loc + DIRS[direct]
+            for direct in DIRS.values():
+                new_loc = loc + direct
+                if new_loc == locs[-1]:
+                    continue
                 if new_loc not in self.walls:
-                    to_proc.append(
-                        (cost + 1, direct, locs + [(new_loc, cost + 1)], new_loc)
-                    )
+                    to_proc.append((cost + 1, locs + [(new_loc, cost + 1)], new_loc))
 
     def solve_cheat(self, best_cost: int, path: list[tuple[Coord, int]]) -> int:
         in_path = dict(path)
-        seen_cheats = {}
         result = 0
-        for i, (loc, _) in enumerate(path):
-            if not loc:
-                continue
+        for loc, _cost in path:
             for adj_dir in DIRS:
                 cheat1 = loc + DIRS[adj_dir]
                 if cheat1 not in self.walls:
                     continue
-                key = cheat1
-                if key in seen_cheats:
-                    continue
                 cheat2 = cheat1 + DIRS[adj_dir]
                 if cheat2 in in_path:
-                    # self.walls.remove(cheat1)
                     score = best_cost - (in_path[cheat2] - in_path[loc]) + 2
-                    # score, _path = self.solve()
-                    seen_cheats[key] = best_cost - score
-                    # self.walls.add(cheat1)
                     if best_cost - score >= 100:
                         result += 1
-        # print(Counter(v for v in seen_cheats.values() if v ))
         return result
 
     def solve_cheat_p2(self, best_cost: int, path: list[tuple[Coord, int]]) -> int:
         in_path = dict(path)
-        seen_cheats = {}
         result = 0
-        for i, (loc, _) in enumerate(path):
-            if not loc:
-                continue
+        for loc, _cost in path:
             for nearby in (l for l in in_path if 2 <= loc.mann(l) <= 20):
                 if nearby == loc:
                     continue
-                key = (loc, nearby)
                 score = best_cost - (in_path[nearby] - in_path[loc]) + loc.mann(nearby)
-                seen_cheats[key] = best_cost - score
                 if best_cost - score >= 100:
                     result += 1
-        # print(Counter(v for v in seen_cheats.values() if v ))
         return result
 
 
