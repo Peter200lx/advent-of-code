@@ -5,28 +5,21 @@ INPUT_FILE = Path(__file__).with_suffix(".input")
 
 PRUNE_NUM = 16777216
 
-class SecretGen:
-    def __init__(self, start_num: int):
-        self.start = start_num
-        self.iter_count = 0
-        self.cur = start_num
+
+def next_sec(cur: int):
+    cur ^= cur * 64
+    cur %= PRUNE_NUM
+    cur ^= cur // 32
+    cur %= PRUNE_NUM
+    cur ^= cur * 2048
+    cur %= PRUNE_NUM
+    return cur
 
 
-    @staticmethod
-    def next(cur: int):
-        cur ^= cur * 64
-        cur %= PRUNE_NUM
-        cur ^= cur // 32
-        cur %= PRUNE_NUM
-        cur ^= cur * 2048
-        cur %= PRUNE_NUM
-        return cur
-
-    def get_secret(self, iter_count: int):
-        cur = self.start
-        for _ in range(iter_count):
-            cur = self.next(cur)
-        return cur
+def part1(num: int) -> int:
+    for _ in range(2000):
+        num = next_sec(num)
+    return num
 
 
 def part2(gens: list[int]) -> int:
@@ -37,7 +30,7 @@ def part2(gens: list[int]) -> int:
         deltas = []
         seen = set()
         for i in range(2000):
-            cur_val = SecretGen.next(cur_val)
+            cur_val = next_sec(cur_val)
             next_last_dig = cur_val % 10
             deltas.append(next_last_dig - last_dig)
             if len(deltas) >= 4:
@@ -49,7 +42,6 @@ def part2(gens: list[int]) -> int:
                         seq_values[key] = next_last_dig
                 seen.add(key)
             last_dig = next_last_dig
-    print(max(seq_values.items(), key=lambda x:x[1]))
     return max(seq_values.values())
 
 
@@ -57,5 +49,5 @@ if __name__ == "__main__":
     DATA = INPUT_FILE.read_text().strip()
     GENS = [int(line) for line in DATA.split("\n")]
 
-    print(sum(SecretGen(g).get_secret(2000) for g in GENS))
+    print(sum(part1(n) for n in GENS))
     print(part2(GENS))
