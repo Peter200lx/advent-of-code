@@ -16,13 +16,8 @@ def next_sec(cur: int):
     return cur
 
 
-def part1(num: int) -> int:
-    for _ in range(2000):
-        num = next_sec(num)
-    return num
-
-
-def part2(gens: list[int]) -> int:
+def solve(gens: list[int]) -> tuple[int, int]:
+    part1 = 0
     seq_values = {}
     for secret in gens:
         cur_val = secret
@@ -42,12 +37,12 @@ def part2(gens: list[int]) -> int:
                         seq_values[key] = next_last_dig
                 seen.add(key)
             last_dig = next_last_dig
-    return max(seq_values.values())
+        part1 += cur_val
+    return part1, max(seq_values.values())
 
 
 if __name__ == "__main__":
     DATA = INPUT_FILE.read_text().strip()
     GENS = [int(line) for line in DATA.split("\n")]
 
-    print(sum(part1(n) for n in GENS))
-    print(part2(GENS))
+    print("\n".join(str(n) for n in solve(GENS)))
