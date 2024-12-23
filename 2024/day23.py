@@ -32,7 +32,12 @@ def part1(computers: dict[str, Comp]) -> set[frozenset[[Comp]]]:
     return sets
 
 
-def part2(triples: set[frozenset[[Comp]]]) -> str:
+def part2(computers: dict[str, Comp]) -> str:
+    triples = set()
+    for comp in computers.values():
+        for a, b in combinations(comp.connections, 2):
+            if a in b.connections:
+                triples.add(frozenset((comp, a, b)))
     big_sets = []
     for tri_group in triples:
         a, b, c = list(tri_group)
@@ -51,6 +56,5 @@ if __name__ == "__main__":
     LINES = list(DATA.split("\n"))
     COMPUTERS = build(LINES)
 
-    THREE_PAIRS = part1(COMPUTERS)
-    print(len(THREE_PAIRS))
-    print(part2(THREE_PAIRS))
+    print(len(part1(COMPUTERS)))
+    print(part2(COMPUTERS))
