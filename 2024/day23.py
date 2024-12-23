@@ -32,21 +32,18 @@ def part1(computers: dict[str, Comp]) -> set[frozenset[[Comp]]]:
     return sets
 
 
-def part2(computers: dict[str, Comp], triples: set[frozenset[[Comp]]]) -> str:
+def part2(triples: set[frozenset[[Comp]]]) -> str:
     big_sets = []
     for tri_group in triples:
         a, b, c = list(tri_group)
-        a_set = {n.name for n in a.connections} | {a.name}
-        b_set = {n.name for n in b.connections} | {b.name}
-        c_set = {n.name for n in c.connections} | {c.name}
+        a_set = a.connections | {a}
+        b_set = b.connections | {b}
+        c_set = c.connections | {c}
         big_sets.append(a_set & b_set & c_set)
     for valid_set in sorted(big_sets, key=lambda x: len(x), reverse=True):
-        if any(
-            computers[a] not in computers[b].connections
-            for a, b in combinations(valid_set, 2)
-        ):
+        if any(a not in b.connections for a, b in combinations(valid_set, 2)):
             continue
-        return ",".join(c for c in sorted(valid_set))
+        return ",".join(c.name for c in sorted(valid_set, key=lambda x: x.name))
 
 
 if __name__ == "__main__":
@@ -56,4 +53,4 @@ if __name__ == "__main__":
 
     THREE_PAIRS = part1(COMPUTERS)
     print(len(THREE_PAIRS))
-    print(part2(COMPUTERS, THREE_PAIRS))
+    print(part2(THREE_PAIRS))
