@@ -1,4 +1,3 @@
-from ast import literal_eval
 from pathlib import Path
 
 INPUT_FILE = Path(__file__).with_suffix(".input")
@@ -80,12 +79,12 @@ def part1(wires: dict[str, Wire]):
     for wire in (w for w in wires.values() if w.ready):
         for gate in wire.out_gates:
             gate.run()
-    results = "0b" + "".join(
+    results = "".join(
         str(int(w.state))
         for w in sorted(wires.values(), key=lambda x: x.name, reverse=True)
         if w.name.startswith("z")
     )
-    return literal_eval(results)
+    return int(results, 2)
 
 
 def reset_wires(wires: list[Wire]):
@@ -127,17 +126,10 @@ def part2(wires: dict[str, Wire]):
     x_wires = list(w for w in sorted_wires if w.name.startswith("x"))
     y_wires = list(w for w in sorted_wires if w.name.startswith("y"))
     z_wires = list(w for w in sorted_wires if w.name.startswith("z"))
-    for i in range(2 ** len(x_wires)):
-        reset_wires(sorted_wires)
-        set_int(x_wires, 0)
-        set_int(y_wires, i)
-        for w in x_wires + y_wires:
-            for g in w.out_gates:
-                g.run()
-        try_i = read_int(z_wires)
-        if i != try_i:
-            print(f"x_wires {i:b} {try_i:b} {i=} {try_i=}")
-            break
+    print_next_failure(sorted_wires, x_wires, y_wires, z_wires)
+    print(wires["z08"].print_inputs({"pmt"}))
+    print(wires["z09"].print_inputs({"nqg"}))
+    print(wires["z10"].print_inputs({"nqg"}))
     z09 = wires["z09"]
     nnf = wires["nnf"]
     z09.in_gates[0].output = nnf
