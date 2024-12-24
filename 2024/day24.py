@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Optional
 
 INPUT_FILE = Path(__file__).with_suffix(".input")
 
@@ -27,6 +28,13 @@ class Wire:
         else:
             return f"{self.name}"
 
+    def get_inputs(self, skip: set[str]) -> list[str]:
+        if self.name in skip:
+            return []
+        if not self.in_gates:
+            return [self.name]
+        return [self.name] + self.in_gates[0].get_inputs(skip)
+
 
 class Gate:
     def __init__(self, line: str):
@@ -53,6 +61,9 @@ class Gate:
 
     def print_inputs(self, skip: set[str]):
         return f"{self.input[0].print_inputs(skip)} {self.gate_type} {self.input[1].print_inputs(skip)}"
+
+    def get_inputs(self, skip: set[str]) -> list[str]:
+        return self.input[0].get_inputs(skip) + self.input[1].get_inputs(skip)
 
 
 def build(wires_str: str, gates_str: str):
@@ -100,11 +111,12 @@ def set_int(wires: list[Wire], val: int):
 
 
 def read_int(wires: list[Wire]):
-    assert all(w.ready for w in wires)
+    if not all(w.ready for w in wires):
+        raise ValueError(f"Not all wires are ready to read")
     return int("".join(str(int(w.state)) for w in wires), 2)
 
 
-def print_next_failure(sorted_wires, x_wires, y_wires, z_wires):
+def print_next_failure(sorted_wires, x_wires, y_wires, z_wires) -> Optional[int]:
     for i in range(1, len(x_wires)):
         for x, y in ((2**i, 0), (0, 2**i), (2**i, 2**i)):
             reset_wires(sorted_wires)
@@ -115,10 +127,11 @@ def print_next_failure(sorted_wires, x_wires, y_wires, z_wires):
                     g.run()
             try_i = read_int(z_wires)
             if x + y != try_i:
-                print(
-                    f"x {i=} {x:b} {x=} y {y:b} {y=} {x+y:b} {try_i:b} {x+y=} {try_i=}"
-                )
-                return
+                # print(
+                #     f"x {i=} {x:b} {x=} y {y:b} {y=} {x+y:b} {try_i:b} {x+y=} {try_i=}"
+                # )
+                return i + 1 if x and y else i
+    return None
 
 
 def part2(wires: dict[str, Wire]):
@@ -126,43 +139,54 @@ def part2(wires: dict[str, Wire]):
     x_wires = list(w for w in sorted_wires if w.name.startswith("x"))
     y_wires = list(w for w in sorted_wires if w.name.startswith("y"))
     z_wires = list(w for w in sorted_wires if w.name.startswith("z"))
-    print_next_failure(sorted_wires, x_wires, y_wires, z_wires)
-    print(wires["z08"].print_inputs({"pmt"}))
-    print(wires["z09"].print_inputs({"nqg"}))
-    print(wires["z10"].print_inputs({"nqg"}))
-    z09 = wires["z09"]
-    nnf = wires["nnf"]
-    z09.in_gates[0].output = nnf
-    nnf.in_gates[0].output = z09
 
-    print_next_failure(sorted_wires, x_wires, y_wires, z_wires)
-    print(wires["z20"].print_inputs({"vkt", "wjt", "hjp"}))
-    print(wires["z21"].print_inputs({"vkt", "wjt", "hjp"}))
-    x20 = wires["z20"]
-    nhs = wires["nhs"]
-    x20.in_gates[0].output = nhs
-    nhs.in_gates[0].output = x20
-
-    print_next_failure(sorted_wires, x_wires, y_wires, z_wires)
-    print(wires["z29"].print_inputs({"cfd"}))
-    print(wires["z30"].print_inputs({"jmc"}))
-    print(wires["z31"].print_inputs({"fmn"}))
-    kqh = wires["kqh"]
-    ddn = wires["ddn"]
-    kqh.in_gates[0].output = ddn
-    ddn.in_gates[0].output = kqh
-
-    print_next_failure(sorted_wires, x_wires, y_wires, z_wires)
-    print(wires["z33"].print_inputs({"fnk"}))
-    print(wires["z34"].print_inputs({"sdt", "fnk"}))
-    print(wires["z35"].print_inputs({"sdt", "fnk"}))
-    z34 = wires["z34"]
-    wrc = wires["wrc"]
-    z34.in_gates[0].output = wrc
-    wrc.in_gates[0].output = z34
-
-    print_next_failure(sorted_wires, x_wires, y_wires, z_wires)
-    return ",".join(sorted(["wrc", "z34", "ddn", "kqh", "nhs", "z20", "nnf", "z09"]))
+    found_strs = []
+    failure_index = print_next_failure(sorted_wires, x_wires, y_wires, z_wires)
+    while True:
+        found = False
+        # We can ignore all wires that were involved in the solution above the problem area
+        ignore_wires = {
+            w.name for w in wires[f"z{failure_index-1:02}"].in_gates[0].input
+        }
+        for first in wires[f"z{failure_index:02}"].get_inputs(ignore_wires):
+            for second in wires[f"z{failure_index+1:02}"].get_inputs(ignore_wires):
+                f_wire, s_wire = wires[first], wires[second]
+                if not f_wire.in_gates or not s_wire.in_gates:
+                    continue
+                # print(f"Trying {first=} {second=}")
+                f_wire.in_gates[0].output = s_wire
+                s_wire.in_gates[0].output = f_wire
+                try:
+                    next_index = print_next_failure(
+                        sorted_wires, x_wires, y_wires, z_wires
+                    )
+                except ValueError:
+                    f_wire.in_gates[0].output = f_wire
+                    s_wire.in_gates[0].output = s_wire
+                    continue
+                if next_index is None:
+                    # print(first, second)
+                    found_strs += [first, second]
+                    return ",".join(sorted(found_strs))
+                elif next_index > failure_index + 1:
+                    if (
+                        first.startswith("z")
+                        and len(set(s_wire.get_inputs(ignore_wires))) > 9
+                    ):
+                        # When ignoring wires in one level up, 9 is how many inputs this level should have
+                        # print(f"Bad {first=} {second=}, {len(set(s_wire.get_inputs(ignore_wires)))=}")
+                        f_wire.in_gates[0].output = f_wire
+                        s_wire.in_gates[0].output = s_wire
+                        continue
+                    # print(first, second)
+                    found_strs += [first, second]
+                    found = True
+                    failure_index = next_index
+                    break
+                f_wire.in_gates[0].output = f_wire
+                s_wire.in_gates[0].output = s_wire
+            if found:
+                break
 
 
 if __name__ == "__main__":
