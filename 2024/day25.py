@@ -12,12 +12,7 @@ class Coord(NamedTuple):
 def part1(sequences):
     locks = [l for l in sequences if (0, 0) in l]
     keys = [k for k in sequences if (0, 6) in k]
-    no_overlaps = 0
-    for lock in locks:
-        for key in keys:
-            if not lock & key:
-                no_overlaps += 1
-    return no_overlaps
+    return sum(1 for lock in locks for key in keys if not lock & key)
 
 
 if __name__ == "__main__":
