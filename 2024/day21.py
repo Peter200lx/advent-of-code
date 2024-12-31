@@ -94,5 +94,5 @@ if __name__ == "__main__":
     DATA = INPUT_FILE.read_text().strip()
     CODES = list(DATA.split("\n"))
 
-    print(sum(int(code[:1]) * rec(code, 2) for code in CODES))
-    print(sum(int(code[:1]) * rec(code, 25) for code in CODES))
+    print(sum(int(code[:-1]) * rec(code, 2) for code in CODES))
+    print(sum(int(code[:-1]) * rec(code, 25) for code in CODES))
