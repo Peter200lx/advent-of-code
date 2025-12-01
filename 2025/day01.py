@@ -6,49 +6,24 @@ START = 50
 MODULO = 100
 
 
-def parse_lines(lines: list[str]) -> int:
+def parse_lines(lines: list[str]) -> tuple[int, int]:
     cur = START
     zero_count = 0
-    total_zero_count = 0
+    p2_zero_count = 0
     for line in lines:
         start = cur
         dirstr, amount = line[0], int(line[1:])
         direction = -1 if dirstr == "L" else 1
         cur += amount * direction
-        tmp_cur = cur
+        p2_zero_count += sum(x % MODULO == 0 for x in range(start, cur, direction))
         cur %= MODULO
-        if tmp_cur != cur or cur == 0:
-            if amount < MODULO:
-                if start != 0:
-                    total_zero_count += 1
-            else:
-                if start != 0:
-                    total_zero_count += 1
-                times = amount // MODULO
-                # print(times)
-                total_zero_count += times
         if cur == 0:
             zero_count += 1
-    return zero_count  # , total_zero_count
-
-
-def crude_p2(lines):
-    cur = START
-    total_zero_count = 0
-    for line in lines:
-        dirstr, amount = line[0], int(line[1:])
-        direction = -1 if dirstr == "L" else 1
-        for _ in range(amount):
-            cur += direction
-            cur %= MODULO
-            if cur == 0:
-                total_zero_count += 1
-    return total_zero_count
+    return zero_count, p2_zero_count
 
 
 if __name__ == "__main__":
     DATA = INPUT_FILE.read_text().strip()
     INPUT = DATA.split("\n")
 
-    print(parse_lines(INPUT))
-    print(crude_p2(INPUT))
+    print("\n".join(str(x) for x in parse_lines(INPUT)))
