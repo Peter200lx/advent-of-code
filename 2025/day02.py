@@ -15,7 +15,7 @@ def parse_pairs(pair_list: list[tuple[int, int]]) -> tuple[int, int]:
                     invalids.append(num)
             for i in range(1, len(int_str) // 2 + 1):
                 cur = int_str[:i]
-                for j in range(0, len(int_str), i):
+                for j in range(i, len(int_str), i):
                     if cur != int_str[j : j + i]:
                         break
                 else:
