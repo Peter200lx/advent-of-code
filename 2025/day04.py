@@ -13,35 +13,25 @@ class Coord(NamedTuple):
 
 
 # fmt: off
-p1_d = [Coord(-1, -1), Coord(0, -1), Coord(1, -1),
+dirs = [Coord(-1, -1), Coord(0, -1), Coord(1, -1),
         Coord(-1, 0),                Coord(1, 0),
         Coord(-1, 1),  Coord(0, 1),  Coord(1, 1)]
 # fmt: on
 
 
 def p1(field: set[Coord]) -> set[Coord]:
-    accessible = set()
-    for coord in field:
-        count = 0
-        for direc in p1_d:
-            new_loc = coord + direc
-            if new_loc in field:
-                count += 1
-        if count < 4:
-            accessible.add(coord)
-    return accessible
+    return {c for c in field if sum(c + d in field for d in dirs) < 4}
 
 
 def p2(field: set[Coord]) -> int:
-    new_field = set(field)
     changed = True
     remove_count = 0
     while changed:
-        to_remove = p1(new_field)
+        to_remove = p1(field)
         remove_count += len(to_remove)
-        new_new_field = new_field - to_remove
-        changed = len(new_field) != len(new_new_field)
-        new_field = new_new_field
+        new_field = field - to_remove
+        changed = len(field) != len(new_field)
+        field = new_field
     return remove_count
 
 
