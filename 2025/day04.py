@@ -19,17 +19,22 @@ dirs = [Coord(-1, -1), Coord(0, -1), Coord(1, -1),
 # fmt: on
 
 
-def p1(field: set[Coord]) -> set[Coord]:
-    return {c for c in field if sum(c + d in field for d in dirs) < 4}
+def p1(field: dict[Coord, set[Coord]]) -> set[Coord]:
+    for loc in field:
+        if not field[loc]:
+            field[loc] = {new_loc for d in dirs if (new_loc := loc + d) in field}
+        else:
+            field[loc] = {n for n in field[loc] if n in field}
+    return {c for c in field if len(field[c]) < 4}
 
 
-def p2(field: set[Coord]) -> int:
+def p2(field: dict[Coord, set[Coord]]) -> int:
     changed = True
     remove_count = 0
     while changed:
         to_remove = p1(field)
         remove_count += len(to_remove)
-        new_field = field - to_remove
+        new_field = {k: v for k, v in field.items() if k not in to_remove}
         changed = len(field) != len(new_field)
         field = new_field
     return remove_count
@@ -38,7 +43,7 @@ def p2(field: set[Coord]) -> int:
 if __name__ == "__main__":
     DATA = INPUT_FILE.read_text().strip()
     FIELD = {
-        Coord(x, y)
+        Coord(x, y): set()
         for y, line in enumerate(DATA.split("\n"))
         for x, c in enumerate(line)
         if c == "@"
