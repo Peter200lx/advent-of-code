@@ -4,13 +4,7 @@ INPUT_FILE = Path(__file__).with_suffix(".input")
 
 
 def part1(ranges: list[range], ing_ids: list[int]) -> int:
-    good = []
-    for ing in ing_ids:
-        for rang in ranges:
-            if ing in rang:
-                good.append(ing)
-                break
-    return len(good)
+    return sum(1 for i in ing_ids if any(i in r for r in ranges))
 
 
 def part2(ranges: list[range]) -> int:
