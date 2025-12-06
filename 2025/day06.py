@@ -8,20 +8,18 @@ OPCODES = {"*": prod, "+": sum}
 
 
 def parse(lines: list[str]) -> list[list[str]]:
-    space_index = []
-    for i in range(max(len(line) for line in lines)):
-        if all(line[i] == " " for line in lines):
-            space_index.append(i)
-    space_index.append(None)
+    space_index = [
+        i for i in range(len(lines[0])) if all(line[i] == " " for line in lines)
+    ] + [None]
     problems = []
-    last_index = 0
+    num_start = 0
     for space in space_index:
-        numbers = []
-        for i in range(len(lines) - 1):
-            numbers.append(lines[i][last_index:space])
-        problems.append(numbers + [lines[-1][last_index:space].strip()])
+        problems.append(
+            [lines[i][num_start:space] for i in range(len(lines) - 1)]
+            + [lines[-1][num_start:space].strip()]
+        )
         if space:
-            last_index = space + 1
+            num_start = space + 1
     return problems
 
 
