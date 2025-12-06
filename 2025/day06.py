@@ -4,6 +4,9 @@ from pathlib import Path
 INPUT_FILE = Path(__file__).with_suffix(".input")
 
 
+OPCODES = {"*": prod, "+": sum}
+
+
 def parse(lines: list[str]) -> list[list[str]]:
     space_index = []
     for i in range(max(len(line) for line in lines)):
@@ -23,18 +26,14 @@ def parse(lines: list[str]) -> list[list[str]]:
 
 
 def part1(problems: list[list[str]]) -> int:
-    return sum(
-        prod(int(n) for n in p[:-1]) if p[-1] == "*" else sum(int(n) for n in p[:-1])
-        for p in problems
-    )
+    return sum(OPCODES[p[-1]](int(n) for n in p[:-1]) for p in problems)
 
 
 def part2(problems: list[list[str]]) -> int:
-    result = 0
-    for prob in problems:
-        nums = [int("".join(n[i] for n in prob[:-1])) for i in range(len(prob[0]))]
-        result += prod(nums) if prob[-1] == "*" else sum(nums)
-    return result
+    return sum(
+        OPCODES[p[-1]](int("".join(n[i] for n in p[:-1])) for i in range(len(p[0])))
+        for p in problems
+    )
 
 
 if __name__ == "__main__":
