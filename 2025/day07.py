@@ -10,7 +10,7 @@ class Coord(NamedTuple):
     y: int
 
 
-def parse(lines: str):
+def parse(lines: str) -> tuple[Coord, list[Coord], int]:
     start = None
     splitters = []
     for y, line in enumerate(lines.split("\n")):
@@ -22,37 +22,22 @@ def parse(lines: str):
     return start, splitters, y
 
 
-def part1(start, splitters, end_y) -> int:
-    y_level = start.y
-    x_spouts = {start.x}
-    splits = 0
-    while y_level <= end_y:
-        y_level += 1
-        next_x_spouts = set()
-        for x in x_spouts:
-            if (x, y_level) in splitters:
-                next_x_spouts |= {x - 1, x + 1}
-                splits += 1
-            else:
-                next_x_spouts.add(x)
-        x_spouts = next_x_spouts
-    return splits
-
-
-def part2(start, splitters, end_y) -> int:
+def solve(start: Coord, splitters: list[Coord], end_y: int) -> tuple[int, int]:
     y_level = start.y
     x_spouts = {start.x: 1}
+    splits = 0
     while y_level <= end_y:
         y_level += 1
         next_x_spouts = defaultdict(int)
         for x, to_here in x_spouts.items():
             if (x, y_level) in splitters:
+                splits += 1
                 for new_x in (x - 1, x + 1):
                     next_x_spouts[new_x] += to_here
             else:
                 next_x_spouts[x] += to_here
         x_spouts = next_x_spouts
-    return sum(x_spouts.values())
+    return splits, sum(x_spouts.values())
 
 
 if __name__ == "__main__":
@@ -60,5 +45,4 @@ if __name__ == "__main__":
 
     START, SPLITTERS, END_Y = parse(DATA)
 
-    print(part1(START, SPLITTERS, END_Y))
-    print(part2(START, SPLITTERS, END_Y))
+    print("\n".join(str(n) for n in solve(START, SPLITTERS, END_Y)))
