@@ -5,7 +5,6 @@ from typing import NamedTuple
 
 INPUT_FILE = Path(__file__).with_suffix(".input")
 
-
 P1_PAIRS = 1000
 
 
@@ -20,7 +19,8 @@ class Coord(NamedTuple):
         )
 
 
-def p1(coords: set[Coord], limit: int) -> int:
+def solve(coords: set[Coord], limit: int) -> tuple[int, int]:
+    part1 = None
     junctions = {}
     combs = sorted(
         (first.dist(second), first, second) for first, second in combinations(coords, 2)
@@ -30,44 +30,21 @@ def p1(coords: set[Coord], limit: int) -> int:
         first_set = junctions.setdefault(first, set())
         second_set = junctions.setdefault(second, set())
         final_set = {first, second}
-        if first_set and second_set:
-            final_set |= first_set | second_set
-        elif first_set:
-            final_set |= first_set
-        elif second_set:
-            final_set |= second_set
-        for loc in final_set:
-            junctions[loc] = final_set
-        performed += 1
-        if performed >= limit:
-            break
-    unique_sets = []
-    for junction in junctions.values():
-        if junction not in unique_sets:
-            unique_sets.append(junction)
-    return prod(sorted([len(j) for j in unique_sets], reverse=True)[:3])
+        final_set |= first_set | second_set
 
-
-def p2(coords: set[Coord]) -> int:
-    junctions = {}
-    combs = [
-        (first.dist(second), first, second) for first, second in combinations(coords, 2)
-    ]
-    combs.sort()
-    for _dist, first, second in combs:
-        first_set = junctions.setdefault(first, set())
-        second_set = junctions.setdefault(second, set())
-        final_set = {first, second}
-        if first_set and second_set:
-            final_set |= first_set | second_set
-        elif first_set:
-            final_set |= first_set
-        elif second_set:
-            final_set |= second_set
         if len(final_set) == len(coords):
-            return first.x * second.x
+            return part1, first.x * second.x
+
         for loc in final_set:
             junctions[loc] = final_set
+
+        performed += 1
+        if performed == limit:
+            unique_sets = []
+            for junction in junctions.values():
+                if junction not in unique_sets:
+                    unique_sets.append(junction)
+            part1 = prod(sorted([len(j) for j in unique_sets], reverse=True)[:3])
 
 
 if __name__ == "__main__":
@@ -78,5 +55,4 @@ if __name__ == "__main__":
         for x, y, z in [line.split(",")]
     }
 
-    print((p1(FIELD, P1_PAIRS)))
-    print((p2(FIELD)))
+    print("\n".join(str(n) for n in solve(FIELD, P1_PAIRS)))
