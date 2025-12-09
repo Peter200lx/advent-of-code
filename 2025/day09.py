@@ -17,6 +17,23 @@ def p1(field: list[Coord]) -> int:
     )
 
 
+def check_lines(first: Coord, second: Coord, lines: list[tuple]) -> bool:
+    min_x, max_x = sorted((first.x, second.x))
+    min_y, max_y = sorted((first.y, second.y))
+    for line in lines:
+        if isinstance(line[0], int):  # Vertical line
+            if min_x < line[0] < max_x and (
+                line[1][0] <= min_y < line[1][1] or line[1][0] < max_y <= line[1][1]
+            ):
+                return False
+        else:  # Horizontal line
+            if min_y < line[1] < max_y and (
+                line[0][0] <= min_x < line[0][1] or line[0][0] < max_x <= line[0][1]
+            ):
+                return False
+    return True
+
+
 def p2(field: list[Coord]) -> int:
     lines = []
     prev_point = field[-1]
@@ -26,27 +43,11 @@ def p2(field: list[Coord]) -> int:
         elif prev_point.y == point.y:
             lines.append((tuple(sorted((point.x, prev_point.x))), point.y))
         prev_point = point
-    max_size = 0
-    for first, second in combinations(field, 2):
-        min_x, max_x = sorted((first.x, second.x))
-        min_y, max_y = sorted((first.y, second.y))
-        for line in lines:
-            if isinstance(line[0], int):  # Vertical line
-                if min_x < line[0] < max_x and (
-                    line[1][0] <= min_y < line[1][1] or line[1][0] < max_y <= line[1][1]
-                ):
-                    break
-            elif isinstance(line[1], int):  # Horizontal line
-                if (
-                    line[0][0] <= min_x < line[0][1] or line[0][0] < max_x <= line[0][1]
-                ) and min_y < line[1] < max_y:
-                    break
-        else:
-            size = (abs(first.x - second.x) + 1) * (abs(first.y - second.y) + 1)
-            if size >= max_size:
-                # print(f"{size=} {first=} {second=}")
-                max_size = size
-    return max_size
+    return max(
+        (abs(first.x - second.x) + 1) * (abs(first.y - second.y) + 1)
+        for first, second in combinations(field, 2)
+        if check_lines(first, second, lines)
+    )
 
 
 if __name__ == "__main__":
