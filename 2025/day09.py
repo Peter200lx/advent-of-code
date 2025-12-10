@@ -10,13 +10,6 @@ class Coord(NamedTuple):
     y: int
 
 
-def p1(field: list[Coord]) -> int:
-    return max(
-        (abs(first.x - second.x) + 1) * (abs(first.y - second.y) + 1)
-        for first, second in combinations(field, 2)
-    )
-
-
 def check_lines(first: Coord, second: Coord, lines: list[tuple]) -> bool:
     min_x, max_x = sorted((first.x, second.x))
     min_y, max_y = sorted((first.y, second.y))
@@ -34,7 +27,7 @@ def check_lines(first: Coord, second: Coord, lines: list[tuple]) -> bool:
     return True
 
 
-def p2(field: list[Coord]) -> int:
+def p2(field: list[Coord], recs: list[tuple[int, Coord, Coord]]) -> int:
     lines = []
     prev_point = field[-1]
     for point in field:
@@ -43,10 +36,14 @@ def p2(field: list[Coord]) -> int:
         elif prev_point.y == point.y:
             lines.append((tuple(sorted((point.x, prev_point.x))), point.y))
         prev_point = point
-    return max(
-        (abs(first.x - second.x) + 1) * (abs(first.y - second.y) + 1)
-        for first, second in combinations(field, 2)
-        if check_lines(first, second, lines)
+    lines.sort(
+        key=lambda x: (
+            abs(x[0][1] - x[0][0]) if isinstance(x[1], int) else abs(x[1][1] - x[1][0])
+        ),
+        reverse=True,
+    )
+    return next(
+        size for size, first, second in recs if check_lines(first, second, lines)
     )
 
 
@@ -55,6 +52,10 @@ if __name__ == "__main__":
     FIELD = [
         Coord(int(x), int(y)) for line in DATA.split("\n") for x, y in [line.split(",")]
     ]
-
-    print(p1(FIELD))
-    print(p2(FIELD))
+    REC_SIZES = [
+        ((abs(first.x - second.x) + 1) * (abs(first.y - second.y) + 1), first, second)
+        for first, second in combinations(FIELD, 2)
+    ]
+    REC_SIZES.sort(reverse=True)
+    print(REC_SIZES[0][0])
+    print(p2(FIELD, REC_SIZES))
