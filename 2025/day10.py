@@ -14,20 +14,20 @@ class Machine(NamedTuple):
     joltage: tuple[int, ...]
 
     @classmethod
-    def from_line(self, line: str) -> "Machine":
+    def from_line(cls, line: str) -> "Machine":
         ind_str, *butt_strs, jolt_str = line.split()
         indc_goal = tuple(bool(c == "#") for c in ind_str.strip("[]"))
         butts = [{int(n) for n in part.strip("()").split(",")} for part in butt_strs]
         jolt = tuple(int(n) for n in jolt_str.strip("{}").split(","))
-        return Machine(indc_goal, butts, jolt)
+        return cls(indc_goal, butts, jolt)
 
     def part1(self) -> int:
         start = tuple([False] * len(self.indc_goal))
-        queue = [(1, i, start) for i in range(len(self.buttons))]
+        queue = [(1, i, start, set()) for i in range(len(self.buttons))]
         heapq.heapify(queue)
         seen = {start: 0}
         while queue:
-            cost, next_butt, prev_lights = heapq.heappop(queue)
+            cost, next_butt, prev_lights, prev_butts = heapq.heappop(queue)
             next_lights = tuple(
                 not b if i in self.buttons[next_butt] else b
                 for i, b in enumerate(prev_lights)
@@ -37,8 +37,11 @@ class Machine(NamedTuple):
             if seen.get(next_lights, 999e9) < cost:
                 continue
             seen[next_lights] = cost
+            prev_butts = prev_butts | {next_butt}
             for i in range(len(self.buttons)):
-                heapq.heappush(queue, (cost + 1, i, next_lights))
+                if i in prev_butts:
+                    continue
+                heapq.heappush(queue, (cost + 1, i, next_lights, prev_butts))
 
     def part2(self) -> int:
         start = tuple([0] * len(self.joltage))
