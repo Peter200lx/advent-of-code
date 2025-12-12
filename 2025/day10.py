@@ -22,23 +22,22 @@ class Machine(NamedTuple):
         return cls(indc_goal, butts, jolt)
 
     def part1(self) -> int:
-        start = tuple([False] * len(self.indc_goal))
+        start = 0
+        target = sum(1 << i for i, lit in enumerate(self.indc_goal) if lit)
+        buttons = [sum(1 << i for i in button) for button in self.buttons]
         queue = [(1, i, start, set()) for i in range(len(self.buttons))]
         heapq.heapify(queue)
         seen = {start: 0}
         while queue:
             cost, next_butt, prev_lights, prev_butts = heapq.heappop(queue)
-            next_lights = tuple(
-                not b if i in self.buttons[next_butt] else b
-                for i, b in enumerate(prev_lights)
-            )
-            if next_lights == self.indc_goal:
+            next_lights = prev_lights ^ buttons[next_butt]
+            if next_lights == target:
                 return cost
             if seen.get(next_lights, 999e9) < cost:
                 continue
             seen[next_lights] = cost
             prev_butts = prev_butts | {next_butt}
-            for i in range(len(self.buttons)):
+            for i in range(len(buttons)):
                 if i in prev_butts:
                     continue
                 heapq.heappush(queue, (cost + 1, i, next_lights, prev_butts))
