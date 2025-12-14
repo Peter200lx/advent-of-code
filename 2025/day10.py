@@ -26,15 +26,15 @@ class Machine(NamedTuple):
         target = sum(1 << i for i, lit in enumerate(self.indc_goal) if lit)
         buttons = [sum(1 << i for i in button) for button in self.buttons]
         queue = deque((1, i, start, set()) for i in range(len(self.buttons)))
-        seen = {start: 0}
+        seen = {start}
         while queue:
             cost, next_butt, prev_lights, prev_butts = queue.popleft()
             next_lights = prev_lights ^ buttons[next_butt]
             if next_lights == target:
                 return cost
-            if seen.get(next_lights, 999e9) < cost:
+            if next_lights in seen:
                 continue
-            seen[next_lights] = cost
+            seen.add(next_lights)
             prev_butts = prev_butts | {next_butt}
             for i in range(len(buttons)):
                 if i in prev_butts:
